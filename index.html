@@ -14,7 +14,7 @@
       --bg: #fcfaf6;
       --text: #222;
       --radius: 14px;
-      --shadow: 0 10px 28px rgba(0,0,0,.08);
+      --shadow: 0 10px 28px rgba(0,0,0,0.08);
       --muted: #6b7280;
     }
 
@@ -34,7 +34,7 @@
       padding: 16px 24px;
       background: linear-gradient(120deg, var(--green-dark), var(--green));
       color: #fefcf5;
-      box-shadow: 0 4px 18px rgba(0,0,0,.25);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.25);
       position: sticky;
       top: 0;
       z-index: 10;
@@ -71,7 +71,7 @@
     }
 
     .panel {
-      background: rgba(252, 249, 242, 0.95);
+      background: rgba(252, 249, 242, 0.96);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       border: 1px solid rgba(0,0,0,0.04);
@@ -149,7 +149,7 @@
       flex-wrap: wrap;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       border-bottom: 1px solid rgba(0,0,0,0.12);
       padding-bottom: 8px;
     }
@@ -169,7 +169,6 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      align-items: flex-start;
     }
 
     .badge {
@@ -188,37 +187,23 @@
       border-color: transparent;
     }
 
-    /* ===== DETAIL LAYOUT: SCORECARD + MEDIA ===== */
-    .detail-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 2fr) minmax(260px, 1.2fr);
-      gap: 14px;
-      align-items: flex-start;
-    }
-
-    @media (max-width: 900px) {
-      .detail-layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
     .detail-section-title {
       font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       color: var(--muted);
-      margin: 8px 0 4px;
+      margin: 10px 0 4px;
     }
 
-    /* ===== TEES LEGEND ===== */
+    /* ===== TEES LEGEND (now full-width pill) ===== */
     #teesInfo {
-      margin: 8px 0 10px;
+      margin: 4px 0 10px;
       font-size: 0.82rem;
       color: var(--muted);
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      padding: 6px 8px;
+      padding: 8px 10px;
       border-radius: 999px;
       background: rgba(0,0,0,0.03);
     }
@@ -229,7 +214,9 @@
       gap: 4px;
       padding: 3px 7px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.8);
+      background: rgba(255,255,255,0.9);
+      max-width: 100%;
+      white-space: nowrap;
     }
 
     .tee-dot {
@@ -238,6 +225,7 @@
       border-radius: 999px;
       border: 1px solid rgba(0,0,0,0.15);
       background: #e5e7eb;
+      flex-shrink: 0;
     }
 
     /* ===== SCORECARD TABLE ===== */
@@ -253,7 +241,7 @@
     table.scorecard {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       table-layout: fixed;
     }
 
@@ -263,7 +251,7 @@
 
     .scorecard th,
     .scorecard td {
-      padding: 6px 6px;
+      padding: 4px 4px;
       text-align: center;
       border-bottom: 1px solid rgba(0,0,0,0.06);
       border-right: 1px solid rgba(0,0,0,0.06);
@@ -304,24 +292,25 @@
     .tee-name-cell {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
     }
 
     .tee-name-swatch {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 999px;
       border: 1px solid rgba(0,0,0,0.15);
+      flex-shrink: 0;
     }
 
     /* SCORE INPUTS */
     .scorecard input.score-input {
-      width: 3ch;
-      max-width: 36px;
+      width: 2.6ch;
+      max-width: 32px;
       padding: 2px;
       border-radius: 4px;
       border: 1px solid rgba(0,0,0,0.2);
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       text-align: center;
       background: #fffef8;
     }
@@ -335,6 +324,13 @@
     }
 
     /* ===== MEDIA / VIRTUAL CADDY ===== */
+    .media-stack {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
     .media-card {
       border-radius: 12px;
       border: 1px solid rgba(0,0,0,0.08);
@@ -343,13 +339,9 @@
       box-shadow: 0 6px 16px rgba(0,0,0,0.04);
     }
 
-    .media-card + .media-card {
-      margin-top: 10px;
-    }
-
     .media-card h3 {
       margin: 0 0 4px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       text-transform: uppercase;
       letter-spacing: 0.12em;
       color: var(--green-dark);
@@ -360,8 +352,9 @@
       justify-content: space-between;
       align-items: center;
       gap: 8px;
-      margin-bottom: 8px;
-      font-size: 0.8rem;
+      margin-bottom: 6px;
+      font-size: 0.78rem;
+      flex-wrap: wrap;
     }
 
     .media-controls label {
@@ -375,7 +368,7 @@
       border-radius: 999px;
       border: 1px solid rgba(0,0,0,0.2);
       background: #fcfaf2;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
     }
 
     .media-body {
@@ -391,14 +384,15 @@
 
     .media-body img {
       max-width: 100%;
-      max-height: 180px;
+      max-height: 220px;
       border-radius: 10px;
       display: block;
+      object-fit: cover;
     }
 
     .media-body video {
       max-width: 100%;
-      max-height: 200px;
+      max-height: 220px;
       border-radius: 10px;
       display: block;
       background: #000;
@@ -426,7 +420,7 @@
       <div id="coursesError" class="error" style="display:none;"></div>
     </section>
 
-    <!-- RIGHT: SCORECARD + MEDIA -->
+    <!-- RIGHT: SCORECARD + MEDIA (stacked) -->
     <section class="panel">
       <h2>Course Detail</h2>
       <div id="courseDetail">
@@ -608,6 +602,7 @@
               notesBadge +
             "</div>" +
           "</div>" +
+          "<div class='detail-section-title'>Tees</div>" +
           "<div id='teesInfo'>" + teesInfo + "</div>" +
           "<p class='muted'>No holes.json data yet – once you start filling in hole info, the scorecard and media panel will appear.</p>";
         return;
@@ -662,7 +657,6 @@
           });
         }
 
-        // MEDIA: image + flyover (future-proof for imageTee / imageGreen)
         var m = h.media || {};
         var imgPath = m.imageTee || m.image || m.imageGreen || null;
         var flyPath = m.flyover || null;
@@ -674,12 +668,11 @@
 
       // ===== BUILD SCORECARD TABLE HTML =====
       var table = "";
+      var h, hb, ph, phb;
 
-      // Header row: Holes
       table += "<thead>";
       table += "<tr>";
       table += "<th></th>";
-      var h, hb;
 
       for (h = 1; h <= frontEnd; h++) {
         table += "<th>" + h + "</th>";
@@ -708,7 +701,6 @@
 
       var parFrontOut = 0;
       var parBackIn = 0;
-      var ph, phb;
 
       for (h = 1; h <= frontEnd; h++) {
         ph = parByHole[h];
@@ -757,7 +749,7 @@
       table += "<td class='total-col'></td>";
       table += "</tr>";
 
-      // Tees rows (yardages)
+      // Tees rows
       tees.forEach(function(t) {
         var teeId = t.id;
         var teeName = t.name || teeId;
@@ -765,12 +757,11 @@
         var totals = teeTotals[teeId] || { front: 0, back: 0, total: 0 };
 
         table += "<tr>";
-        table += "<th>";
-        table += "<span class='tee-name-cell'>";
-        table += "<span class='tee-name-swatch' style='background:" + teeColor + ";'></span>";
-        table += "<span>" + teeName + "</span>";
-        table += "</span>";
-        table += "</th>";
+        table += "<th><span class='tee-name-cell'><span class='tee-name-swatch' style='background:" +
+          teeColor +
+          ";'></span><span>" +
+          teeName +
+          "</span></span></th>";
 
         for (h = 1; h <= frontEnd; h++) {
           var yh = yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][h];
@@ -793,7 +784,7 @@
         table += "</tr>";
       });
 
-      // Score row (inputs)
+      // Score row
       table += "<tr class='score-row'>";
       table += "<th>Score</th>";
 
@@ -817,7 +808,7 @@
 
       table += "</tbody>";
 
-      // Footer
+      // Footer labels
       table += "<tfoot>";
       table += "<tr>";
       table += "<td></td>";
@@ -835,7 +826,7 @@
       table += "</tr>";
       table += "</tfoot>";
 
-      // Build main course detail layout
+      // Build main UI (stacked)
       container.innerHTML =
         "<div class='course-header'>" +
           "<div class='course-header-main'>" +
@@ -847,38 +838,34 @@
             notesBadge +
           "</div>" +
         "</div>" +
-        "<div class='detail-layout'>" +
-          "<div>" +
-            "<div class='detail-section-title'>Tees</div>" +
-            "<div id='teesInfo'>" + teesInfo + "</div>" +
-            "<div class='detail-section-title'>Scorecard</div>" +
-            "<div class='scorecard-wrapper'>" +
-              "<table class='scorecard'>" +
-                table +
-              "</table>" +
+        "<div class='detail-section-title'>Tees</div>" +
+        "<div id='teesInfo'>" + teesInfo + "</div>" +
+        "<div class='detail-section-title'>Scorecard</div>" +
+        "<div class='scorecard-wrapper'>" +
+          "<table class='scorecard'>" +
+            table +
+          "</table>" +
+        "</div>" +
+        "<div class='detail-section-title'>Virtual Caddy</div>" +
+        "<div class='media-stack'>" +
+          "<div class='media-card'>" +
+            "<div class='media-controls'>" +
+              "<label>Hole " +
+                "<select id='mediaHoleSelect'></select>" +
+              "</label>" +
+              "<span class='muted' style='font-size:0.75rem;'>Images and flyovers come from holes.json</span>" +
             "</div>" +
+            "<h3>Hole Image</h3>" +
+            "<div id='mediaImageArea' class='media-body'>No image set for this hole yet.</div>" +
           "</div>" +
-          "<div>" +
-            "<div class='detail-section-title'>Virtual Caddy</div>" +
-            "<div class='media-card'>" +
-              "<div class='media-controls'>" +
-                "<label>Hole " +
-                  "<select id='mediaHoleSelect'></select>" +
-                "</label>" +
-                "<span class='muted' style='font-size:0.75rem;'>Pulls images and flyovers from holes.json</span>" +
-              "</div>" +
-              "<h3>Hole Image</h3>" +
-              "<div id='mediaImageArea' class='media-body'>No image set for this hole yet.</div>" +
-            "</div>" +
-            "<div class='media-card'>" +
-              "<h3>Flyover</h3>" +
-              "<div id='mediaFlyoverArea' class='media-body'>No flyover set for this hole yet.</div>" +
-              "<div class='media-note'>When you add a flyover file or link in <code>holes.json</code>, it will appear here.</div>" +
-            "</div>" +
+          "<div class='media-card'>" +
+            "<h3>Flyover</h3>" +
+            "<div id='mediaFlyoverArea' class='media-body'>No flyover set for this hole yet.</div>" +
+            "<div class='media-note'>When you add a flyover file or link in <code>media.flyover</code>, it will appear here.</div>" +
           "</div>" +
         "</div>";
 
-      // ===== Wire up score inputs to totals =====
+      // ===== SCORE INPUT TOTALS =====
       var scoreInputs = container.querySelectorAll(".score-input");
       var outCell = container.querySelector(".score-out");
       var inCell = container.querySelector(".score-in");
@@ -910,7 +897,7 @@
         input.addEventListener("input", recalcScores);
       });
 
-      // ===== Wire up Virtual Caddy media selector =====
+      // ===== VIRTUAL CADDY SELECTOR =====
       var holeSelect = container.querySelector("#mediaHoleSelect");
       if (holeSelect) {
         for (h = 1; h <= maxHole; h++) {
@@ -960,7 +947,6 @@
           updateMediaUI(holeSelect.value);
         });
 
-        // Initialize with hole 1
         updateMediaUI(holeSelect.value || "1");
       }
     }
