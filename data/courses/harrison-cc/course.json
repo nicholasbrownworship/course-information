@@ -1,14 +1,14 @@
 {
   "id": "harrison-cc",
   "name": "Harrison Country Club",
-  "nickname": "Diamond Hills",
+  "nickname": "Harrison Country Club",
   "location": {
-    "address": "20701 N AR 7",
-    "city": "Lead Hill",
+    "address": "110 County Club lane",
+    "city": "Harrison",
     "state": "AR",
     "country": "USA",
-    "lat": 36.443391054298,
-    "lng": -92.91745464019
+    "lat": 36.26,
+    "lng": -93.13
   },
   "holes": 18,
   "tees": [
@@ -16,34 +16,34 @@
       "id": "back",
       "name": "Blues",
       "color": "#000000",
-      "totalYardage": 6469,
-      "rating": 70.1,
-      "slope": 120,
+      "totalYardage": 6071,
+      "rating": 70.2,
+      "slope": 128,
       "parOut": 35,
-      "parIn": 36,
-      "parTotal": 71
+      "parIn": 35,
+      "parTotal": 70
     },
     {
       "id": "middle",
       "name": "White",
       "color": "#1D4ED8",
-      "totalYardage": 6173,
-      "rating": 68.8,
-      "slope": 118,
+      "totalYardage": 5771,
+      "rating": 68.3,
+      "slope": 124,
       "parOut": 35,
-      "parIn": 36,
-      "parTotal": 71
+      "parIn": 35,
+      "parTotal": 70
     },
     {
       "id": "forward",
       "name": "Gold",
       "color": "#DC2626",
-      "totalYardage": 5661,
-      "rating": 67.8,
-      "slope": 108,
-      "parOut": 34,
-      "parIn": 34,
-      "parTotal": 68
+      "totalYardage": 5049,
+      "rating": 64.8,
+      "slope": 109,
+      "parOut": 35,
+      "parIn": 35,
+      "parTotal": 70
     }
   ],
   "notes": "Fill in rating/slope and total yardages later."
