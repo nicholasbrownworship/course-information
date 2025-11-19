@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Course Information – Local Golf Database</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --green: #244f3c;
+      --green-dark: #163023;
+      --gold: #d1a14b;
+      --cream: #f5f0e6;
+      --bg: #fcfaf6;
+      --text: #222;
+      --radius: 14px;
+      --shadow: 0 10px 28px rgba(0,0,0,.08);
+      --muted: #6b7280;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #fdf7eb 0, #f3efe7 40%, #e7e1d3 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 16px 24px;
+      background: linear-gradient(120deg, var(--green-dark), var(--green));
+      color: #fefcf5;
+      box-shadow: 0 4px 18px rgba(0,0,0,.25);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+      gap: 16px;
+      padding: 16px;
+    }
+
+    @media (max-width: 768px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(252, 249, 242, 0.95);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,0.04);
+      padding: 14px 16px;
+      backdrop-filter: blur(8px);
+    }
+
+    .panel h2 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--green-dark);
+    }
+
+    .panel small {
+      color: var(--muted);
+    }
+
+    /* Course list */
+    #coursesList {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .course-pill {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.06);
+      background: #fdfaf3;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+    }
+
+    .course-pill:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      background: #fffaf0;
+    }
+
+    .course-pill.active {
+      background: #183c2c;
+      color: #fdf7eb;
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    .course-pill-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .course-pill-meta {
+      font-size: 0.8rem;
+      opacity: 0.85;
+    }
+
+    /* Course detail layout */
+    .course-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      padding-bottom: 8px;
+    }
+
+    .course-header-main h3 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .course-header-main p {
+      margin: 2px 0 0;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .course-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      border: 1px solid rgba(0,0,0,0.06);
+      background: #f6f1e6;
+      color: var(--green-dark);
+      white-space: nowrap;
+    }
+
+    .badge-pill {
+      background: #183c2c;
+      color: #fefcf5;
+      border-color: transparent;
+    }
+
+    /* Tees list */
+    #teesInfo {
+      margin-bottom: 12px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    #teesInfo span {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-right: 10px;
+      margin-bottom: 4px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.03);
+    }
+
+    .tee-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.15);
+      background: #e5e7eb;
+    }
+
+    /* Table */
+    .table-wrapper {
+      max-width: 100%;
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(0,0,0,0.06);
+      background: #fffdf6;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+
+    thead {
+      background: #f3ede0;
+    }
+
+    th, td {
+      padding: 6px 8px;
+      text-align: center;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+      white-space: nowrap;
+    }
+
+    th:first-child, td:first-child {
+      text-align: left;
+      position: sticky;
+      left: 0;
+      background: inherit;
+    }
+
+    tr:nth-child(even) td {
+      background: rgba(0,0,0,0.01);
+    }
+
+    tfoot td {
+      font-weight: 600;
+      background: #f0e7d6;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .error {
+      color: #b91c1c;
+      font-size: 0.9rem;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Local Course Information</h1>
+    <p>A lightweight “virtual yardage book” – data lives in <code>/data</code>, this page just reads it.</p>
+  </header>
+
+  <main>
+    <!-- LEFT: Course list -->
+    <section class="panel">
+      <h2>Courses</h2>
+      <small>Select a course to view its holes, pars, and tee yardages.</small>
+      <div id="coursesList"></div>
+      <div id="coursesError" class="error" style="display:none;"></div>
+    </section>
+
+    <!-- RIGHT: Course details -->
+    <section class="panel">
+      <h2>Course Detail</h2>
+      <div id="courseDetail">
+        <p class="muted">Choose a course on the left to see its hole data.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const COURSES_INDEX_PATH = "data/courses.json";
+
+    async function fetchJSON(path) {
+      const res = await fetch(path);
+      if (!res.ok) throw new Error(\`HTTP \${res.status} for \${path}\`);
+      return res.json();
+    }
+
+    async function loadCourses() {
+      const listEl = document.getElementById("coursesList");
+      const errorEl = document.getElementById("coursesError");
+      listEl.innerHTML = "<p class='muted'>Loading courses…</p>";
+      errorEl.style.display = "none";
+
+      try {
+        const courses = await fetchJSON(COURSES_INDEX_PATH);
+
+        if (!Array.isArray(courses) || !courses.length) {
+          listEl.innerHTML = "<p class='muted'>No courses found in data/courses.json.</p>";
+          return;
+        }
+
+        renderCourseList(courses);
+        // Auto-select first course
+        const first = courses[0];
+        if (first) {
+          setActiveCoursePill(first.id);
+          loadCourse(first.id);
+        }
+      } catch (err) {
+        console.error("[courses] Failed to load", err);
+        listEl.innerHTML = "";
+        errorEl.textContent = "Could not load courses.json – check path and JSON format.";
+        errorEl.style.display = "block";
+      }
+    }
+
+    function renderCourseList(courses) {
+      const listEl = document.getElementById("coursesList");
+      listEl.innerHTML = "";
+
+      courses.forEach(course => {
+        const pill = document.createElement("button");
+        pill.type = "button";
+        pill.className = "course-pill";
+        pill.dataset.courseId = course.id;
+
+        pill.innerHTML = `
+          <span class="course-pill-title">${course.name}</span>
+          <span class="course-pill-meta">
+            ${course.city || ""}${course.city && course.state ? ", " : ""}${course.state || ""} · ${course.holes || "?"} holes
+          </span>
+        `;
+
+        pill.addEventListener("click", () => {
+          setActiveCoursePill(course.id);
+          loadCourse(course.id);
+        });
+
+        listEl.appendChild(pill);
+      });
+    }
+
+    function setActiveCoursePill(courseId) {
+      document.querySelectorAll(".course-pill").forEach(pill => {
+        pill.classList.toggle("active", pill.dataset.courseId === courseId);
+      });
+    }
+
+    async function loadCourse(courseId) {
+      const container = document.getElementById("courseDetail");
+      container.innerHTML = "<p class='muted'>Loading course data…</p>";
+
+      const basePath = \`data/courses/\${courseId}\`;
+      const coursePath = \`\${basePath}/course.json\`;
+      const holesPath = \`\${basePath}/holes.json\`;
+
+      try {
+        const [course, holes] = await Promise.all([
+          fetchJSON(coursePath),
+          fetchJSON(holesPath)
+        ]);
+
+        renderCourseDetail(course, holes);
+      } catch (err) {
+        console.error("[course] Failed to load", courseId, err);
+        container.innerHTML = `
+          <p class="error">
+            Could not load <code>${courseId}</code> data. Check that
+            <code>${coursePath}</code> and <code>${holesPath}</code> exist and are valid JSON.
+          </p>
+        `;
+      }
+    }
+
+    function renderCourseDetail(course, holes) {
+      const container = document.getElementById("courseDetail");
+      if (!course) {
+        container.innerHTML = "<p class='error'>No course JSON loaded.</p>";
+        return;
+      }
+
+      const tees = Array.isArray(course.tees) ? course.tees : [];
+
+      // Compute simple totals for footer if data exists
+      const totals = {
+        par: 0,
+        yardages: {}
+      };
+
+      const hasHoles = Array.isArray(holes) && holes.length;
+
+      if (hasHoles) {
+        holes.forEach(h => {
+          if (typeof h.par === "number") totals.par += h.par;
+          if (h.yardages && typeof h.yardages === "object") {
+            tees.forEach(tee => {
+              const y = h.yardages[tee.id];
+              if (typeof y === "number") {
+                totals.yardages[tee.id] = (totals.yardages[tee.id] || 0) + y;
+              }
+            });
+          }
+        });
+      }
+
+      let teesMarkup = "";
+      if (tees.length) {
+        teesMarkup = tees.map(t => `
+          <span>
+            <span class="tee-dot" style="background:${t.color || "#e5e7eb"}"></span>
+            ${t.name}${t.totalYardage ? " · " + t.totalYardage + " yds" : ""}
+          </span>
+        `).join("");
+      } else {
+        teesMarkup = `<span>No tees defined yet in <code>course.json</code>.</span>`;
+      }
+
+      let tableMarkup = "";
+
+      if (!hasHoles) {
+        tableMarkup = `<p class="muted">No holes.json data yet – once you start filling in hole info, it will appear here.</p>`;
+      } else {
+        const headerTees = tees.map(t => `<th>${t.name}</th>`).join("");
+
+        const rows = holes.map((h, idx) => {
+          const holeNum = h.hole || (idx + 1);
+          const par = h.par ?? "–";
+          const hdcp = h.handicap ?? "–";
+
+          const yardageCells = tees.map(t => {
+            const y = h.yardages && h.yardages[t.id];
+            return `<td>${typeof y === "number" ? y : "–"}</td>`;
+          }).join("");
+
+          return `
+            <tr>
+              <td>${holeNum}</td>
+              <td>${par}</td>
+              <td>${hdcp}</td>
+              ${yardageCells}
+            </tr>
+          `;
+        }).join("");
+
+        const totalYardageCells = tees.map(t => {
+          const totalY = totals.yardages[t.id];
+          return `<td>${typeof totalY === "number" ? totalY : "–"}</td>`;
+        }).join("");
+
+        tableMarkup = `
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Hole</th>
+                  <th>Par</th>
+                  <th>Hdcp</th>
+                  ${headerTees}
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>Total</td>
+                  <td>${totals.par || "–"}</td>
+                  <td></td>
+                  ${totalYardageCells}
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="course-header">
+          <div class="course-header-main">
+            <h3>${course.name || "Unnamed Course"}</h3>
+            <p>
+              ${(course.location && course.location.city) || ""}${
+                course.location && course.location.city && course.location.state ? ", " : ""
+              }${(course.location && course.location.state) || ""}
+              ${course.holes ? " · " + course.holes + " holes" : ""}
+            </p>
+          </div>
+          <div class="course-badges">
+            <span class="badge badge-pill">Local DB</span>
+            ${course.notes ? `<span class="badge">${course.notes}</span>` : ""}
+          </div>
+        </div>
+
+        <div id="teesInfo">
+          ${teesMarkup}
+        </div>
+
+        ${tableMarkup}
+      `;
+    }
+
+    // Kick it off
+    loadCourses();
+  </script>
+</body>
+</html>
