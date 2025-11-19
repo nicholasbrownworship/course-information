@@ -88,7 +88,6 @@
       color: var(--muted);
     }
 
-    /* Course list */
     #coursesList {
       display: flex;
       flex-direction: column;
@@ -129,7 +128,6 @@
       opacity: 0.85;
     }
 
-    /* Course detail layout */
     .course-header {
       display: flex;
       flex-wrap: wrap;
@@ -173,7 +171,6 @@
       border-color: transparent;
     }
 
-    /* Tees list */
     #teesInfo {
       margin-bottom: 12px;
       font-size: 0.85rem;
@@ -199,7 +196,6 @@
       background: #e5e7eb;
     }
 
-    /* Table */
     .table-wrapper {
       max-width: 100%;
       overflow-x: auto;
@@ -257,11 +253,10 @@
 <body>
   <header>
     <h1>Local Course Information</h1>
-    <p>A lightweight “virtual yardage book” – data lives in <code>/data</code>, this page just reads it.</p>
+    <p>A lightweight yardage book. Data lives in /data; this page just reads it.</p>
   </header>
 
   <main>
-    <!-- LEFT: Course list -->
     <section class="panel">
       <h2>Courses</h2>
       <small>Select a course to view its holes, pars, and tee yardages.</small>
@@ -269,7 +264,6 @@
       <div id="coursesError" class="error" style="display:none;"></div>
     </section>
 
-    <!-- RIGHT: Course details -->
     <section class="panel">
       <h2>Course Detail</h2>
       <div id="courseDetail">
@@ -279,61 +273,81 @@
   </main>
 
   <script>
-    const COURSES_INDEX_PATH = "data/courses.json";
+    var COURSES_INDEX_PATH = "data/courses.json";
 
-    async function fetchJSON(path) {
-      const res = await fetch(path);
-      if (!res.ok) throw new Error(\`HTTP \${res.status} for \${path}\`);
-      return res.json();
+    function fetchJSON(path) {
+      return fetch(path).then(function(res) {
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status + " for " + path);
+        }
+        return res.json();
+      });
     }
 
-    async function loadCourses() {
-      const listEl = document.getElementById("coursesList");
-      const errorEl = document.getElementById("coursesError");
+    function loadCourses() {
+      var listEl = document.getElementById("coursesList");
+      var errorEl = document.getElementById("coursesError");
       listEl.innerHTML = "<p class='muted'>Loading courses…</p>";
       errorEl.style.display = "none";
 
-      try {
-        const courses = await fetchJSON(COURSES_INDEX_PATH);
-
-        if (!Array.isArray(courses) || !courses.length) {
-          listEl.innerHTML = "<p class='muted'>No courses found in data/courses.json.</p>";
-          return;
-        }
-
-        renderCourseList(courses);
-        // Auto-select first course
-        const first = courses[0];
-        if (first) {
-          setActiveCoursePill(first.id);
-          loadCourse(first.id);
-        }
-      } catch (err) {
-        console.error("[courses] Failed to load", err);
-        listEl.innerHTML = "";
-        errorEl.textContent = "Could not load courses.json – check path and JSON format.";
-        errorEl.style.display = "block";
-      }
+      fetchJSON(COURSES_INDEX_PATH)
+        .then(function(courses) {
+          if (!Array.isArray(courses) || courses.length === 0) {
+            listEl.innerHTML = "<p class='muted'>No courses found in data/courses.json.</p>";
+            return;
+          }
+          renderCourseList(courses);
+          var first = courses[0];
+          if (first) {
+            setActiveCoursePill(first.id);
+            loadCourse(first.id);
+          }
+        })
+        .catch(function(err) {
+          console.error("[courses] Failed to load", err);
+          listEl.innerHTML = "";
+          errorEl.textContent = "Could not load " + COURSES_INDEX_PATH + " – " + err.message;
+          errorEl.style.display = "block";
+        });
     }
 
     function renderCourseList(courses) {
-      const listEl = document.getElementById("coursesList");
+      var listEl = document.getElementById("coursesList");
       listEl.innerHTML = "";
 
-      courses.forEach(course => {
-        const pill = document.createElement("button");
+      courses.forEach(function(course) {
+        var pill = document.createElement("button");
         pill.type = "button";
         pill.className = "course-pill";
         pill.dataset.courseId = course.id;
 
-        pill.innerHTML = `
-          <span class="course-pill-title">${course.name}</span>
-          <span class="course-pill-meta">
-            ${course.city || ""}${course.city && course.state ? ", " : ""}${course.state || ""} · ${course.holes || "?"} holes
-          </span>
-        `;
+        var title = document.createElement("span");
+        title.className = "course-pill-title";
+        title.textContent = course.name || "Unnamed Course";
 
-        pill.addEventListener("click", () => {
+        var meta = document.createElement("span");
+        meta.className = "course-pill-meta";
+
+        var city = course.city || "";
+        var state = course.state || "";
+        var holes = course.holes;
+
+        var metaText = city;
+        if (city && state) {
+          metaText += ", " + state;
+        } else if (state) {
+          metaText = state;
+        }
+        if (holes) {
+          if (metaText) metaText += " · ";
+          metaText += holes + " holes";
+        }
+        meta.textContent = metaText;
+
+        pill.appendChild(title);
+        pill.appendChild(meta);
+
+        pill.addEventListener("click", function() {
           setActiveCoursePill(course.id);
           loadCourse(course.id);
         });
@@ -343,165 +357,182 @@
     }
 
     function setActiveCoursePill(courseId) {
-      document.querySelectorAll(".course-pill").forEach(pill => {
+      var pills = document.querySelectorAll(".course-pill");
+      pills.forEach(function(pill) {
         pill.classList.toggle("active", pill.dataset.courseId === courseId);
       });
     }
 
-    async function loadCourse(courseId) {
-      const container = document.getElementById("courseDetail");
+    function loadCourse(courseId) {
+      var container = document.getElementById("courseDetail");
       container.innerHTML = "<p class='muted'>Loading course data…</p>";
 
-      const basePath = \`data/courses/\${courseId}\`;
-      const coursePath = \`\${basePath}/course.json\`;
-      const holesPath = \`\${basePath}/holes.json\`;
+      var basePath = "data/courses/" + courseId;
+      var coursePath = basePath + "/course.json";
+      var holesPath = basePath + "/holes.json";
 
-      try {
-        const [course, holes] = await Promise.all([
-          fetchJSON(coursePath),
-          fetchJSON(holesPath)
-        ]);
-
+      Promise.all([
+        fetchJSON(coursePath),
+        fetchJSON(holesPath)
+      ])
+      .then(function(results) {
+        var course = results[0];
+        var holes = results[1];
         renderCourseDetail(course, holes);
-      } catch (err) {
+      })
+      .catch(function(err) {
         console.error("[course] Failed to load", courseId, err);
-        container.innerHTML = `
-          <p class="error">
-            Could not load <code>${courseId}</code> data. Check that
-            <code>${coursePath}</code> and <code>${holesPath}</code> exist and are valid JSON.
-          </p>
-        `;
-      }
+        container.innerHTML =
+          "<p class='error'>Could not load <code>" +
+          courseId +
+          "</code> data. Check that <code>" +
+          coursePath +
+          "</code> and <code>" +
+          holesPath +
+          "</code> exist and are valid JSON.</p>";
+      });
     }
 
     function renderCourseDetail(course, holes) {
-      const container = document.getElementById("courseDetail");
+      var container = document.getElementById("courseDetail");
       if (!course) {
         container.innerHTML = "<p class='error'>No course JSON loaded.</p>";
         return;
       }
 
-      const tees = Array.isArray(course.tees) ? course.tees : [];
+      var tees = Array.isArray(course.tees) ? course.tees : [];
 
-      // Compute simple totals for footer if data exists
-      const totals = {
+      var totals = {
         par: 0,
         yardages: {}
       };
 
-      const hasHoles = Array.isArray(holes) && holes.length;
+      var hasHoles = Array.isArray(holes) && holes.length > 0;
 
       if (hasHoles) {
-        holes.forEach(h => {
+        holes.forEach(function(h, idx) {
           if (typeof h.par === "number") totals.par += h.par;
           if (h.yardages && typeof h.yardages === "object") {
-            tees.forEach(tee => {
-              const y = h.yardages[tee.id];
+            tees.forEach(function(tee) {
+              var y = h.yardages[tee.id];
               if (typeof y === "number") {
-                totals.yardages[tee.id] = (totals.yardages[tee.id] || 0) + y;
+                if (!totals.yardages[tee.id]) totals.yardages[tee.id] = 0;
+                totals.yardages[tee.id] += y;
               }
             });
           }
         });
       }
 
-      let teesMarkup = "";
+      var teesInfo = "";
       if (tees.length) {
-        teesMarkup = tees.map(t => `
-          <span>
-            <span class="tee-dot" style="background:${t.color || "#e5e7eb"}"></span>
-            ${t.name}${t.totalYardage ? " · " + t.totalYardage + " yds" : ""}
-          </span>
-        `).join("");
+        tees.forEach(function(t) {
+          var color = t.color || "#e5e7eb";
+          teesInfo +=
+            "<span>" +
+            "<span class='tee-dot' style='background:" + color + ";'></span>" +
+            (t.name || t.id) +
+            (t.totalYardage ? " · " + t.totalYardage + " yds" : "") +
+            "</span>";
+        });
       } else {
-        teesMarkup = `<span>No tees defined yet in <code>course.json</code>.</span>`;
+        teesInfo = "<span>No tees defined yet in <code>course.json</code>.</span>";
       }
 
-      let tableMarkup = "";
-
+      var tableMarkup = "";
       if (!hasHoles) {
-        tableMarkup = `<p class="muted">No holes.json data yet – once you start filling in hole info, it will appear here.</p>`;
+        tableMarkup =
+          "<p class='muted'>No holes.json data yet – once you start filling in hole info, it will appear here.</p>";
       } else {
-        const headerTees = tees.map(t => `<th>${t.name}</th>`).join("");
+        var headerTees = "";
+        tees.forEach(function(t) {
+          headerTees += "<th>" + (t.name || t.id) + "</th>";
+        });
 
-        const rows = holes.map((h, idx) => {
-          const holeNum = h.hole || (idx + 1);
-          const par = h.par ?? "–";
-          const hdcp = h.handicap ?? "–";
+        var rows = "";
+        holes.forEach(function(h, idx) {
+          var holeNum = h.hole || (idx + 1);
+          var par = (h.par === 0 || h.par) ? h.par : "–";
+          var hdcp = (h.handicap === 0 || h.handicap) ? h.handicap : "–";
 
-          const yardageCells = tees.map(t => {
-            const y = h.yardages && h.yardages[t.id];
-            return `<td>${typeof y === "number" ? y : "–"}</td>`;
-          }).join("");
+          var yardageCells = "";
+          tees.forEach(function(t) {
+            var y = h.yardages && h.yardages[t.id];
+            yardageCells += "<td>" + (typeof y === "number" ? y : "–") + "</td>";
+          });
 
-          return `
-            <tr>
-              <td>${holeNum}</td>
-              <td>${par}</td>
-              <td>${hdcp}</td>
-              ${yardageCells}
-            </tr>
-          `;
-        }).join("");
+          rows +=
+            "<tr>" +
+            "<td>" + holeNum + "</td>" +
+            "<td>" + par + "</td>" +
+            "<td>" + hdcp + "</td>" +
+            yardageCells +
+            "</tr>";
+        });
 
-        const totalYardageCells = tees.map(t => {
-          const totalY = totals.yardages[t.id];
-          return `<td>${typeof totalY === "number" ? totalY : "–"}</td>`;
-        }).join("");
+        var totalYardageCells = "";
+        tees.forEach(function(t) {
+          var totalY = totals.yardages[t.id];
+          totalYardageCells += "<td>" + (typeof totalY === "number" ? totalY : "–") + "</td>";
+        });
 
-        tableMarkup = `
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Hole</th>
-                  <th>Par</th>
-                  <th>Hdcp</th>
-                  ${headerTees}
-                </tr>
-              </thead>
-              <tbody>
-                ${rows}
-              </tbody>
-              <tfoot>
-                <tr>
-                  <td>Total</td>
-                  <td>${totals.par || "–"}</td>
-                  <td></td>
-                  ${totalYardageCells}
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-        `;
+        tableMarkup =
+          "<div class='table-wrapper'>" +
+          "<table>" +
+          "<thead>" +
+          "<tr>" +
+          "<th>Hole</th>" +
+          "<th>Par</th>" +
+          "<th>Hdcp</th>" +
+          headerTees +
+          "</tr>" +
+          "</thead>" +
+          "<tbody>" +
+          rows +
+          "</tbody>" +
+          "<tfoot>" +
+          "<tr>" +
+          "<td>Total</td>" +
+          "<td>" + (totals.par || "–") + "</td>" +
+          "<td></td>" +
+          totalYardageCells +
+          "</tr>" +
+          "</tfoot>" +
+          "</table>" +
+          "</div>";
       }
 
-      container.innerHTML = `
-        <div class="course-header">
-          <div class="course-header-main">
-            <h3>${course.name || "Unnamed Course"}</h3>
-            <p>
-              ${(course.location && course.location.city) || ""}${
-                course.location && course.location.city && course.location.state ? ", " : ""
-              }${(course.location && course.location.state) || ""}
-              ${course.holes ? " · " + course.holes + " holes" : ""}
-            </p>
-          </div>
-          <div class="course-badges">
-            <span class="badge badge-pill">Local DB</span>
-            ${course.notes ? `<span class="badge">${course.notes}</span>` : ""}
-          </div>
-        </div>
+      var loc = course.location || {};
+      var locLine = "";
+      if (loc.city) locLine += loc.city;
+      if (loc.city && loc.state) locLine += ", ";
+      if (loc.state) locLine += loc.state;
+      if (course.holes) {
+        if (locLine) locLine += " · ";
+        locLine += course.holes + " holes";
+      }
 
-        <div id="teesInfo">
-          ${teesMarkup}
-        </div>
+      var notesBadge = course.notes
+        ? "<span class='badge'>" + course.notes + "</span>"
+        : "";
 
-        ${tableMarkup}
-      `;
+      container.innerHTML =
+        "<div class='course-header'>" +
+          "<div class='course-header-main'>" +
+            "<h3>" + (course.name || "Unnamed Course") + "</h3>" +
+            "<p>" + (locLine || "") + "</p>" +
+          "</div>" +
+          "<div class='course-badges'>" +
+            "<span class='badge badge-pill'>Local DB</span>" +
+            notesBadge +
+          "</div>" +
+        "</div>" +
+        "<div id='teesInfo'>" +
+          teesInfo +
+        "</div>" +
+        tableMarkup;
     }
 
-    // Kick it off
     loadCourses();
   </script>
 </body>
