@@ -227,7 +227,7 @@
       flex-shrink: 0;
     }
 
-    /* ===== SCORECARD TABLE ===== */
+    /* ===== SCORECARD TABLES ===== */
     .scorecard-wrapper {
       max-width: 100%;
       overflow-x: auto;
@@ -302,24 +302,33 @@
       flex-shrink: 0;
     }
 
-    /* SCORE INPUTS */
-    .scorecard input.score-input {
-      width: 2.4ch;
-      max-width: 28px;
+    /* SCORE TABLE (separate) */
+    .scorecard-wrapper-score {
+      margin-top: 6px;
+    }
+
+    table.scorecard.scorecard-score th,
+    table.scorecard.scorecard-score td {
+      padding: 6px 4px;
+    }
+
+    table.scorecard.scorecard-score th:first-child {
+      min-width: 70px;
+    }
+
+    .scorecard-score input.score-input {
+      width: 3ch;
+      max-width: 36px;
       padding: 2px;
       border-radius: 4px;
       border: 1px solid rgba(0,0,0,0.2);
-      font-size: 0.7rem;
+      font-size: 0.8rem;
       text-align: center;
       background: #fffef8;
     }
 
-    .score-row th {
+    .score-row-label {
       background: #e9deca;
-    }
-
-    .score-row td {
-      background: #fdf7ea;
     }
 
     /* ===== MEDIA / VIRTUAL CADDY ===== */
@@ -419,11 +428,11 @@
       <div id="coursesError" class="error" style="display:none;"></div>
     </section>
 
-    <!-- RIGHT: SCORECARD + MEDIA -->
+    <!-- RIGHT: SCORECARDS + MEDIA -->
     <section class="panel">
       <h2>Course Detail</h2>
       <div id="courseDetail">
-        <p class="muted">Choose a course on the left to see its scorecard and virtual caddy panel.</p>
+        <p class="muted">Choose a course on the left to see its scorecards and virtual caddy panel.</p>
       </div>
     </section>
   </main>
@@ -603,11 +612,11 @@
           "</div>" +
           "<div class='detail-section-title'>Tees</div>" +
           "<div id='teesInfo'>" + teesInfo + "</div>" +
-          "<p class='muted'>No holes.json data yet – once you start filling in hole info, the scorecard and media panel will appear.</p>";
+          "<p class='muted'>No holes.json data yet – once you start filling in hole info, the scorecards and media panel will appear.</p>";
         return;
       }
 
-      // ===== BUILD SCORECARD DATA =====
+      // ===== BUILD HOLE / YARDAGE DATA =====
       var maxHole = 0;
       holes.forEach(function(h, idx) {
         var num = h.hole || (idx + 1);
@@ -665,38 +674,38 @@
         };
       });
 
-      // ===== BUILD SCORECARD TABLE =====
-      var table = "";
+      // ===== DISTANCE SCORECARD TABLE =====
+      var distTable = "";
       var h, hb, ph, phb;
 
-      table += "<thead>";
-      table += "<tr>";
-      table += "<th></th>";
+      distTable += "<thead>";
+      distTable += "<tr>";
+      distTable += "<th></th>";
 
       for (h = 1; h <= frontEnd; h++) {
-        table += "<th>" + h + "</th>";
+        distTable += "<th>" + h + "</th>";
       }
 
       if (hasBack) {
-        table += "<th class='out-in-col'>OUT</th>";
+        distTable += "<th class='out-in-col'>OUT</th>";
       }
 
       if (hasBack) {
         for (hb = backStart; hb <= maxHole; hb++) {
-          table += "<th>" + hb + "</th>";
+          distTable += "<th>" + hb + "</th>";
         }
-        table += "<th class='out-in-col'>IN</th>";
+        distTable += "<th class='out-in-col'>IN</th>";
       }
 
-      table += "<th class='total-col'>TOTAL</th>";
-      table += "</tr>";
-      table += "</thead>";
+      distTable += "<th class='total-col'>TOTAL</th>";
+      distTable += "</tr>";
+      distTable += "</thead>";
 
-      table += "<tbody>";
+      distTable += "<tbody>";
 
       // Par row
-      table += "<tr>";
-      table += "<th>Par</th>";
+      distTable += "<tr>";
+      distTable += "<th>Par</th>";
 
       var parFrontOut = 0;
       var parBackIn = 0;
@@ -704,49 +713,49 @@
       for (h = 1; h <= frontEnd; h++) {
         ph = parByHole[h];
         if (typeof ph === "number") parFrontOut += ph;
-        table += "<td>" + (typeof ph === "number" ? ph : "–") + "</td>";
+        distTable += "<td>" + (typeof ph === "number" ? ph : "–") + "</td>";
       }
 
       if (hasBack) {
-        table += "<td class='out-in-col'>" + (parFrontOut || "–") + "</td>";
+        distTable += "<td class='out-in-col'>" + (parFrontOut || "–") + "</td>";
       }
 
       if (hasBack) {
         for (hb = backStart; hb <= maxHole; hb++) {
           phb = parByHole[hb];
           if (typeof phb === "number") parBackIn += phb;
-          table += "<td>" + (typeof phb === "number" ? phb : "–") + "</td>";
+          distTable += "<td>" + (typeof phb === "number" ? phb : "–") + "</td>";
         }
-        table += "<td class='out-in-col'>" + (parBackIn || "–") + "</td>";
+        distTable += "<td class='out-in-col'>" + (parBackIn || "–") + "</td>";
       }
 
-      table += "<td class='total-col'>" + (parTotal || "–") + "</td>";
-      table += "</tr>";
+      distTable += "<td class='total-col'>" + (parTotal || "–") + "</td>";
+      distTable += "</tr>";
 
       // Handicap row
-      table += "<tr>";
-      table += "<th>Hdcp</th>";
+      distTable += "<tr>";
+      distTable += "<th>Hdcp</th>";
       var hd, hdb;
 
       for (h = 1; h <= frontEnd; h++) {
         hd = hdcpByHole[h];
-        table += "<td>" + ((hd === 0 || hd) ? hd : "–") + "</td>";
+        distTable += "<td>" + ((hd === 0 || hd) ? hd : "–") + "</td>";
       }
 
       if (hasBack) {
-        table += "<td class='out-in-col'></td>";
+        distTable += "<td class='out-in-col'></td>";
       }
 
       if (hasBack) {
         for (hb = backStart; hb <= maxHole; hb++) {
           hdb = hdcpByHole[hb];
-          table += "<td>" + ((hdb === 0 || hdb) ? hdb : "–") + "</td>";
+          distTable += "<td>" + ((hdb === 0 || hdb) ? hdb : "–") + "</td>";
         }
-        table += "<td class='out-in-col'></td>";
+        distTable += "<td class='out-in-col'></td>";
       }
 
-      table += "<td class='total-col'></td>";
-      table += "</tr>";
+      distTable += "<td class='total-col'></td>";
+      distTable += "</tr>";
 
       // Tees rows
       tees.forEach(function(t) {
@@ -755,8 +764,8 @@
         var teeColor = t.color || "#e5e7eb";
         var totals = teeTotals[teeId] || { front: 0, back: 0, total: 0 };
 
-        table += "<tr>";
-        table += "<th><span class='tee-name-cell'><span class='tee-name-swatch' style='background:" +
+        distTable += "<tr>";
+        distTable += "<th><span class='tee-name-cell'><span class='tee-name-swatch' style='background:" +
           teeColor +
           ";'></span><span>" +
           teeName +
@@ -764,68 +773,84 @@
 
         for (h = 1; h <= frontEnd; h++) {
           var yh = yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][h];
-          table += "<td>" + (typeof yh === "number" ? yh : "–") + "</td>";
+          distTable += "<td>" + (typeof yh === "number" ? yh : "–") + "</td>";
         }
 
         if (hasBack) {
-          table += "<td class='out-in-col'>" + (totals.front || "–") + "</td>";
+          distTable += "<td class='out-in-col'>" + (totals.front || "–") + "</td>";
         }
 
         if (hasBack) {
           for (hb = backStart; hb <= maxHole; hb++) {
             var yhb = yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][hb];
-            table += "<td>" + (typeof yhb === "number" ? yhb : "–") + "</td>";
+            distTable += "<td>" + (typeof yhb === "number" ? yhb : "–") + "</td>";
           }
-          table += "<td class='out-in-col'>" + (totals.back || "–") + "</td>";
+          distTable += "<td class='out-in-col'>" + (totals.back || "–") + "</td>";
         }
 
-        table += "<td class='total-col'>" + (totals.total || "–") + "</td>";
-        table += "</tr>";
+        distTable += "<td class='total-col'>" + (totals.total || "–") + "</td>";
+        distTable += "</tr>";
       });
 
-      // Score row
-      table += "<tr class='score-row'>";
-      table += "<th>Score</th>";
-
-      for (h = 1; h <= frontEnd; h++) {
-        table += "<td><input type='number' min='1' max='20' class='score-input' data-hole='" + h + "' /></td>";
-      }
-
-      if (hasBack) {
-        table += "<td class='out-in-col score-out'></td>";
-      }
-
-      if (hasBack) {
-        for (hb = backStart; hb <= maxHole; hb++) {
-          table += "<td><input type='number' min='1' max='20' class='score-input' data-hole='" + hb + "' /></td>";
-        }
-        table += "<td class='out-in-col score-in'></td>";
-      }
-
-      table += "<td class='total-col score-total'></td>";
-      table += "</tr>";
-
-      table += "</tbody>";
+      distTable += "</tbody>";
 
       // Footer labels
-      table += "<tfoot>";
-      table += "<tr>";
-      table += "<td></td>";
+      distTable += "<tfoot>";
+      distTable += "<tr>";
+      distTable += "<td></td>";
       for (h = 1; h <= frontEnd; h++) {
-        table += "<td></td>";
+        distTable += "<td></td>";
       }
       if (hasBack) {
-        table += "<td class='out-in-col'>Front 9</td>";
+        distTable += "<td class='out-in-col'>Front 9</td>";
         for (hb = backStart; hb <= maxHole; hb++) {
-          table += "<td></td>";
+          distTable += "<td></td>";
         }
-        table += "<td class='out-in-col'>Back 9</td>";
+        distTable += "<td class='out-in-col'>Back 9</td>";
       }
-      table += "<td class='total-col'>Round</td>";
-      table += "</tr>";
-      table += "</tfoot>";
+      distTable += "<td class='total-col'>Card</td>";
+      distTable += "</tr>";
+      distTable += "</tfoot>";
 
-      // Build main UI
+      // ===== SCORE ENTRY TABLE (separate) =====
+      var scoreTable = "";
+      scoreTable += "<thead><tr>";
+      scoreTable += "<th>Hole</th>";
+
+      for (h = 1; h <= frontEnd; h++) {
+        scoreTable += "<th>" + h + "</th>";
+      }
+
+      if (hasBack) {
+        scoreTable += "<th class='out-in-col'>OUT</th>";
+        for (hb = backStart; hb <= maxHole; hb++) {
+          scoreTable += "<th>" + hb + "</th>";
+        }
+        scoreTable += "<th class='out-in-col'>IN</th>";
+      }
+
+      scoreTable += "<th class='total-col'>TOTAL</th>";
+      scoreTable += "</tr></thead>";
+
+      scoreTable += "<tbody><tr>";
+      scoreTable += "<th class='score-row-label'>Score</th>";
+
+      for (h = 1; h <= frontEnd; h++) {
+        scoreTable += "<td><input type='number' min='1' max='20' class='score-input' data-hole='" + h + "' /></td>";
+      }
+
+      if (hasBack) {
+        scoreTable += "<td class='out-in-col score-out'></td>";
+        for (hb = backStart; hb <= maxHole; hb++) {
+          scoreTable += "<td><input type='number' min='1' max='20' class='score-input' data-hole='" + hb + "' /></td>";
+        }
+        scoreTable += "<td class='out-in-col score-in'></td>";
+      }
+
+      scoreTable += "<td class='total-col score-total'></td>";
+      scoreTable += "</tr></tbody>";
+
+      // ===== BUILD MAIN UI =====
       container.innerHTML =
         "<div class='course-header'>" +
           "<div class='course-header-main'>" +
@@ -839,10 +864,16 @@
         "</div>" +
         "<div class='detail-section-title'>Tees</div>" +
         "<div id='teesInfo'>" + teesInfo + "</div>" +
-        "<div class='detail-section-title'>Scorecard</div>" +
+        "<div class='detail-section-title'>Yardage Card</div>" +
         "<div class='scorecard-wrapper'>" +
           "<table class='scorecard'>" +
-            table +
+            distTable +
+          "</table>" +
+        "</div>" +
+        "<div class='detail-section-title'>Round Score</div>" +
+        "<div class='scorecard-wrapper scorecard-wrapper-score'>" +
+          "<table class='scorecard scorecard-score'>" +
+            scoreTable +
           "</table>" +
         "</div>" +
         "<div class='detail-section-title'>Virtual Caddy</div>" +
@@ -865,10 +896,10 @@
         "</div>";
 
       // ===== SCORE INPUT TOTALS =====
-      var scoreInputs = container.querySelectorAll(".score-input");
-      var outCell = container.querySelector(".score-out");
-      var inCell = container.querySelector(".score-in");
-      var totalCell = container.querySelector(".score-total");
+      var scoreInputs = container.querySelectorAll(".scorecard-score .score-input");
+      var outCell = container.querySelector(".scorecard-score .score-out");
+      var inCell = container.querySelector(".scorecard-score .score-in");
+      var totalCell = container.querySelector(".scorecard-score .score-total");
 
       function recalcScores() {
         var outSum = 0;
