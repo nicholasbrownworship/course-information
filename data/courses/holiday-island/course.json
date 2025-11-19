@@ -1,14 +1,14 @@
 {
   "id": "holiday-island",
   "name": "Holiday Island Country Club",
-  "nickname": "Diamond Hills",
+  "nickname": "Holiday Island",
   "location": {
-    "address": "20701 N AR 7",
-    "city": "Lead Hill",
+    "address": "#1 Country Club Drive",
+    "city": "Holiday Island",
     "state": "AR",
     "country": "USA",
-    "lat": 36.443391054298,
-    "lng": -92.91745464019
+    "lat": 36.446,
+    "lng": -93.73
   },
   "holes": 18,
   "tees": [
@@ -16,9 +16,9 @@
       "id": "back",
       "name": "Blues",
       "color": "#000000",
-      "totalYardage": 6469,
-      "rating": 70.1,
-      "slope": 120,
+      "totalYardage": 6048,
+      "rating": 70,
+      "slope": 123,
       "parOut": 35,
       "parIn": 36,
       "parTotal": 71
@@ -27,23 +27,23 @@
       "id": "middle",
       "name": "White",
       "color": "#1D4ED8",
-      "totalYardage": 6173,
-      "rating": 68.8,
-      "slope": 118,
+      "totalYardage": 5855,
+      "rating": 68.9,
+      "slope": 122,
       "parOut": 35,
       "parIn": 36,
       "parTotal": 71
     },
     {
       "id": "forward",
-      "name": "Gold",
+      "name": "Green",
       "color": "#DC2626",
-      "totalYardage": 5661,
-      "rating": 67.8,
-      "slope": 108,
-      "parOut": 34,
-      "parIn": 34,
-      "parTotal": 68
+      "totalYardage": 5098,
+      "rating": 65,
+      "slope": 114,
+      "parOut": 35,
+      "parIn": 36,
+      "parTotal": 71
     }
   ],
   "notes": "Fill in rating/slope and total yardages later."
