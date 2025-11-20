@@ -30,15 +30,6 @@
       flex-direction: column;
     }
 
-    <body>
-  <div id="header-placeholder"></div>
-  <script>
-    fetch("header.html")
-      .then(res => res.text())
-      .then(html => document.getElementById("header-placeholder").innerHTML = html);
-  </script>
-
-
     main {
       flex: 1;
       width: 100%;
@@ -86,6 +77,21 @@
       font-size: 0.85rem;
       margin-top: 6px;
     }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER INJECTION -->
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const slot = document.getElementById("header-placeholder");
+        if (slot) slot.innerHTML = html;
+      })
+      .catch(err => console.error("Failed to load header.html:", err));
+  </script>
 
     /* COURSE LIST */
     #coursesList {
