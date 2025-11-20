@@ -228,6 +228,43 @@
       flex-shrink: 0;
     }
 
+    /* ===== MAP CARD ===== */
+    .map-card {
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #fffdf6;
+      padding: 6px 8px 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      margin-bottom: 4px;
+    }
+
+    .map-embed-wrapper {
+      border-radius: 8px;
+      overflow: hidden;
+      height: 180px;
+      background: #d1d5db;
+    }
+
+    .map-embed-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .map-meta {
+      margin-top: 4px;
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .map-meta a {
+      text-decoration: underline;
+    }
+
     /* ===== SCORECARD TABLES (YARDAGE) ===== */
     .scorecard-wrapper {
       max-width: 100%;
@@ -316,7 +353,7 @@
     table.scorecard.scorecard-score th,
     table.scorecard.scorecard-score td {
       padding: 0;
-      height: 32px;          /* overall box height */
+      height: 32px;
       text-align: center;
       vertical-align: middle;
     }
@@ -335,14 +372,12 @@
       background: #fdf7ea;
     }
 
-    /* OUT / IN / TOTAL cells (no input) */
     table.scorecard.scorecard-score td.score-out,
     table.scorecard.scorecard-score td.score-in,
     table.scorecard.scorecard-score td.score-total {
       font-weight: 600;
     }
 
-    /* Input fills the whole cell; text centered */
     .scorecard-score input.score-input {
       width: 100%;
       height: 100%;
@@ -435,6 +470,29 @@
       color: var(--muted);
       margin-top: 3px;
     }
+
+    /* ===== CADDY NOTES ===== */
+    .caddy-header {
+      font-weight: 600;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+    }
+
+    .caddy-sub {
+      font-size: 0.75rem;
+      margin-bottom: 4px;
+    }
+
+    .caddy-tips {
+      text-align: left;
+      padding-left: 16px;
+      margin: 4px 0 0;
+      font-size: 0.78rem;
+    }
+
+    .caddy-tips li {
+      margin-bottom: 2px;
+    }
   </style>
 </head>
 <body>
@@ -457,7 +515,7 @@
       <h2>Course Detail</h2>
       <div id="courseDetail">
         <p class="muted">
-          Choose a course on the left to see its scorecards and virtual caddy panel.
+          Choose a course on the left to see its scorecards, map, and virtual caddy panel.
         </p>
       </div>
     </section>
@@ -614,11 +672,9 @@
           var name = t.name || t.id;
           teesInfo +=
             "<span>" +
-            "<span class='tee-dot' style='background:" +
-            color +
-            ";'></span>" +
-            name +
-            (t.totalYardage ? " · " + t.totalYardage + " yds" : "") +
+              "<span class='tee-dot' style='background:" + color + ";'></span>" +
+              name +
+              (t.totalYardage ? " · " + t.totalYardage + " yds" : "") +
             "</span>";
         });
       } else {
@@ -626,31 +682,56 @@
           "<span>No tees defined yet in <code>course.json</code>.</span>";
       }
 
+      // Map HTML (if lat/lng present)
+      var mapHtml = "";
+      if (typeof loc.lat === "number" && typeof loc.lng === "number") {
+        var coords = loc.lat + "," + loc.lng;
+        var mapSrc =
+          "https://www.google.com/maps?q=" +
+          encodeURIComponent(coords) +
+          "&output=embed";
+        var mapLink =
+          "https://www.google.com/maps?q=" + encodeURIComponent(coords);
+
+        mapHtml =
+          "<div class='detail-section-title'>Location &amp; Map</div>" +
+          "<div class='map-card'>" +
+            "<div class='map-embed-wrapper'>" +
+              "<iframe src='" + mapSrc + "' loading='lazy' referrerpolicy='no-referrer-when-downgrade'></iframe>" +
+            "</div>" +
+            "<div class='map-meta'>" +
+              "<span>" + (locLine || "") + "</span>" +
+              "<a href='" + mapLink + "' target='_blank' rel='noopener'>Open in Google Maps</a>" +
+            "</div>" +
+          "</div>";
+      }
+
       if (!hasHoles) {
         container.innerHTML =
           "<div class='course-header'>" +
-          "<div class='course-header-main'>" +
-          "<h3>" +
-          (course.name || "Unnamed Course") +
-          "</h3>" +
-          "<p>" +
-          (locLine || "") +
-          "</p>" +
+            "<div class='course-header-main'>" +
+              "<h3>" +
+                (course.name || "Unnamed Course") +
+              "</h3>" +
+              "<p>" +
+                (locLine || "") +
+              "</p>" +
+            "</div>" +
+            "<div class='course-badges'>" +
+              "<span class='badge badge-pill'>Local DB</span>" +
+              notesBadge +
+            "</div>" +
           "</div>" +
-          "<div class='course-badges'>" +
-          "<span class='badge badge-pill'>Local DB</span>" +
-          notesBadge +
-          "</div>" +
-          "</div>" +
+          mapHtml +
           "<div class='detail-section-title'>Tees</div>" +
           "<div id='teesInfo'>" +
-          teesInfo +
+            teesInfo +
           "</div>" +
-          "<p class='muted'>No holes.json data yet – once you start filling in hole info, the scorecards and media panel will appear.</p>";
+          "<p class='muted'>No holes.json data yet – once you start filling in hole info, the scorecards and virtual caddy panel will appear.</p>";
         return;
       }
 
-      // ===== BUILD HOLE / YARDAGE DATA =====
+      // ===== BUILD HOLE / YARDAGE / MEDIA / CADDY DATA =====
       var maxHole = 0;
       holes.forEach(function(h, idx) {
         var num = h.hole || idx + 1;
@@ -665,6 +746,7 @@
       var hdcpByHole = {};
       var yardagesByTeeHole = {};
       var mediaByHole = {};
+      var caddyByHole = {};
       var parFront = 0;
       var parBack = 0;
       var parTotal = 0;
@@ -705,6 +787,11 @@
         mediaByHole[holeNum] = {
           image: imgPath,
           flyover: flyPath
+        };
+
+        caddyByHole[holeNum] = {
+          tips: h.tips || null,
+          layout: h.layout || null
         };
       });
 
@@ -891,52 +978,57 @@
       // ===== BUILD MAIN UI =====
       container.innerHTML =
         "<div class='course-header'>" +
-        "<div class='course-header-main'>" +
-        "<h3>" +
-        (course.name || "Unnamed Course") +
-        "</h3>" +
-        "<p>" +
-        (locLine || "") +
-        "</p>" +
+          "<div class='course-header-main'>" +
+            "<h3>" +
+              (course.name || "Unnamed Course") +
+            "</h3>" +
+            "<p>" +
+              (locLine || "") +
+            "</p>" +
+          "</div>" +
+          "<div class='course-badges'>" +
+            "<span class='badge badge-pill'>Local DB</span>" +
+            notesBadge +
+          "</div>" +
         "</div>" +
-        "<div class='course-badges'>" +
-        "<span class='badge badge-pill'>Local DB</span>" +
-        notesBadge +
-        "</div>" +
-        "</div>" +
+        mapHtml +
         "<div class='detail-section-title'>Tees</div>" +
         "<div id='teesInfo'>" +
-        teesInfo +
+          teesInfo +
         "</div>" +
         "<div class='detail-section-title'>Yardage Card</div>" +
         "<div class='scorecard-wrapper'>" +
-        "<table class='scorecard'>" +
-        distTable +
-        "</table>" +
+          "<table class='scorecard'>" +
+            distTable +
+          "</table>" +
         "</div>" +
         "<div class='detail-section-title'>Round Score</div>" +
         "<div class='scorecard-wrapper scorecard-wrapper-score'>" +
-        "<table class='scorecard scorecard-score'>" +
-        scoreTable +
-        "</table>" +
+          "<table class='scorecard scorecard-score'>" +
+            scoreTable +
+          "</table>" +
         "</div>" +
         "<div class='detail-section-title'>Virtual Caddy</div>" +
         "<div class='media-stack'>" +
-        "<div class='media-card'>" +
-        "<div class='media-controls'>" +
-        "<label>Hole " +
-        "<select id='mediaHoleSelect'></select>" +
-        "</label>" +
-        "<span class='muted' style='font-size:0.7rem;'>Images and flyovers come from holes.json</span>" +
-        "</div>" +
-        "<h3>Hole Image</h3>" +
-        "<div id='mediaImageArea' class='media-body'>No image set for this hole yet.</div>" +
-        "</div>" +
-        "<div class='media-card'>" +
-        "<h3>Flyover</h3>" +
-        "<div id='mediaFlyoverArea' class='media-body'>No flyover set for this hole yet.</div>" +
-        "<div class='media-note'>When you add a flyover file or link in <code>media.flyover</code>, it will appear here.</div>" +
-        "</div>" +
+          "<div class='media-card'>" +
+            "<div class='media-controls'>" +
+              "<label>Hole " +
+                "<select id='mediaHoleSelect'></select>" +
+              "</label>" +
+              "<span class='muted' style='font-size:0.7rem;'>Images, flyovers, and notes come from holes.json</span>" +
+            "</div>" +
+            "<h3>Hole Image</h3>" +
+            "<div id='mediaImageArea' class='media-body'>No image set for this hole yet.</div>" +
+          "</div>" +
+          "<div class='media-card'>" +
+            "<h3>Flyover</h3>" +
+            "<div id='mediaFlyoverArea' class='media-body'>No flyover set for this hole yet.</div>" +
+            "<div class='media-note'>When you add a flyover file or link in <code>media.flyover</code>, it will appear here.</div>" +
+          "</div>" +
+          "<div class='media-card'>" +
+            "<h3>Caddy Notes</h3>" +
+            "<div id='caddyNotesArea' class='media-body'>No notes for this hole yet.</div>" +
+          "</div>" +
         "</div>";
 
       // ===== SCORE INPUT TOTALS =====
@@ -975,7 +1067,7 @@
         input.addEventListener("input", recalcScores);
       });
 
-      // ===== VIRTUAL CADDY SELECTOR =====
+      // ===== VIRTUAL CADDY SELECTOR (image, flyover, caddy notes) =====
       var holeSelect = container.querySelector("#mediaHoleSelect");
       if (holeSelect) {
         for (h = 1; h <= maxHole; h++) {
@@ -989,9 +1081,12 @@
           var holeNum = parseInt(holeStr, 10);
           if (!holeNum) holeNum = 1;
           var data = mediaByHole[holeNum] || {};
+          var caddy = caddyByHole[holeNum] || {};
           var imgArea = container.querySelector("#mediaImageArea");
           var flyArea = container.querySelector("#mediaFlyoverArea");
+          var notesArea = container.querySelector("#caddyNotesArea");
 
+          // Image
           if (imgArea) {
             if (data.image) {
               imgArea.innerHTML =
@@ -1006,6 +1101,7 @@
             }
           }
 
+          // Flyover
           if (flyArea) {
             if (data.flyover) {
               var lower = data.flyover.toLowerCase();
@@ -1030,6 +1126,59 @@
               flyArea.innerHTML =
                 "No flyover set for hole " + holeNum + " yet.";
             }
+          }
+
+          // Caddy Notes
+          if (notesArea) {
+            var parVal = parByHole[holeNum];
+            var hdVal = hdcpByHole[holeNum];
+
+            var yardageLines = [];
+            tees.forEach(function(t) {
+              var teeId = t.id;
+              var teeName = t.name || teeId;
+              var y =
+                yardagesByTeeHole[teeId] &&
+                yardagesByTeeHole[teeId][holeNum];
+              if (typeof y === "number") {
+                yardageLines.push(teeName + ": " + y + " yds");
+              }
+            });
+
+            var html =
+              "<div class='caddy-header'>Hole " +
+              holeNum +
+              " · Par " +
+              (typeof parVal === 'number' ? parVal : "–") +
+              " · Hdcp " +
+              ((hdVal === 0 || hdVal) ? hdVal : "–") +
+              "</div>";
+
+            if (yardageLines.length) {
+              html +=
+                "<div class='caddy-sub'>Yardages – " +
+                yardageLines.join(" · ") +
+                "</div>";
+            }
+
+            var tips = caddy.tips;
+            if (tips && Array.isArray(tips) && tips.length) {
+              html += "<ul class='caddy-tips'>";
+              tips.forEach(function(tip) {
+                html += "<li>" + tip + "</li>";
+              });
+              html += "</ul>";
+            } else if (typeof tips === "string" && tips.trim().length) {
+              html +=
+                "<ul class='caddy-tips'><li>" +
+                tips +
+                "</li></ul>";
+            } else {
+              html +=
+                "<p class='muted'>No written notes yet. Add a <code>\"tips\"</code> field for this hole in <code>holes.json</code>.</p>";
+            }
+
+            notesArea.innerHTML = html;
           }
         }
 
