@@ -30,22 +30,66 @@
       flex-direction: column;
     }
 
-    <body>
-  <div id="header-placeholder"></div>
-  <script>
-    fetch("header.html")
-      .then(res => res.text())
-      .then(html => document.getElementById("header-placeholder").innerHTML = html);
-  </script>
+    /* Page header */
+    header {
+      padding: 12px 16px;
+      background: linear-gradient(120deg, var(--green-dark), var(--green));
+      color: #fefcf5;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
 
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.3rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    header p {
+      margin: 2px 0 0;
+      font-size: 0.85rem;
+      opacity: 0.9;
+    }
+
+    .main-nav {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .main-nav a {
+      color: #1b2620;
+      background: #fefcf5;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      text-decoration: none;
+      border: 1px solid rgba(0,0,0,0.15);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+
+    .main-nav a:hover {
+      background: #fff1c2;
+    }
 
     main {
       flex: 1;
       width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
       display: grid;
-      grid-template-columns: 280px minmax(0,1fr);
+      grid-template-columns: 260px minmax(0,1fr);
       gap: 8px;
-      padding: 8px 10px;
+      padding: 8px 10px 16px;
     }
 
     @media (max-width: 900px) {
@@ -82,50 +126,74 @@
       margin-top: 6px;
     }
 
-    /* LEFT PANEL: COURSE + HOLE CONTROLS */
-    .field-group {
-      margin-bottom: 8px;
-      font-size: 0.85rem;
-    }
-
-    .field-group label {
-      display: block;
-      margin-bottom: 3px;
-      font-weight: 600;
+    label {
       font-size: 0.8rem;
     }
 
     select,
     input[type="number"],
     textarea {
-      width: 100%;
+      font-family: inherit;
+      font-size: 0.8rem;
+    }
+
+    /* Left panel: course + round settings */
+    .control-group {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .control-row select,
+    .control-row input {
       padding: 4px 6px;
       border-radius: 8px;
       border: 1px solid rgba(0,0,0,0.18);
-      font-size: 0.85rem;
-      background: #fcfaf2;
-      font-family: inherit;
-      box-sizing: border-box;
+      background: #fffbf4;
     }
 
-    select:focus,
-    input[type="number"]:focus,
-    textarea:focus {
-      outline: 2px solid #244f3c55;
-      outline-offset: 1px;
-    }
-
-    .hole-nav-row {
-      display: flex;
+    .pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.04);
+      font-size: 0.8rem;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 8px;
-      font-size: 0.85rem;
+      gap: 4px;
     }
 
-    .hole-nav-row select {
-      width: auto;
-      min-width: 70px;
+    /* Right panel layout */
+    .hole-header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding-bottom: 6px;
+      margin-bottom: 6px;
+    }
+
+    .hole-title {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .hole-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .hole-nav-buttons {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
     .btn {
@@ -146,131 +214,33 @@
       border-color: #1a3a2b;
     }
 
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: default;
-    }
-
-    .btn:hover:not(:disabled) {
+    .btn:hover {
       filter: brightness(0.98);
     }
 
-    .shot-options-grid {
+    .hole-layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-
-    .shot-options-grid .field-group {
-      margin-bottom: 4px;
-    }
-
-    .inline-checkbox {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.85rem;
-      margin: 4px 0 8px;
-    }
-
-    .inline-checkbox input[type="checkbox"] {
-      width: auto;
-      margin: 0;
-    }
-
-    /* RIGHT PANEL: HOLE VIEW */
-    .hole-header {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 6px;
-      border-bottom: 1px solid rgba(0,0,0,0.12);
-      padding-bottom: 6px;
-    }
-
-    .hole-header-main h3 {
-      margin: 0;
-      font-size: 1rem;
-    }
-
-    .hole-header-main p {
-      margin: 2px 0 0;
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .hole-header-meta {
-      font-size: 0.8rem;
-      text-align: right;
-    }
-
-    .detail-section-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      margin: 8px 0 4px;
-    }
-
-    .map-card {
-      border-radius: 10px;
-      border: 1px solid rgba(0,0,0,0.08);
-      background: #fffdf6;
-      padding: 6px 8px 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-      margin-bottom: 6px;
-    }
-
-    .map-embed-wrapper {
-      border-radius: 8px;
-      overflow: hidden;
-      height: 250px;
-      background: #d1d5db;
-    }
-
-    .map-embed-wrapper iframe {
-      width: 100%;
-      height: 100%;
-      border: 0;
-    }
-
-    .map-meta {
-      margin-top: 4px;
-      font-size: 0.75rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-    }
-
-    .map-meta a {
-      text-decoration: underline;
-    }
-
-    .media-grid {
-      display: grid;
-      grid-template-columns: minmax(0,1.1fr) minmax(0,0.9fr);
+      grid-template-columns: minmax(0,1.3fr) minmax(0,1fr);
       gap: 8px;
     }
 
     @media (max-width: 900px) {
-      .media-grid {
+      .hole-layout {
         grid-template-columns: 1fr;
       }
     }
 
-    .media-card {
+    /* GPS / image area */
+    .gps-card {
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,0.08);
       background: #fffdf6;
-      padding: 8px 10px;
+      padding: 6px 8px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-      font-size: 0.8rem;
+      margin-bottom: 6px;
     }
 
-    .media-card h3 {
+    .gps-card h3 {
       margin: 0 0 4px;
       font-size: 0.8rem;
       text-transform: uppercase;
@@ -278,128 +248,283 @@
       color: var(--green-dark);
     }
 
-    .media-body {
-      font-size: 0.78rem;
+    .gps-image-wrapper {
+      border-radius: 8px;
+      overflow: hidden;
+      height: 240px;
+      background: #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .gps-image-wrapper img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .gps-meta {
+      margin-top: 4px;
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Flyover */
+    .flyover-card {
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #fffdf6;
+      padding: 6px 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      margin-bottom: 6px;
+    }
+
+    .flyover-card h3 {
+      margin: 0 0 4px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--green-dark);
+    }
+
+    .flyover-area {
+      font-size: 0.8rem;
       color: var(--muted);
-      min-height: 80px;
+      min-height: 60px;
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 4px;
     }
 
-    .media-body img {
+    .flyover-area video {
       max-width: 100%;
-      max-height: 260px;
+      max-height: 220px;
       border-radius: 8px;
-      display: block;
-      object-fit: cover;
-    }
-
-    .media-body video {
-      max-width: 100%;
-      max-height: 260px;
-      border-radius: 8px;
-      display: block;
       background: #000;
     }
 
-    .media-note {
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-top: 3px;
+    /* Yardage & notes */
+    .yardage-card,
+    .caddy-card {
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #fffdf6;
+      padding: 6px 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      margin-bottom: 6px;
     }
 
-    .caddy-header {
-      font-weight: 600;
-      margin-bottom: 4px;
+    .yardage-card h3,
+    .caddy-card h3 {
+      margin: 0 0 4px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--green-dark);
+    }
+
+    .yardage-list {
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .yardage-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .caddy-body {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .caddy-body ul {
+      padding-left: 18px;
+      margin: 4px 0;
+    }
+
+    /* Shot stats card */
+    .stats-card {
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #fffdf6;
+      padding: 6px 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .stats-card h3 {
+      margin: 0 0 4px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--green-dark);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 6px;
       font-size: 0.8rem;
     }
 
-    .caddy-sub {
-      font-size: 0.75rem;
-      margin-bottom: 4px;
+    @media (max-width: 600px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
-    .caddy-tips {
-      text-align: left;
-      padding-left: 16px;
-      margin: 4px 0 0;
-      font-size: 0.78rem;
-    }
-
-    .caddy-tips li {
-      margin-bottom: 2px;
-    }
-
-    .tee-pill-row {
+    .stats-field {
       display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stats-field select,
+    .stats-field input {
+      padding: 3px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.18);
+      background: #fffbf4;
+    }
+
+    .stats-notes {
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stats-notes textarea {
+      min-height: 60px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.18);
+      background: #fffbf4;
+      resize: vertical;
+    }
+
+    .stats-footer {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
       flex-wrap: wrap;
       gap: 6px;
-      font-size: 0.78rem;
-      margin-top: 4px;
-    }
-
-    .tee-pill {
-      display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 3px 7px;
-      border-radius: 999px;
-      border: 1px solid rgba(0,0,0,0.1);
-      background: #f6f1e6;
-      white-space: nowrap;
+      font-size: 0.75rem;
+      color: var(--muted);
     }
 
     .tee-dot {
-      width: 9px;
-      height: 9px;
+      width: 8px;
+      height: 8px;
       border-radius: 999px;
       border: 1px solid rgba(0,0,0,0.15);
+      margin-right: 4px;
       flex-shrink: 0;
+    }
+
+    .tee-label-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Per-Hole Tracker</h1>
-    <p>
-      Step through each hole with GPS, media, and shot tracking.
-      <a href="index.html">Back to course overview</a>
-    </p>
+    <div class="header-inner">
+      <h1>Per-Hole Tracker</h1>
+      <p>Track shots and stats one hole at a time using your local course data.</p>
+      <nav id="header-nav" class="main-nav"></nav>
+    </div>
   </header>
 
   <main>
-    <!-- LEFT PANEL: course & shot inputs -->
+    <!-- LEFT PANEL: course / tee / round settings -->
     <section class="panel">
-      <h2>Course &amp; Hole</h2>
-      <div class="field-group">
-        <label for="courseSelect">Course</label>
-        <select id="courseSelect">
-          <option value="">Select a course…</option>
-        </select>
-      </div>
+      <h2>Round Setup</h2>
+      <p class="muted">
+        Choose a course and tee, then use the per-hole controls to track your round.
+      </p>
 
-      <div id="leftPanelContent">
-        <p class="muted">
-          Choose a course to start tracking holes. This uses the same data as your main scorebook.
-        </p>
+      <div class="control-group">
+        <div class="control-row">
+          <label for="courseSelect">Course</label>
+          <select id="courseSelect">
+            <option value="">Loading courses…</option>
+          </select>
+          <div id="courseError" class="error" style="display:none;"></div>
+        </div>
+
+        <div class="control-row">
+          <label for="teeSelect">Tee</label>
+          <select id="teeSelect">
+            <option value="">—</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <label for="startHoleInput">Start Hole</label>
+          <input type="number" id="startHoleInput" min="1" value="1" />
+        </div>
+
+        <div class="control-row">
+          <button type="button" class="btn" id="btnJumpToHole">Go to Hole</button>
+        </div>
+
+        <div class="control-row">
+          <span class="pill" id="holeCountPill" style="display:none;"></span>
+        </div>
       </div>
     </section>
 
-    <!-- RIGHT PANEL: hole detail -->
+    <!-- RIGHT PANEL: current hole UI -->
     <section class="panel">
-      <h2>Hole Detail</h2>
-      <div id="holeDetail">
+      <div class="hole-header">
+        <div>
+          <div class="hole-title" id="holeTitle">No course selected</div>
+          <div class="hole-meta" id="holeMeta"></div>
+        </div>
+        <div class="hole-nav-buttons">
+          <button type="button" class="btn" id="btnPrevHole">&laquo; Previous Hole</button>
+          <button type="button" class="btn btn-primary" id="btnSaveNextHole">Save &amp; Next Hole &raquo;</button>
+        </div>
+      </div>
+
+      <div id="holeContent">
         <p class="muted">
-          Once you pick a course on the left, you can walk hole-by-hole with map, image, flyover, and shot options.
+          Select a course on the left to load its holes and begin tracking.
         </p>
       </div>
     </section>
   </main>
 
   <script>
+    // ===== HEADER NAV (shared header.html) =====
+    fetch("header.html")
+      .then(function(res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.text();
+      })
+      .then(function(html) {
+        var slot = document.getElementById("header-nav");
+        if (slot) slot.innerHTML = html;
+      })
+      .catch(function(err) {
+        console.error("Failed to load header.html:", err);
+      });
+
+    // ===== DATA LOADING SETUP =====
     var COURSES_INDEX_PATH = "data/courses.json";
 
     function fetchJSON(path) {
@@ -409,490 +534,514 @@
       });
     }
 
-    function loadCourses() {
-      var select = document.getElementById("courseSelect");
-      select.innerHTML = "<option value=''>Loading courses…</option>";
+    var courseSelect = document.getElementById("courseSelect");
+    var teeSelect = document.getElementById("teeSelect");
+    var startHoleInput = document.getElementById("startHoleInput");
+    var btnJumpToHole = document.getElementById("btnJumpToHole");
+    var courseErrorEl = document.getElementById("courseError");
+    var holeCountPill = document.getElementById("holeCountPill");
 
+    var holeTitleEl = document.getElementById("holeTitle");
+    var holeMetaEl = document.getElementById("holeMeta");
+    var holeContentEl = document.getElementById("holeContent");
+    var btnPrevHole = document.getElementById("btnPrevHole");
+    var btnSaveNextHole = document.getElementById("btnSaveNextHole");
+
+    var currentCourse = null;
+    var currentHoles = [];
+    var currentHoleNum = 1;
+    var currentTees = [];
+
+    function loadCoursesIndex() {
+      courseSelect.innerHTML = "<option value=\"\">Loading courses…</option>";
+      courseErrorEl.style.display = "none";
       fetchJSON(COURSES_INDEX_PATH)
         .then(function(courses) {
           if (!Array.isArray(courses) || !courses.length) {
-            select.innerHTML = "<option value=''>No courses found in data/courses.json</option>";
+            courseSelect.innerHTML = "<option value=\"\">No courses found</option>";
             return;
           }
-          renderCourseSelect(courses);
+          var html = "<option value=\"\">Select a course…</option>";
+          courses.forEach(function(c) {
+            html += "<option value=\"" + c.id + "\">" +
+              (c.name || "Unnamed Course") + "</option>";
+          });
+          courseSelect.innerHTML = html;
+
+          // Optional: auto-select first course
+          // courseSelect.value = courses[0].id;
+          // loadCourseById(courses[0].id);
         })
         .catch(function(err) {
-          console.error("[courses] Failed to load", err);
-          select.innerHTML = "<option value=''>Error loading courses</option>";
+          console.error("[courses] Failed to load index:", err);
+          courseErrorEl.textContent = "Could not load " + COURSES_INDEX_PATH +
+            " – " + err.message;
+          courseErrorEl.style.display = "block";
+          courseSelect.innerHTML = "<option value=\"\">Error loading courses</option>";
         });
     }
 
-    function renderCourseSelect(courses) {
-      var select = document.getElementById("courseSelect");
-      select.innerHTML = "<option value=''>Select a course…</option>";
-      courses.forEach(function(course) {
-        var opt = document.createElement("option");
-        opt.value = course.id;
-        opt.textContent = course.name || course.id;
-        select.appendChild(opt);
-      });
-
-      select.addEventListener("change", function() {
-        var id = select.value;
-        var leftContent = document.getElementById("leftPanelContent");
-        var holeDetail = document.getElementById("holeDetail");
-        if (!id) {
-          leftContent.innerHTML =
-            "<p class='muted'>Choose a course to start tracking holes. This uses the same data as your main scorebook.</p>";
-          holeDetail.innerHTML =
-            "<p class='muted'>Select a course on the left.</p>";
-          return;
-        }
-        holeDetail.innerHTML = "<p class='muted'>Loading course data…</p>";
-        leftContent.innerHTML = "<p class='muted'>Loading course data…</p>";
-
-        var basePath = "data/courses/" + id;
-        Promise.all([
-          fetchJSON(basePath + "/course.json"),
-          fetchJSON(basePath + "/holes.json")
-        ])
-        .then(function(results) {
-          renderCourseHoleTracker(id, results[0], results[1]);
-        })
-        .catch(function(err) {
-          console.error("[hole-tracker] Failed to load course", id, err);
-          holeDetail.innerHTML =
-            "<p class='error'>Could not load " + id +
-            ". Check course.json and holes.json.</p>";
-          leftContent.innerHTML =
-            "<p class='error'>Could not load " + id +
-            ". Check course.json and holes.json.</p>";
-        });
-      });
-    }
-
-    function renderCourseHoleTracker(courseId, course, holes) {
-      var leftContent = document.getElementById("leftPanelContent");
-      var holeDetail = document.getElementById("holeDetail");
-
-      if (!Array.isArray(holes) || !holes.length) {
-        leftContent.innerHTML =
-          "<p class='muted'>This course has no holes.json data yet.</p>";
-        holeDetail.innerHTML =
-          "<p class='muted'>Add holes to holes.json to use the per-hole tracker.</p>";
+    function loadCourseById(courseId) {
+      if (!courseId) {
+        currentCourse = null;
+        currentHoles = [];
+        currentTees = [];
+        currentHoleNum = 1;
+        holeTitleEl.textContent = "No course selected";
+        holeMetaEl.textContent = "";
+        holeContentEl.innerHTML = "<p class=\"muted\">Select a course on the left to begin.</p>";
+        teeSelect.innerHTML = "<option value=\"\">—</option>";
+        holeCountPill.style.display = "none";
         return;
       }
 
+      var basePath = "data/courses/" + courseId;
+      var coursePath = basePath + "/course.json";
+      var holesPath = basePath + "/holes.json";
+
+      holeTitleEl.textContent = "Loading course…";
+      holeMetaEl.textContent = "";
+      holeContentEl.innerHTML = "<p class=\"muted\">Loading course and hole data…</p>";
+
+      Promise.all([fetchJSON(coursePath), fetchJSON(holesPath)])
+        .then(function(results) {
+          currentCourse = results[0] || {};
+          currentHoles = Array.isArray(results[1]) ? results[1] : [];
+          currentTees = Array.isArray(currentCourse.tees) ? currentCourse.tees : [];
+
+          // Fill tee select
+          var teeHtml = "<option value=\"\">Any / Not set</option>";
+          currentTees.forEach(function(t) {
+            teeHtml += "<option value=\"" + t.id + "\">" +
+              (t.name || t.id) + "</option>";
+          });
+          teeSelect.innerHTML = teeHtml;
+
+          // Hole count pill
+          var maxHole = 0;
+          currentHoles.forEach(function(h, idx) {
+            var num = h.hole || (idx + 1);
+            if (num > maxHole) maxHole = num;
+          });
+          if (maxHole > 0) {
+            holeCountPill.textContent = maxHole + " hole(s) loaded";
+            holeCountPill.style.display = "inline-flex";
+          } else {
+            holeCountPill.style.display = "none";
+          }
+
+          currentHoleNum = 1;
+          startHoleInput.value = 1;
+          renderCurrentHole();
+        })
+        .catch(function(err) {
+          console.error("[course] Failed to load course:", courseId, err);
+          currentCourse = null;
+          currentHoles = [];
+          currentTees = [];
+          holeTitleEl.textContent = "Error loading course";
+          holeMetaEl.textContent = "";
+          holeContentEl.innerHTML =
+            "<p class=\"error\">Could not load <code>" + courseId +
+            "</code>. Check <code>course.json</code> and <code>holes.json</code>.</p>";
+          teeSelect.innerHTML = "<option value=\"\">—</option>";
+          holeCountPill.style.display = "none";
+        });
+    }
+
+    function getMaxHoleNumber() {
       var maxHole = 0;
-      holes.forEach(function(h, idx) {
+      currentHoles.forEach(function(h, idx) {
         var num = h.hole || (idx + 1);
         if (num > maxHole) maxHole = num;
       });
-
-      var loc = course.location || {};
-      var courseLat = (typeof loc.lat === "number") ? loc.lat : course.lat;
-      var courseLng = (typeof loc.lng === "number") ? loc.lng : course.lng;
-
-      var tees = Array.isArray(course.tees) ? course.tees : [];
-
-      var HOLE_STATS_KEY = "holeStats_" + (course.id || courseId || "unknown");
-
-      function loadHoleStatsFromStorage() {
-        try {
-          var raw = localStorage.getItem(HOLE_STATS_KEY);
-          if (!raw) return {};
-          var obj = JSON.parse(raw);
-          if (!obj || typeof obj !== "object") return {};
-          return obj;
-        } catch (e) {
-          console.warn("[holeStats] failed to load", HOLE_STATS_KEY, e);
-          return {};
-        }
-      }
-
-      function saveHoleStatsToStorage(stats) {
-        try {
-          localStorage.setItem(HOLE_STATS_KEY, JSON.stringify(stats));
-        } catch (e) {
-          console.warn("[holeStats] failed to save", HOLE_STATS_KEY, e);
-        }
-      }
-
-      var holeStats = loadHoleStatsFromStorage();
-      var currentHole = 1;
-
-      function findHoleData(holeNumber) {
-        var h = holes.find(function(hh) { return hh.hole === holeNumber; });
-        if (!h) {
-          var idx = holeNumber - 1;
-          if (idx >= 0 && idx < holes.length) return holes[idx];
-        }
-        return h || null;
-      }
-
-      function buildTeesSummaryForHole(holeNumber) {
-        var h = findHoleData(holeNumber);
-        if (!h || !h.yardages) return "";
-        var html = "";
-        tees.forEach(function(t) {
-          var teeId = t.id;
-          var teeName = t.name || teeId;
-          var color = t.color || "#e5e7eb";
-          var y = h.yardages[teeId];
-          if (typeof y === "number") {
-            html +=
-              "<span class='tee-pill'>" +
-                "<span class='tee-dot' style='background:" + color + ";'></span>" +
-                "<span>" + teeName + " · " + y + " yds</span>" +
-              "</span>";
-          }
-        });
-        return html;
-      }
-
-      function applyStatsToUI(stats) {
-        var s = stats || {};
-        var scoreInput = document.getElementById("holeScore");
-        var fairwaySelect = document.getElementById("holeFairway");
-        var girCheckbox = document.getElementById("holeGir");
-        var shapeSelect = document.getElementById("holeShotShape");
-        var chipsInput = document.getElementById("holeChips");
-        var puttsInput = document.getElementById("holePutts");
-        var bunkersInput = document.getElementById("holeBunkers");
-
-        if (scoreInput) scoreInput.value = (s.score != null ? s.score : "");
-        if (fairwaySelect) fairwaySelect.value = s.fairway || "";
-        if (girCheckbox) girCheckbox.checked = !!s.gir;
-        if (shapeSelect) shapeSelect.value = s.shotShape || "";
-        if (chipsInput) chipsInput.value = (s.chips != null ? s.chips : "");
-        if (puttsInput) puttsInput.value = (s.putts != null ? s.putts : "");
-        if (bunkersInput) bunkersInput.value = (s.bunkers != null ? s.bunkers : "");
-      }
-
-      function getStatsFromUI() {
-        var scoreInput = document.getElementById("holeScore");
-        var fairwaySelect = document.getElementById("holeFairway");
-        var girCheckbox = document.getElementById("holeGir");
-        var shapeSelect = document.getElementById("holeShotShape");
-        var chipsInput = document.getElementById("holeChips");
-        var puttsInput = document.getElementById("holePutts");
-        var bunkersInput = document.getElementById("holeBunkers");
-
-        function parseIntOrNull(el) {
-          if (!el) return null;
-          var v = (el.value || "").trim();
-          if (!v) return null;
-          var n = parseInt(v, 10);
-          return isNaN(n) ? null : n;
-        }
-
-        return {
-          score: parseIntOrNull(scoreInput),
-          fairway: fairwaySelect ? fairwaySelect.value : "",
-          gir: girCheckbox ? girCheckbox.checked : false,
-          shotShape: shapeSelect ? shapeSelect.value : "",
-          chips: parseIntOrNull(chipsInput),
-          putts: parseIntOrNull(puttsInput),
-          bunkers: parseIntOrNull(bunkersInput)
-        };
-      }
-
-      function saveCurrentHoleStats() {
-        var stats = getStatsFromUI();
-        // if everything is empty, we still keep an object, but this is fine
-        holeStats[currentHole] = stats;
-        saveHoleStatsToStorage(holeStats);
-      }
-
-      function renderHole(holeNumber) {
-        currentHole = holeNumber;
-        var h = findHoleData(holeNumber);
-        if (!h) {
-          holeDetail.innerHTML =
-            "<p class='error'>Hole " + holeNumber + " not found in holes.json.</p>";
-          return;
-        }
-
-        var par = h.par;
-        var hdcp = h.handicap;
-        var locLine = "";
-        if (course.location && (course.location.city || course.location.state)) {
-          locLine += course.location.city || "";
-          if (course.location.city && course.location.state) locLine += ", ";
-          if (course.location.state) locLine += course.location.state;
-        }
-
-        // Determine map coords: hole-level overrides course-level
-        var hLoc = h.location || {};
-        var lat = (typeof hLoc.lat === "number") ? hLoc.lat :
-                  (typeof h.lat === "number") ? h.lat : courseLat;
-        var lng = (typeof hLoc.lng === "number") ? hLoc.lng :
-                  (typeof h.lng === "number") ? h.lng : courseLng;
-
-        var mapHtml = "";
-        if (typeof lat === "number" && typeof lng === "number") {
-          var coords = lat + "," + lng;
-          var mapSrc = "https://www.google.com/maps?q=" +
-            encodeURIComponent(coords) + "&t=k&output=embed";
-          var mapLink = "https://www.google.com/maps?q=" +
-            encodeURIComponent(coords) + "&t=k";
-
-          mapHtml =
-            "<div class='detail-section-title'>GPS / Satellite</div>" +
-            "<div class='map-card'>" +
-              "<div class='map-embed-wrapper'>" +
-                "<iframe src='" + mapSrc +
-                "' loading='lazy' referrerpolicy='no-referrer-when-downgrade'></iframe>" +
-              "</div>" +
-              "<div class='map-meta'>" +
-                "<span>" + (locLine || "") + "</span>" +
-                "<a href='" + mapLink +
-                "' target='_blank' rel='noopener'>Open in Google Maps</a>" +
-              "</div>" +
-            "</div>";
-        }
-
-        // Media
-        var m = h.media || {};
-        var imageSrc = m.imageTee || m.image || m.imageGreen || null;
-        var flyover = m.flyover || null;
-
-        var imageHtml = "";
-        if (imageSrc) {
-          imageHtml = "<img src='" + imageSrc +
-                      "' alt='Hole " + holeNumber + " image' />";
-        } else {
-          imageHtml = "No image set for hole " + holeNumber + " yet.";
-        }
-
-        var flyoverBody = "";
-        var flyoverNote = "";
-        if (flyover) {
-          var lower = flyover.toLowerCase();
-          if (lower.endsWith(".mp4") || lower.endsWith(".webm") || lower.endsWith(".mov")) {
-            flyoverBody =
-              "<div class='media-body' id='flyoverMediaBody'>" +
-                "<video id='flyoverVideo' controls src='" + flyover + "'></video>" +
-              "</div>";
-            flyoverNote = "<div class='media-note'>Tap play to watch the flyover for this hole.</div>";
-          } else {
-            flyoverBody =
-              "<div class='media-body' id='flyoverMediaBody'>" +
-                "<a href='" + flyover +
-                "' target='_blank' rel='noopener'>Open flyover in a new tab</a>" +
-              "</div>";
-            flyoverNote = "<div class='media-note'>This flyover is an external link.</div>";
-          }
-        } else {
-          flyoverBody =
-            "<div class='media-body' id='flyoverMediaBody'>No flyover set for hole " +
-            holeNumber + " yet.</div>";
-          flyoverNote = "<div class='media-note'>Add <code>media.flyover</code> to this hole in holes.json.</div>";
-        }
-
-        // Caddy notes & yardages
-        var yardageTeesHtml = buildTeesSummaryForHole(holeNumber);
-        var tips = h.notes || h.tips || null;
-        var caddyHtml =
-          "<div class='caddy-header'>Hole " + holeNumber +
-          " · Par " + (typeof par === "number" ? par : "–") +
-          " · Hdcp " + ((hdcp === 0 || hdcp) ? hdcp : "–") + "</div>";
-
-        if (yardageTeesHtml) {
-          caddyHtml +=
-            "<div class='caddy-sub'>Yardages:</div>" +
-            "<div class='tee-pill-row'>" + yardageTeesHtml + "</div>";
-        }
-
-        if (Array.isArray(tips) && tips.length) {
-          caddyHtml += "<ul class='caddy-tips'>";
-          tips.forEach(function(t) { caddyHtml += "<li>" + t + "</li>"; });
-          caddyHtml += "</ul>";
-        } else if (typeof tips === "string" && tips.trim().length) {
-          caddyHtml += "<ul class='caddy-tips'><li>" + tips + "</li></ul>";
-        } else {
-          caddyHtml +=
-            "<p class='muted'>No written notes for this hole yet. Add a <code>\"notes\"</code> field for this hole in <code>holes.json</code>.</p>";
-        }
-
-        // Render left panel content (shot inputs + nav)
-        leftContent.innerHTML =
-          "<div class='hole-nav-row'>" +
-            "<span>Hole</span>" +
-            "<select id='holeSelect'></select>" +
-            "<button type='button' class='btn' id='btnPrevHole'>&larr; Prev</button>" +
-            "<button type='button' class='btn btn-primary' id='btnNextHole'>Save &amp; Next &rarr;</button>" +
-          "</div>" +
-          "<div class='field-group'>" +
-            "<label for='holeScore'>Score (strokes)</label>" +
-            "<input type='number' id='holeScore' min='1' max='20' />" +
-          "</div>" +
-          "<div class='field-group'>" +
-            <label for='holeFairway'>Fairway hit?</label>" +
-            "<select id='holeFairway'>" +
-              "<option value=''>—</option>" +
-              "<option value='hit'>Hit</option>" +
-              "<option value='miss-left'>Miss left</option>" +
-              "<option value='miss-right'>Miss right</option>" +
-              "<option value='other'>Miss (other)</option>" +
-            "</select>" +
-          "</div>" +
-          "<div class='inline-checkbox'>" +
-            "<input type='checkbox' id='holeGir' />" +
-            "<label for='holeGir'>Green in Regulation (GIR)</label>" +
-          "</div>" +
-          "<div class='field-group'>" +
-            "<label for='holeShotShape'>Primary shot shape</label>" +
-            "<select id='holeShotShape'>" +
-              "<option value=''>—</option>" +
-              "<option value='straight'>Straight</option>" +
-              "<option value='fade'>Fade</option>" +
-              "<option value='draw'>Draw</option>" +
-              "<option value='slice'>Slice</option>" +
-              "<option value='hook'>Hook</option>" +
-              "<option value='other'>Other</option>" +
-            "</select>" +
-          "</div>" +
-          "<div class='shot-options-grid'>" +
-            "<div class='field-group'>" +
-              "<label for='holeChips'># of chips</label>" +
-              "<input type='number' id='holeChips' min='0' max='10' />" +
-            "</div>" +
-            "<div class='field-group'>" +
-              "<label for='holePutts'># of putts</label>" +
-              "<input type='number' id='holePutts' min='0' max='10' />" +
-            "</div>" +
-            "<div class='field-group'>" +
-              "<label for='holeBunkers'>Bunker shots</label>" +
-              "<input type='number' id='holeBunkers' min='0' max='10' />" +
-            "</div>" +
-          "</div>";
-
-        // Render right panel hole content
-        holeDetail.innerHTML =
-          "<div class='hole-header'>" +
-            "<div class='hole-header-main'>" +
-              "<h3>" + (course.name || "Unnamed Course") + "</h3>" +
-              "<p>Hole " + holeNumber +
-                (typeof par === 'number' ? " · Par " + par : "") +
-                ((hdcp === 0 || hdcp) ? " · Hdcp " + hdcp : "") +
-              "</p>" +
-            "</div>" +
-            "<div class='hole-header-meta'>" +
-              (locLine ? ("<div>" + locLine + "</div>") : "") +
-              "<div class='muted'>Per-hole view · Local DB</div>" +
-            "</div>" +
-          "</div>" +
-          mapHtml +
-          "<div class='media-grid'>" +
-            "<div class='media-card'>" +
-              "<h3>Hole Image</h3>" +
-              "<div class='media-body' id='holeImageArea'>" + imageHtml + "</div>" +
-            "</div>" +
-            "<div class='media-card'>" +
-              "<div style='display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;'>" +
-                "<h3>Flyover</h3>" +
-                "<button type='button' class='btn' id='btnPlayFlyover'>Play flyover</button>" +
-              "</div>" +
-              flyoverBody +
-              flyoverNote +
-            "</div>" +
-          "</div>" +
-          "<div class='media-card' style='margin-top:8px;'>" +
-            "<h3>Caddy Notes</h3>" +
-            "<div id='caddyNotesArea'>" + caddyHtml + "</div>" +
-          "</div>";
-
-        // Populate hole select with all hole numbers
-        var holeSelectEl = document.getElementById("holeSelect");
-        if (holeSelectEl) {
-          holeSelectEl.innerHTML = "";
-          for (var i = 1; i <= maxHole; i++) {
-            var opt = document.createElement("option");
-            opt.value = String(i);
-            opt.textContent = "Hole " + i;
-            holeSelectEl.appendChild(opt);
-          }
-          holeSelectEl.value = String(currentHole);
-          holeSelectEl.addEventListener("change", function() {
-            saveCurrentHoleStats();
-            var newHole = parseInt(holeSelectEl.value, 10);
-            if (!isNaN(newHole)) {
-              renderHole(newHole);
-            }
-          });
-        }
-
-        // Enable / disable prev/next
-        var btnPrev = document.getElementById("btnPrevHole");
-        var btnNext = document.getElementById("btnNextHole");
-        if (btnPrev) {
-          btnPrev.disabled = (currentHole <= 1);
-          btnPrev.onclick = function() {
-            if (currentHole <= 1) return;
-            saveCurrentHoleStats();
-            renderHole(currentHole - 1);
-          };
-        }
-        if (btnNext) {
-          btnNext.disabled = (currentHole >= maxHole);
-          btnNext.textContent = (currentHole < maxHole)
-            ? "Save & Next →"
-            : "Save (last hole)";
-          btnNext.onclick = function() {
-            saveCurrentHoleStats();
-            if (currentHole < maxHole) {
-              renderHole(currentHole + 1);
-            }
-          };
-        }
-
-        // Apply any saved stats for this hole
-        applyStatsToUI(holeStats[currentHole]);
-
-        // Live-save on change
-        ["holeScore","holeFairway","holeShotShape",
-         "holeChips","holePutts","holeBunkers"].forEach(function(id) {
-          var el = document.getElementById(id);
-          if (!el) return;
-          el.addEventListener("input", function() {
-            holeStats[currentHole] = getStatsFromUI();
-            saveHoleStatsToStorage(holeStats);
-          });
-        });
-        var girEl = document.getElementById("holeGir");
-        if (girEl) {
-          girEl.addEventListener("change", function() {
-            holeStats[currentHole] = getStatsFromUI();
-            saveHoleStatsToStorage(holeStats);
-          });
-        }
-
-        // Flyover button behavior
-        var btnPlayFlyover = document.getElementById("btnPlayFlyover");
-        if (btnPlayFlyover) {
-          if (!flyover) {
-            btnPlayFlyover.disabled = true;
-          } else {
-            btnPlayFlyover.disabled = false;
-            btnPlayFlyover.onclick = function() {
-              // if we rendered a video, try to play it; otherwise open link
-              var vid = document.getElementById("flyoverVideo");
-              if (vid && typeof vid.play === "function") {
-                vid.play();
-              } else {
-                window.open(flyover, "_blank", "noopener");
-              }
-            };
-          }
-        }
-      }
-
-      // Initial render: start on hole 1
-      renderHole(1);
+      return maxHole;
     }
 
-    loadCourses();
+    function findHoleData(holeNum) {
+      if (!Array.isArray(currentHoles)) return null;
+      var found = null;
+      currentHoles.forEach(function(h, idx) {
+        var num = h.hole || (idx + 1);
+        if (num === holeNum) found = h;
+      });
+      return found;
+    }
+
+    // ===== STATS STORAGE =====
+    function statsStorageKey() {
+      var id = (currentCourse && currentCourse.id) || courseSelect.value || "unknown";
+      return "holeStats_" + id;
+    }
+
+    function loadStatsForCourse() {
+      try {
+        var raw = localStorage.getItem(statsStorageKey());
+        if (!raw) return {};
+        var obj = JSON.parse(raw);
+        if (!obj || typeof obj !== "object") return {};
+        return obj;
+      } catch (e) {
+        console.warn("[stats] failed to load", e);
+        return {};
+      }
+    }
+
+    function saveStatsForCourse(statsObj) {
+      try {
+        localStorage.setItem(statsStorageKey(), JSON.stringify(statsObj));
+      } catch (e) {
+        console.warn("[stats] failed to save", e);
+      }
+    }
+
+    function loadStatsForHole(holeNum) {
+      var all = loadStatsForCourse();
+      return all[holeNum] || {};
+    }
+
+    function saveStatsForHole(holeNum, data) {
+      var all = loadStatsForCourse();
+      all[holeNum] = data;
+      saveStatsForCourse(all);
+    }
+
+    // ===== RENDER & UI =====
+    function renderCurrentHole() {
+      if (!currentCourse || !currentHoles.length) {
+        holeTitleEl.textContent = "No course selected";
+        holeMetaEl.textContent = "";
+        holeContentEl.innerHTML =
+          "<p class=\"muted\">Select a course on the left to load per-hole data.</p>";
+        return;
+      }
+
+      var maxHole = getMaxHoleNumber();
+      if (!maxHole) {
+        holeTitleEl.textContent = currentCourse.name || "Course";
+        holeMetaEl.textContent = "No holes.json data found for this course.";
+        holeContentEl.innerHTML =
+          "<p class=\"muted\">Add hole data in <code>holes.json</code> to use the per-hole tracker.</p>";
+        return;
+      }
+
+      if (currentHoleNum < 1) currentHoleNum = 1;
+      if (currentHoleNum > maxHole) currentHoleNum = maxHole;
+
+      var h = findHoleData(currentHoleNum);
+      if (!h) {
+        holeTitleEl.textContent = (currentCourse.name || "Course") +
+          " – Hole " + currentHoleNum;
+        holeMetaEl.textContent = "Hole not defined in holes.json";
+        holeContentEl.innerHTML =
+          "<p class=\"muted\">Hole " + currentHoleNum +
+          " is not defined in <code>holes.json</code>.</p>";
+        return;
+      }
+
+      var par = h.par;
+      var hdcp = h.handicap;
+      var tees = currentTees;
+      var yardages = h.yardages || {};
+      var media = h.media || {};
+      var notes = h.notes || h.tips || h.layout;
+
+      // Header text
+      holeTitleEl.textContent = (currentCourse.name || "Course") +
+        " – Hole " + currentHoleNum;
+      var metaParts = [];
+      if (typeof par === "number") metaParts.push("Par " + par);
+      if (hdcp === 0 || hdcp) metaParts.push("Hdcp " + hdcp);
+      var loc = currentCourse.location || {};
+      if (loc.city) metaParts.push(loc.city);
+      holeMetaEl.textContent = metaParts.join(" · ");
+
+      // Build hole content layout
+      holeContentEl.innerHTML =
+        "<div class=\"hole-layout\">" +
+          "<div>" +
+            "<div class=\"gps-card\">" +
+              "<h3>GPS / Hole Image</h3>" +
+              "<div class=\"gps-image-wrapper\" id=\"gpsImageWrapper\">Loading image…</div>" +
+              "<div class=\"gps-meta\">" +
+                "<span id=\"gpsMetaText\" class=\"muted\"></span>" +
+              "</div>" +
+            "</div>" +
+            "<div class=\"flyover-card\">" +
+              "<h3>Flyover</h3>" +
+              "<div class=\"flyover-area\" id=\"flyoverArea\">No flyover set for this hole yet.</div>" +
+            "</div>" +
+          "</div>" +
+          "<div>" +
+            "<div class=\"yardage-card\">" +
+              "<h3>Yardages</h3>" +
+              "<div class=\"yardage-list\" id=\"yardageList\"></div>" +
+            "</div>" +
+            "<div class=\"caddy-card\">" +
+              "<h3>Caddy Notes</h3>" +
+              "<div class=\"caddy-body\" id=\"caddyBody\"></div>" +
+            "</div>" +
+            "<div class=\"stats-card\">" +
+              "<h3>Shot Stats</h3>" +
+              "<div class=\"stats-grid\">" +
+                "<div class=\"stats-field\">" +
+                  "<label for=\"statScore\">Score</label>" +
+                  "<input type=\"number\" id=\"statScore\" min=\"1\" max=\"20\" />" +
+                "</div>" +
+                "<div class=\"stats-field\">" +
+                  <label for=\"statFairway\">Fairway Hit?</label>" +
+                  "<select id=\"statFairway\">" +
+                    "<option value=\"\">—</option>" +
+                    "<option value=\"Y\">Yes</option>" +
+                    "<option value=\"N\">No</option>" +
+                    "<option value=\"NA\">N/A (Par 3)</option>" +
+                  "</select>" +
+                "</div>" +
+                "<div class=\"stats-field\">" +
+                  "<label for=\"statGIR\">GIR?</label>" +
+                  "<select id=\"statGIR\">" +
+                    "<option value=\"\">—</option>" +
+                    "<option value=\"Y\">Yes</option>" +
+                    "<option value=\"N\">No</option>" +
+                  "</select>" +
+                "</div>" +
+                "<div class=\"stats-field\">" +
+                  "<label for=\"statShape\">Shot Shape</label>" +
+                  "<select id=\"statShape\">" +
+                    "<option value=\"\">—</option>" +
+                    "<option value=\"straight\">Straight</option>" +
+                    "<option value=\"draw\">Draw</option>" +
+                    "<option value=\"fade\">Fade</option>" +
+                    "<option value=\"hook\">Hook</option>" +
+                    "<option value=\"slice\">Slice</option>" +
+                    "<option value=\"other\">Other</option>" +
+                  "</select>" +
+                "</div>" +
+                "<div class=\"stats-field\">" +
+                  "<label for=\"statChips\"># of Chips</label>" +
+                  "<input type=\"number\" id=\"statChips\" min=\"0\" max=\"10\" />" +
+                "</div>" +
+                "<div class=\"stats-field\">" +
+                  "<label for=\"statPutts\"># of Putts</label>" +
+                  "<input type=\"number\" id=\"statPutts\" min=\"0\" max=\"10\" />" +
+                "</div>" +
+                "<div class=\"stats-field\">" +
+                  "<label for=\"statBunkers\">Bunker Shots</label>" +
+                  "<input type=\"number\" id=\"statBunkers\" min=\"0\" max=\"10\" />" +
+                "</div>" +
+                "<div class=\"stats-field\">" +
+                  "<label for=\"statPenalties\">Penalty Strokes</label>" +
+                  "<input type=\"number\" id=\"statPenalties\" min=\"0\" max=\"10\" />" +
+                "</div>" +
+              "</div>" +
+              "<div class=\"stats-notes\">" +
+                "<label for=\"statNotes\">Hole Notes</label>" +
+                "<textarea id=\"statNotes\" placeholder=\"Wind, club choice, targets, mistakes, etc.\"></textarea>" +
+              "</div>" +
+              "<div class=\"stats-footer\">" +
+                "<span id=\"statsTeeLabel\" class=\"muted\"></span>" +
+                "<span class=\"muted\">Stats auto-save when you hit “Save &amp; Next”.</span>" +
+              "</div>" +
+            "</div>" +
+          "</div>" +
+        "</div>";
+
+      // Fill GPS image
+      var gpsWrapper = document.getElementById("gpsImageWrapper");
+      var gpsMetaText = document.getElementById("gpsMetaText");
+      var imgSrc = media.imageTee || media.image || media.imageGreen || null;
+      if (gpsWrapper) {
+        if (imgSrc) {
+          gpsWrapper.innerHTML =
+            "<img src=\"" + imgSrc + "\" alt=\"Hole " + currentHoleNum + " image\" />";
+          gpsMetaText.textContent = "Image from holes.json media field.";
+        } else {
+          gpsWrapper.textContent = "No image configured for this hole yet.";
+          gpsMetaText.textContent = "";
+        }
+      }
+
+      // Fill flyover
+      var flyArea = document.getElementById("flyoverArea");
+      if (flyArea) {
+        if (media.flyover) {
+          var lower = String(media.flyover).toLowerCase();
+          if (lower.endsWith(".mp4") || lower.endsWith(".webm") || lower.endsWith(".mov")) {
+            flyArea.innerHTML =
+              "<video controls src=\"" + media.flyover + "\"></video>";
+          } else {
+            flyArea.innerHTML =
+              "<button type=\"button\" class=\"btn\" onclick=\"window.open('" +
+              media.flyover + "', '_blank')\">Open Flyover</button>";
+          }
+        } else {
+          flyArea.textContent = "No flyover set for this hole yet.";
+        }
+      }
+
+      // Yardages
+      var yardageList = document.getElementById("yardageList");
+      if (yardageList) {
+        if (!tees || !tees.length) {
+          yardageList.innerHTML =
+            "<span class=\"muted\">No tees defined in course.json.</span>";
+        } else {
+          var yHtml = "";
+          tees.forEach(function(t) {
+            var teeId = t.id;
+            var teeName = t.name || teeId;
+            var color = t.color || "#e5e7eb";
+            var y = (yardages && typeof yardages[teeId] === "number")
+              ? yardages[teeId]
+              : null;
+            yHtml += "<div class=\"yardage-line\">" +
+              "<span class=\"tee-label-line\">" +
+                "<span class=\"tee-dot\" style=\"background:" + color + ";\"></span>" +
+                teeName +
+              "</span>" +
+              "<span>" + (y !== null ? (y + " yds") : "—") + "</span>" +
+            "</div>";
+          });
+          yardageList.innerHTML = yHtml;
+        }
+      }
+
+      // Caddy notes
+      var caddyBody = document.getElementById("caddyBody");
+      if (caddyBody) {
+        var text = "";
+        if (Array.isArray(notes)) {
+          text += "<ul>";
+          notes.forEach(function(n) {
+            text += "<li>" + n + "</li>";
+          });
+          text += "</ul>";
+        } else if (typeof notes === "string" && notes.trim().length) {
+          text += "<p>" + notes + "</p>";
+        } else {
+          text += "<p class=\"muted\">No written notes yet. Add a <code>notes</code> or <code>tips</code> field for this hole in <code>holes.json</code>.</p>";
+        }
+        caddyBody.innerHTML = text;
+      }
+
+      // Stats form: prefill from storage
+      var s = loadStatsForHole(currentHoleNum);
+      var statScore = document.getElementById("statScore");
+      var statFairway = document.getElementById("statFairway");
+      var statGIR = document.getElementById("statGIR");
+      var statShape = document.getElementById("statShape");
+      var statChips = document.getElementById("statChips");
+      var statPutts = document.getElementById("statPutts");
+      var statBunkers = document.getElementById("statBunkers");
+      var statPenalties = document.getElementById("statPenalties");
+      var statNotes = document.getElementById("statNotes");
+      var statsTeeLabel = document.getElementById("statsTeeLabel");
+
+      if (statScore) statScore.value = (s.score != null ? s.score : "");
+      if (statFairway) statFairway.value = s.fairway || "";
+      if (statGIR) statGIR.value = s.gir || "";
+      if (statShape) statShape.value = s.shape || "";
+      if (statChips) statChips.value = (s.chips != null ? s.chips : "");
+      if (statPutts) statPutts.value = (s.putts != null ? s.putts : "");
+      if (statBunkers) statBunkers.value = (s.bunkers != null ? s.bunkers : "");
+      if (statPenalties) statPenalties.value = (s.penalties != null ? s.penalties : "");
+      if (statNotes) statNotes.value = s.notes || "";
+
+      // Tee label
+      if (statsTeeLabel) {
+        var teeId = teeSelect.value;
+        var teeName = "";
+        if (teeId) {
+          var foundTee = tees.find(function(t) { return t.id === teeId; });
+          teeName = foundTee ? (foundTee.name || foundTee.id) : teeId;
+        }
+        statsTeeLabel.textContent = teeName
+          ? ("Tracking from tee: " + teeName)
+          : "No tee selected (using course yardage only).";
+      }
+
+      // Update startHoleInput to current
+      startHoleInput.value = currentHoleNum;
+    }
+
+    function saveCurrentHoleStats() {
+      if (!currentCourse || !currentHoles.length) return;
+      var maxHole = getMaxHoleNumber();
+      if (!maxHole) return;
+
+      var statScore = document.getElementById("statScore");
+      var statFairway = document.getElementById("statFairway");
+      var statGIR = document.getElementById("statGIR");
+      var statShape = document.getElementById("statShape");
+      var statChips = document.getElementById("statChips");
+      var statPutts = document.getElementById("statPutts");
+      var statBunkers = document.getElementById("statBunkers");
+      var statPenalties = document.getElementById("statPenalties");
+      var statNotes = document.getElementById("statNotes");
+
+      var data = {
+        score: statScore ? (statScore.value || "") : "",
+        fairway: statFairway ? (statFairway.value || "") : "",
+        gir: statGIR ? (statGIR.value || "") : "",
+        shape: statShape ? (statShape.value || "") : "",
+        chips: statChips && statChips.value !== "" ? Number(statChips.value) : "",
+        putts: statPutts && statPutts.value !== "" ? Number(statPutts.value) : "",
+        bunkers: statBunkers && statBunkers.value !== "" ? Number(statBunkers.value) : "",
+        penalties: statPenalties && statPenalties.value !== "" ? Number(statPenalties.value) : "",
+        notes: statNotes ? (statNotes.value || "") : "",
+        teeId: teeSelect.value || ""
+      };
+
+      saveStatsForHole(currentHoleNum, data);
+    }
+
+    // ===== EVENTS =====
+    courseSelect.addEventListener("change", function() {
+      loadCourseById(courseSelect.value);
+    });
+
+    btnJumpToHole.addEventListener("click", function() {
+      var v = parseInt(startHoleInput.value, 10);
+      var maxHole = getMaxHoleNumber();
+      if (!maxHole) return;
+      if (isNaN(v) || v < 1) v = 1;
+      if (v > maxHole) v = maxHole;
+      currentHoleNum = v;
+      renderCurrentHole();
+    });
+
+    btnPrevHole.addEventListener("click", function() {
+      if (!currentCourse || !currentHoles.length) return;
+      saveCurrentHoleStats();
+      var maxHole = getMaxHoleNumber();
+      if (!maxHole) return;
+      currentHoleNum = currentHoleNum - 1;
+      if (currentHoleNum < 1) currentHoleNum = 1;
+      renderCurrentHole();
+    });
+
+    btnSaveNextHole.addEventListener("click", function() {
+      if (!currentCourse || !currentHoles.length) return;
+      saveCurrentHoleStats();
+      var maxHole = getMaxHoleNumber();
+      if (!maxHole) return;
+      if (currentHoleNum < maxHole) {
+        currentHoleNum += 1;
+        renderCurrentHole();
+      } else {
+        // end-of-round: just re-render (stats saved)
+        renderCurrentHole();
+        alert("Stats saved for final hole.");
+      }
+    });
+
+    teeSelect.addEventListener("change", function() {
+      // Just refresh the tee label in stats card
+      renderCurrentHole();
+    });
+
+    // Initial load
+    loadCoursesIndex();
   </script>
 </body>
 </html>
