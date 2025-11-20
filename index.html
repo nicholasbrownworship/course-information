@@ -609,25 +609,25 @@
       text-overflow: ellipsis;
       overflow: hidden;
     }
+
     .scorebook-round-header-right {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
 
-.scorebook-round-delete {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 0.9rem;
-  padding: 0 4px;
-  color: var(--muted);
-}
+    .scorebook-round-delete {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 0.9rem;
+      padding: 0 4px;
+      color: var(--muted);
+    }
 
-.scorebook-round-delete:hover {
-  color: #b91c1c;
-}
-
+    .scorebook-round-delete:hover {
+      color: #b91c1c;
+    }
   </style>
 </head>
 <body>
@@ -1201,7 +1201,7 @@
       function recalcScores(skipSaveDraft) {
         var snap = getCurrentSnapshot();
         if (outCell) outCell.textContent = snap.out || "";
-        if (inCell) inCell.textContent = (hasBack ? (snap.in || "") : "");
+        if (inCell) outCell && (inCell.textContent = (hasBack ? (snap.in || "") : ""));
         if (totalCell) totalCell.textContent = snap.total || "";
         updateFinishButtonState();
         if (!skipSaveDraft) saveDraft();
@@ -1273,7 +1273,10 @@
             "<div class='scorebook-round' data-round-id='" + r.id + "'>" +
               "<div class='scorebook-round-header'>" +
                 "<span>" + formatDate(r.dateISO) + "</span>" +
-                "<span>" + (typeof r.total === "number" ? ("Total " + r.total) : "") + "</span>" +
+                "<span class='scorebook-round-header-right'>" +
+                  (typeof r.total === 'number' ? ("Total " + r.total) : "") +
+                  "<button type='button' class='scorebook-round-delete' data-round-id='" + r.id + "' aria-label='Delete round'>&times;</button>" +
+                "</span>" +
               "</div>" +
               "<div class='scorebook-round-meta'>" + metaText + "</div>" +
               (preview ? "<div class='scorebook-round-notes'>" + preview + "</div>" : "") +
@@ -1282,6 +1285,7 @@
 
         scorebookListEl.innerHTML = html;
 
+        // clicking card loads round
         var items = scorebookListEl.querySelectorAll(".scorebook-round");
         items.forEach(function(item) {
           item.addEventListener("click", function() {
@@ -1289,6 +1293,24 @@
             var rounds = loadRoundsFromStorage();
             var round = rounds.find(function(r) { return String(r.id) === String(roundId); });
             if (round) loadRoundIntoUI(round);
+          });
+        });
+
+        // clicking × deletes round (with confirm)
+        var deleteButtons = scorebookListEl.querySelectorAll(".scorebook-round-delete");
+        deleteButtons.forEach(function(btn) {
+          btn.addEventListener("click", function(e) {
+            e.stopPropagation(); // don't trigger parent click
+            var ok = confirm("Delete this round from the scorebook? This cannot be undone.");
+            if (!ok) return;
+
+            var roundId = btn.getAttribute("data-round-id");
+            var rounds = loadRoundsFromStorage();
+            var filtered = rounds.filter(function(r) {
+              return String(r.id) !== String(roundId);
+            });
+            saveRoundsToStorage(filtered);
+            renderScorebook();
           });
         });
       }
