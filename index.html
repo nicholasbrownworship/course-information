@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Course Information – Local Golf Database</title>
+  <title>Course Information – Local Golf Scorebook</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
@@ -56,9 +56,8 @@
     main {
       flex: 1;
       width: 100%;
-      margin: 0;
       display: grid;
-      grid-template-columns: 260px minmax(0, 1fr);
+      grid-template-columns: 260px minmax(0,1fr);
       gap: 8px;
       padding: 8px 10px;
     }
@@ -70,7 +69,7 @@
     }
 
     .panel {
-      background: rgba(252, 249, 242, 0.97);
+      background: rgba(252,249,242,0.97);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       border: 1px solid rgba(0,0,0,0.04);
@@ -91,7 +90,18 @@
       font-size: 0.78rem;
     }
 
-    /* ===== COURSE LIST ===== */
+    .muted {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .error {
+      color: #b91c1c;
+      font-size: 0.85rem;
+      margin-top: 6px;
+    }
+
+    /* COURSE LIST */
     #coursesList {
       display: flex;
       flex-direction: column;
@@ -133,18 +143,7 @@
       opacity: 0.85;
     }
 
-    .muted {
-      color: var(--muted);
-      font-size: 0.85rem;
-    }
-
-    .error {
-      color: #b91c1c;
-      font-size: 0.85rem;
-      margin-top: 6px;
-    }
-
-    /* ===== COURSE HEADER / BADGES ===== */
+    /* COURSE HEADER / BADGES */
     .course-header {
       display: flex;
       flex-wrap: wrap;
@@ -196,7 +195,7 @@
       margin: 8px 0 4px;
     }
 
-    /* ===== TEES LEGEND ===== */
+    /* TEES INFO */
     #teesInfo {
       margin: 2px 0 8px;
       font-size: 0.8rem;
@@ -228,7 +227,21 @@
       flex-shrink: 0;
     }
 
-    /* ===== MAP CARD ===== */
+    .tee-name-cell {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tee-name-swatch {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    /* MAP CARD */
     .map-card {
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,0.08);
@@ -241,7 +254,7 @@
     .map-embed-wrapper {
       border-radius: 8px;
       overflow: hidden;
-      height: 500px;
+      height: 280px;
       background: #d1d5db;
     }
 
@@ -265,7 +278,7 @@
       text-decoration: underline;
     }
 
-    /* ===== SCORECARD TABLES (YARDAGE) ===== */
+    /* YARDAGE SCORECARD */
     .scorecard-wrapper {
       max-width: 100%;
       overflow-x: auto;
@@ -326,21 +339,7 @@
       font-weight: 600;
     }
 
-    .tee-name-cell {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .tee-name-swatch {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(0,0,0,0.15);
-      flex-shrink: 0;
-    }
-
-    /* ===== SCORE TABLE (separate – full-cell inputs, centered text) ===== */
+    /* SCORE ENTRY TABLE */
     .scorecard-wrapper-score {
       margin-top: 6px;
     }
@@ -390,7 +389,73 @@
       box-sizing: border-box;
     }
 
-    /* ===== MEDIA / VIRTUAL CADDY ===== */
+    /* ROUND META / NOTES / BUTTONS */
+    .round-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin: 6px 0 4px;
+      font-size: 0.8rem;
+    }
+
+    .round-meta-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .round-meta-row select {
+      padding: 3px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: #fcfaf2;
+      font-size: 0.8rem;
+    }
+
+    .round-notes {
+      width: 100%;
+      margin: 4px 0 6px;
+      font-size: 0.8rem;
+      font-family: inherit;
+      padding: 4px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.16);
+      background: #fffbf4;
+      resize: vertical;
+      min-height: 46px;
+    }
+
+    .round-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.18);
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      background: #fdf7ea;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-primary {
+      background: #244f3c;
+      color: #fefcf5;
+      border-color: #1a3a2b;
+    }
+
+    .btn:hover {
+      filter: brightness(0.98);
+    }
+
+    /* VIRTUAL CADDY */
     .media-stack {
       margin-top: 10px;
       display: flex;
@@ -471,7 +536,7 @@
       margin-top: 3px;
     }
 
-    /* ===== CADDY NOTES ===== */
+    /* CADDY NOTES */
     .caddy-header {
       font-weight: 600;
       margin-bottom: 4px;
@@ -493,29 +558,78 @@
     .caddy-tips li {
       margin-bottom: 2px;
     }
+
+    /* SCOREBOOK */
+    .scorebook-list {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+
+    .scorebook-empty {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .scorebook-round {
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #fffaf4;
+      padding: 6px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      cursor: pointer;
+      transition: box-shadow 0.12s ease, transform 0.12s ease;
+    }
+
+    .scorebook-round:hover {
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      transform: translateY(-1px);
+    }
+
+    .scorebook-round-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      font-weight: 600;
+    }
+
+    .scorebook-round-meta {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .scorebook-round-notes {
+      color: var(--muted);
+      font-size: 0.75rem;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>Local Course Information</h1>
-    <p>A lightweight yardage book. Data lives in /data; this page just reads it.</p>
+    <p>A lightweight yardage &amp; score book. Data lives in /data; this page just reads it.</p>
   </header>
 
   <main>
-    <!-- LEFT: COURSE LIST -->
     <section class="panel">
       <h2>Courses</h2>
-      <small>Select a course to view its yardages, pars, and media.</small>
+      <small>Select a course to view its scorebook, yardages, and media.</small>
       <div id="coursesList"></div>
       <div id="coursesError" class="error" style="display:none;"></div>
     </section>
 
-    <!-- RIGHT: SCORECARDS + MEDIA -->
     <section class="panel">
       <h2>Course Detail</h2>
       <div id="courseDetail">
         <p class="muted">
-          Choose a course on the left to see its scorecards, map, and virtual caddy panel.
+          Choose a course on the left to see its map, yardage card, virtual caddy, and saved rounds.
         </p>
       </div>
     </section>
@@ -526,9 +640,7 @@
 
     function fetchJSON(path) {
       return fetch(path).then(function(res) {
-        if (!res.ok) {
-          throw new Error("HTTP " + res.status + " for " + path);
-        }
+        if (!res.ok) throw new Error("HTTP " + res.status + " for " + path);
         return res.json();
       });
     }
@@ -541,9 +653,8 @@
 
       fetchJSON(COURSES_INDEX_PATH)
         .then(function(courses) {
-          if (!Array.isArray(courses) || courses.length === 0) {
-            listEl.innerHTML =
-              "<p class='muted'>No courses found in data/courses.json.</p>";
+          if (!Array.isArray(courses) || !courses.length) {
+            listEl.innerHTML = "<p class='muted'>No courses found in data/courses.json.</p>";
             return;
           }
           renderCourseList(courses);
@@ -556,8 +667,7 @@
         .catch(function(err) {
           console.error("[courses] Failed to load", err);
           listEl.innerHTML = "";
-          errorEl.textContent =
-            "Could not load " + COURSES_INDEX_PATH + " – " + err.message;
+          errorEl.textContent = "Could not load " + COURSES_INDEX_PATH + " – " + err.message;
           errorEl.style.display = "block";
         });
     }
@@ -582,8 +692,8 @@
         var city = course.city || "";
         var state = course.state || "";
         var holes = course.holes;
-
         var metaText = city;
+
         if (city && state) {
           metaText += ", " + state;
         } else if (state) {
@@ -593,8 +703,8 @@
           if (metaText) metaText += " · ";
           metaText += holes + " holes";
         }
-        meta.textContent = metaText;
 
+        meta.textContent = metaText;
         pill.appendChild(title);
         pill.appendChild(meta);
 
@@ -624,24 +734,18 @@
 
       Promise.all([fetchJSON(coursePath), fetchJSON(holesPath)])
         .then(function(results) {
-          var course = results[0];
-          var holes = results[1];
-          renderCourseDetail(course, holes);
+          renderCourseDetail(results[0], results[1], courseId);
         })
         .catch(function(err) {
           console.error("[course] Failed to load", courseId, err);
           container.innerHTML =
-            "<p class='error'>Could not load <code>" +
-            courseId +
-            "</code> data. Check that <code>" +
-            coursePath +
-            "</code> and <code>" +
-            holesPath +
-            "</code> exist and are valid JSON.</p>";
+            "<p class='error'>Could not load <code>" + courseId +
+            "</code>. Check that <code>" + coursePath +
+            "</code> and <code>" + holesPath + "</code> exist and are valid JSON.</p>";
         });
     }
 
-    function renderCourseDetail(course, holes) {
+    function renderCourseDetail(course, holes, courseId) {
       var container = document.getElementById("courseDetail");
       if (!course) {
         container.innerHTML = "<p class='error'>No course JSON loaded.</p>";
@@ -661,6 +765,10 @@
         locLine += course.holes + " holes";
       }
 
+      // allow lat/lng either at top-level or in location
+      var lat = (typeof loc.lat === "number") ? loc.lat : course.lat;
+      var lng = (typeof loc.lng === "number") ? loc.lng : course.lng;
+
       var notesBadge = course.notes
         ? "<span class='badge'>" + course.notes + "</span>"
         : "";
@@ -678,34 +786,28 @@
             "</span>";
         });
       } else {
-        teesInfo =
-          "<span>No tees defined yet in <code>course.json</code>.</span>";
+        teesInfo = "<span>No tees defined yet in <code>course.json</code>.</span>";
       }
 
-      // Map HTML (if lat/lng present)
       var mapHtml = "";
-      if (typeof loc.lat === "number" && typeof loc.lng === "number") {
-        var coords = loc.lat + "," + loc.lng;
-        var mapSrc =
-  "https://www.google.com/maps?q=" +
-  encodeURIComponent(coords) +
-  "&t=k&output=embed";  // t=k = satellite
-
-var mapLink =
-  "https://www.google.com/maps?q=" +
-  encodeURIComponent(coords) +
-  "&t=k";
-
+      if (typeof lat === "number" && typeof lng === "number") {
+        var coords = lat + "," + lng;
+        var mapSrc = "https://www.google.com/maps?q=" +
+          encodeURIComponent(coords) + "&t=k&output=embed";
+        var mapLink = "https://www.google.com/maps?q=" +
+          encodeURIComponent(coords) + "&t=k";
 
         mapHtml =
           "<div class='detail-section-title'>Location &amp; Map</div>" +
           "<div class='map-card'>" +
             "<div class='map-embed-wrapper'>" +
-              "<iframe src='" + mapSrc + "' loading='lazy' referrerpolicy='no-referrer-when-downgrade'></iframe>" +
+              "<iframe src='" + mapSrc +
+              "' loading='lazy' referrerpolicy='no-referrer-when-downgrade'></iframe>" +
             "</div>" +
             "<div class='map-meta'>" +
               "<span>" + (locLine || "") + "</span>" +
-              "<a href='" + mapLink + "' target='_blank' rel='noopener'>Open in Google Maps</a>" +
+              "<a href='" + mapLink +
+              "' target='_blank' rel='noopener'>Open in Google Maps</a>" +
             "</div>" +
           "</div>";
       }
@@ -714,12 +816,8 @@ var mapLink =
         container.innerHTML =
           "<div class='course-header'>" +
             "<div class='course-header-main'>" +
-              "<h3>" +
-                (course.name || "Unnamed Course") +
-              "</h3>" +
-              "<p>" +
-                (locLine || "") +
-              "</p>" +
+              "<h3>" + (course.name || "Unnamed Course") + "</h3>" +
+              "<p>" + (locLine || "") + "</p>" +
             "</div>" +
             "<div class='course-badges'>" +
               "<span class='badge badge-pill'>Local DB</span>" +
@@ -728,20 +826,17 @@ var mapLink =
           "</div>" +
           mapHtml +
           "<div class='detail-section-title'>Tees</div>" +
-          "<div id='teesInfo'>" +
-            teesInfo +
-          "</div>" +
+          "<div id='teesInfo'>" + teesInfo + "</div>" +
           "<p class='muted'>No holes.json data yet – once you start filling in hole info, the scorecards and virtual caddy panel will appear.</p>";
         return;
       }
 
-      // ===== BUILD HOLE / YARDAGE / MEDIA / CADDY DATA =====
+      // ===== build per-hole data =====
       var maxHole = 0;
       holes.forEach(function(h, idx) {
-        var num = h.hole || idx + 1;
+        var num = h.hole || (idx + 1);
         if (num > maxHole) maxHole = num;
       });
-
       var frontEnd = Math.min(9, maxHole);
       var backStart = frontEnd + 1;
       var hasBack = maxHole > frontEnd;
@@ -749,23 +844,17 @@ var mapLink =
       var parByHole = {};
       var hdcpByHole = {};
       var yardagesByTeeHole = {};
+      var teeTotals = {};
       var mediaByHole = {};
       var caddyByHole = {};
-      var parFront = 0;
-      var parBack = 0;
       var parTotal = 0;
-      var teeTotals = {};
 
       holes.forEach(function(h, idx) {
-        var holeNum = h.hole || idx + 1;
+        var holeNum = h.hole || (idx + 1);
         parByHole[holeNum] = h.par;
         hdcpByHole[holeNum] = h.handicap;
 
-        if (typeof h.par === "number") {
-          if (holeNum <= frontEnd) parFront += h.par;
-          else parBack += h.par;
-          parTotal += h.par;
-        }
+        if (typeof h.par === "number") parTotal += h.par;
 
         if (h.yardages && typeof h.yardages === "object") {
           tees.forEach(function(t) {
@@ -775,9 +864,7 @@ var mapLink =
               if (!yardagesByTeeHole[teeId]) yardagesByTeeHole[teeId] = {};
               yardagesByTeeHole[teeId][holeNum] = y;
 
-              if (!teeTotals[teeId]) {
-                teeTotals[teeId] = { front: 0, back: 0, total: 0 };
-              }
+              if (!teeTotals[teeId]) teeTotals[teeId] = { front: 0, back: 0, total: 0 };
               if (holeNum <= frontEnd) teeTotals[teeId].front += y;
               else teeTotals[teeId].back += y;
               teeTotals[teeId].total += y;
@@ -786,11 +873,9 @@ var mapLink =
         }
 
         var m = h.media || {};
-        var imgPath = m.imageTee || m.image || m.imageGreen || null;
-        var flyPath = m.flyover || null;
         mediaByHole[holeNum] = {
-          image: imgPath,
-          flyover: flyPath
+          image: m.imageTee || m.image || m.imageGreen || null,
+          flyover: m.flyover || null
         };
 
         caddyByHole[holeNum] = {
@@ -799,48 +884,32 @@ var mapLink =
         };
       });
 
-      // ===== DISTANCE (YARDAGE) SCORECARD TABLE =====
+      // ===== yardage scorecard HTML =====
       var distTable = "";
-      var h, hb, ph, phb;
+      var hNum, hb, ph, phb;
 
-      distTable += "<thead><tr>";
-      distTable += "<th></th>";
-
-      for (h = 1; h <= frontEnd; h++) {
-        distTable += "<th>" + h + "</th>";
+      distTable += "<thead><tr><th></th>";
+      for (hNum = 1; hNum <= frontEnd; hNum++) {
+        distTable += "<th>" + hNum + "</th>";
       }
-
-      if (hasBack) {
-        distTable += "<th class='out-in-col'>OUT</th>";
-      }
-
+      if (hasBack) distTable += "<th class='out-in-col'>OUT</th>";
       if (hasBack) {
         for (hb = backStart; hb <= maxHole; hb++) {
           distTable += "<th>" + hb + "</th>";
         }
         distTable += "<th class='out-in-col'>IN</th>";
       }
-
-      distTable += "<th class='total-col'>TOTAL</th>";
-      distTable += "</tr></thead>";
-
-      distTable += "<tbody>";
+      distTable += "<th class='total-col'>TOTAL</th></tr></thead><tbody>";
 
       // Par row
+      var parFrontOut = 0, parBackIn = 0;
       distTable += "<tr><th>Par</th>";
-      var parFrontOut = 0;
-      var parBackIn = 0;
-
-      for (h = 1; h <= frontEnd; h++) {
-        ph = parByHole[h];
+      for (hNum = 1; hNum <= frontEnd; hNum++) {
+        ph = parByHole[hNum];
         if (typeof ph === "number") parFrontOut += ph;
         distTable += "<td>" + (typeof ph === "number" ? ph : "–") + "</td>";
       }
-
-      if (hasBack) {
-        distTable += "<td class='out-in-col'>" + (parFrontOut || "–") + "</td>";
-      }
-
+      if (hasBack) distTable += "<td class='out-in-col'>" + (parFrontOut || "–") + "</td>";
       if (hasBack) {
         for (hb = backStart; hb <= maxHole; hb++) {
           phb = parByHole[hb];
@@ -849,23 +918,16 @@ var mapLink =
         }
         distTable += "<td class='out-in-col'>" + (parBackIn || "–") + "</td>";
       }
-
-      distTable += "<td class='total-col'>" + (parTotal || "–") + "</td>";
-      distTable += "</tr>";
+      distTable += "<td class='total-col'>" + (parTotal || "–") + "</td></tr>";
 
       // Handicap row
       distTable += "<tr><th>Hdcp</th>";
       var hd, hdb;
-
-      for (h = 1; h <= frontEnd; h++) {
-        hd = hdcpByHole[h];
+      for (hNum = 1; hNum <= frontEnd; hNum++) {
+        hd = hdcpByHole[hNum];
         distTable += "<td>" + ((hd === 0 || hd) ? hd : "–") + "</td>";
       }
-
-      if (hasBack) {
-        distTable += "<td class='out-in-col'></td>";
-      }
-
+      if (hasBack) distTable += "<td class='out-in-col'></td>";
       if (hasBack) {
         for (hb = backStart; hb <= maxHole; hb++) {
           hdb = hdcpByHole[hb];
@@ -873,9 +935,7 @@ var mapLink =
         }
         distTable += "<td class='out-in-col'></td>";
       }
-
-      distTable += "<td class='total-col'></td>";
-      distTable += "</tr>";
+      distTable += "<td class='total-col'></td></tr>";
 
       // Tees rows
       tees.forEach(function(t) {
@@ -885,110 +945,67 @@ var mapLink =
         var totals = teeTotals[teeId] || { front: 0, back: 0, total: 0 };
 
         distTable += "<tr>";
-        distTable +=
-          "<th><span class='tee-name-cell'><span class='tee-name-swatch' style='background:" +
-          teeColor +
-          ";'></span><span>" +
-          teeName +
-          "</span></span></th>";
+        distTable += "<th><span class='tee-name-cell'>" +
+          "<span class='tee-name-swatch' style='background:" + teeColor + ";'></span>" +
+          "<span>" + teeName + "</span></span></th>";
 
-        for (h = 1; h <= frontEnd; h++) {
-          var yh =
-            yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][h];
-          distTable += "<td>" + (typeof yh === "number" ? yh : "–") + "</td>";
+        for (hNum = 1; hNum <= frontEnd; hNum++) {
+          var y = yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][hNum];
+          distTable += "<td>" + (typeof y === "number" ? y : "–") + "</td>";
         }
 
-        if (hasBack) {
-          distTable +=
-            "<td class='out-in-col'>" + (totals.front || "–") + "</td>";
-        }
+        if (hasBack) distTable += "<td class='out-in-col'>" + (totals.front || "–") + "</td>";
 
         if (hasBack) {
           for (hb = backStart; hb <= maxHole; hb++) {
-            var yhb =
-              yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][hb];
-            distTable +=
-              "<td>" + (typeof yhb === "number" ? yhb : "–") + "</td>";
+            var yb = yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][hb];
+            distTable += "<td>" + (typeof yb === "number" ? yb : "–") + "</td>";
           }
-          distTable +=
-            "<td class='out-in-col'>" + (totals.back || "–") + "</td>";
+          distTable += "<td class='out-in-col'>" + (totals.back || "–") + "</td>";
         }
 
-        distTable +=
-          "<td class='total-col'>" + (totals.total || "–") + "</td>";
-        distTable += "</tr>";
+        distTable += "<td class='total-col'>" + (totals.total || "–") + "</td></tr>";
       });
-
-      distTable += "</tbody>";
-
-      // Footer labels
-      distTable += "<tfoot><tr><td></td>";
-      for (h = 1; h <= frontEnd; h++) {
-        distTable += "<td></td>";
-      }
+      distTable += "</tbody><tfoot><tr><td></td>";
+      for (hNum = 1; hNum <= frontEnd; hNum++) distTable += "<td></td>";
       if (hasBack) {
         distTable += "<td class='out-in-col'>Front 9</td>";
-        for (hb = backStart; hb <= maxHole; hb++) {
-          distTable += "<td></td>";
-        }
+        for (hb = backStart; hb <= maxHole; hb++) distTable += "<td></td>";
         distTable += "<td class='out-in-col'>Back 9</td>";
       }
       distTable += "<td class='total-col'>Card</td></tr></tfoot>";
 
-      // ===== SCORE ENTRY TABLE (separate) =====
-      var scoreTable = "";
-      scoreTable += "<thead><tr>";
-      scoreTable += "<th>Hole</th>";
-
-      for (h = 1; h <= frontEnd; h++) {
-        scoreTable += "<th>" + h + "</th>";
-      }
-
+      // Score entry table
+      var scoreTable = "<thead><tr><th>Hole</th>";
+      for (hNum = 1; hNum <= frontEnd; hNum++) scoreTable += "<th>" + hNum + "</th>";
       if (hasBack) {
         scoreTable += "<th class='out-in-col'>OUT</th>";
-        for (hb = backStart; hb <= maxHole; hb++) {
-          scoreTable += "<th>" + hb + "</th>";
-        }
+        for (hb = backStart; hb <= maxHole; hb++) scoreTable += "<th>" + hb + "</th>";
         scoreTable += "<th class='out-in-col'>IN</th>";
       }
-
-      scoreTable += "<th class='total-col'>TOTAL</th>";
-      scoreTable += "</tr></thead>";
-
-      scoreTable += "<tbody><tr>";
+      scoreTable += "<th class='total-col'>TOTAL</th></tr></thead><tbody><tr>";
       scoreTable += "<th class='score-row-label'>Score</th>";
 
-      for (h = 1; h <= frontEnd; h++) {
-        scoreTable +=
-          "<td><input type='number' min='1' max='20' class='score-input' data-hole='" +
-          h +
-          "' /></td>";
+      for (hNum = 1; hNum <= frontEnd; hNum++) {
+        scoreTable += "<td><input type='number' min='1' max='20' class='score-input' data-hole='" +
+          hNum + "' /></td>";
       }
-
       if (hasBack) {
         scoreTable += "<td class='out-in-col score-out'></td>";
         for (hb = backStart; hb <= maxHole; hb++) {
-          scoreTable +=
-            "<td><input type='number' min='1' max='20' class='score-input' data-hole='" +
-            hb +
-            "' /></td>";
+          scoreTable += "<td><input type='number' min='1' max='20' class='score-input' data-hole='" +
+            hb + "' /></td>";
         }
         scoreTable += "<td class='out-in-col score-in'></td>";
       }
+      scoreTable += "<td class='total-col score-total'></td></tr></tbody>";
 
-      scoreTable += "<td class='total-col score-total'></td>";
-      scoreTable += "</tr></tbody>";
-
-      // ===== BUILD MAIN UI =====
+      // main HTML
       container.innerHTML =
         "<div class='course-header'>" +
           "<div class='course-header-main'>" +
-            "<h3>" +
-              (course.name || "Unnamed Course") +
-            "</h3>" +
-            "<p>" +
-              (locLine || "") +
-            "</p>" +
+            "<h3>" + (course.name || "Unnamed Course") + "</h3>" +
+            "<p>" + (locLine || "") + "</p>" +
           "</div>" +
           "<div class='course-badges'>" +
             "<span class='badge badge-pill'>Local DB</span>" +
@@ -997,16 +1014,22 @@ var mapLink =
         "</div>" +
         mapHtml +
         "<div class='detail-section-title'>Tees</div>" +
-        "<div id='teesInfo'>" +
-          teesInfo +
-        "</div>" +
+        "<div id='teesInfo'>" + teesInfo + "</div>" +
         "<div class='detail-section-title'>Yardage Card</div>" +
-        "<div class='scorecard-wrapper'>" +
-          "<table class='scorecard'>" +
-            distTable +
-          "</table>" +
-        "</div>" +
+        "<div class='scorecard-wrapper'><table class='scorecard'>" +
+          distTable +
+        "</table></div>" +
         "<div class='detail-section-title'>Round Score</div>" +
+        "<div class='round-meta-row'>" +
+          "<label>Tee played:" +
+            "<select id='roundTeeSelect'><option value=''>—</option></select>" +
+          "</label>" +
+        "</div>" +
+        "<textarea id='roundNotes' class='round-notes' placeholder='Notes for the day – wind, pin positions, how you played, etc.'></textarea>" +
+        "<div class='round-buttons'>" +
+          "<button type='button' class='btn' id='btnFinishRound'>Finish round (save to scorebook)</button>" +
+          "<button type='button' class='btn' id='btnClearRound'>Clear current round</button>" +
+        "</div>" +
         "<div class='scorecard-wrapper scorecard-wrapper-score'>" +
           "<table class='scorecard scorecard-score'>" +
             scoreTable +
@@ -1016,9 +1039,7 @@ var mapLink =
         "<div class='media-stack'>" +
           "<div class='media-card'>" +
             "<div class='media-controls'>" +
-              "<label>Hole " +
-                "<select id='mediaHoleSelect'></select>" +
-              "</label>" +
+              "<label>Hole <select id='mediaHoleSelect'></select></label>" +
               "<span class='muted' style='font-size:0.7rem;'>Images, flyovers, and notes come from holes.json</span>" +
             "</div>" +
             "<h3>Hole Image</h3>" +
@@ -1033,106 +1054,359 @@ var mapLink =
             "<h3>Caddy Notes</h3>" +
             "<div id='caddyNotesArea' class='media-body'>No notes for this hole yet.</div>" +
           "</div>" +
-        "</div>";
+        "</div>" +
+        "<div class='detail-section-title'>Scorebook</div>" +
+        "<div id='scorebookList' class='scorebook-list'></div>";
 
-      // ===== SCORE INPUT TOTALS =====
-      var scoreInputs = container.querySelectorAll(
-        ".scorecard-score .score-input"
-      );
+      // hook up UI references
+      var scoreInputs = container.querySelectorAll(".scorecard-score .score-input");
       var outCell = container.querySelector(".scorecard-score .score-out");
       var inCell = container.querySelector(".scorecard-score .score-in");
-      var totalCell = container.querySelector(
-        ".scorecard-score .score-total"
-      );
+      var totalCell = container.querySelector(".scorecard-score .score-total");
+      var notesField = container.querySelector("#roundNotes");
+      var teeSelect = container.querySelector("#roundTeeSelect");
+      var finishBtn = container.querySelector("#btnFinishRound");
+      var clearBtn = container.querySelector("#btnClearRound");
+      var scorebookListEl = container.querySelector("#scorebookList");
+      var holeSelect = container.querySelector("#mediaHoleSelect");
 
-      function recalcScores() {
-        var outSum = 0;
-        var inSum = 0;
-        var total = 0;
-
-        scoreInputs.forEach(function(input) {
-          var v = parseInt(input.value, 10);
-          if (isNaN(v)) return;
-          var hole = parseInt(input.getAttribute("data-hole"), 10);
-          if (hole <= frontEnd) {
-            outSum += v;
-          } else {
-            inSum += v;
-          }
-          total += v;
+      // populate tee selector
+      if (teeSelect && tees.length) {
+        tees.forEach(function(t) {
+          var opt = document.createElement("option");
+          opt.value = t.id;
+          opt.textContent = t.name || t.id;
+          teeSelect.appendChild(opt);
         });
-
-        if (outCell) outCell.textContent = outSum || "";
-        if (inCell) inCell.textContent = inSum || "";
-        if (totalCell) totalCell.textContent = total || "";
       }
 
-      scoreInputs.forEach(function(input) {
-        input.addEventListener("input", recalcScores);
-      });
+      // keys for storage
+      var baseId = course.id || courseId || "unknown";
+      var DRAFT_KEY = "courseDraft_" + baseId;
+      var ROUNDS_KEY = "courseRounds_" + baseId;
 
-      // ===== VIRTUAL CADDY SELECTOR (image, flyover, caddy notes) =====
-      var holeSelect = container.querySelector("#mediaHoleSelect");
+      function getCurrentSnapshot() {
+        var scores = {};
+        var outSum = 0, inSum = 0, total = 0;
+        var hasAny = false;
+        var allFilled = true;
+
+        scoreInputs.forEach(function(input) {
+          var hole = parseInt(input.getAttribute("data-hole"), 10);
+          var vStr = (input.value || "").trim();
+          if (vStr !== "") {
+            hasAny = true;
+            scores[hole] = vStr;
+            var v = parseInt(vStr, 10);
+            if (!isNaN(v)) {
+              if (hole <= frontEnd) outSum += v;
+              else inSum += v;
+              total += v;
+            }
+          } else {
+            allFilled = false;
+          }
+        });
+
+        var notes = (notesField && notesField.value) ? notesField.value : "";
+        var teeId = teeSelect ? teeSelect.value : "";
+
+        return {
+          scores: scores,
+          out: outSum,
+          in: inSum,
+          total: total,
+          hasAny: hasAny,
+          allFilled: allFilled && maxHole > 0, // only true if every hole had something
+          notes: notes,
+          teeId: teeId
+        };
+      }
+
+      function saveDraft() {
+        try {
+          var snap = getCurrentSnapshot();
+          var payload = {
+            scores: snap.scores,
+            notes: snap.notes,
+            teeId: snap.teeId
+          };
+          localStorage.setItem(DRAFT_KEY, JSON.stringify(payload));
+        } catch (e) {
+          console.warn("[draft] failed to save", DRAFT_KEY, e);
+        }
+      }
+
+      function loadDraft() {
+        try {
+          var raw = localStorage.getItem(DRAFT_KEY);
+          if (!raw) return;
+          var obj = JSON.parse(raw);
+          if (!obj || typeof obj !== "object") return;
+
+          // scores
+          scoreInputs.forEach(function(input) {
+            var hole = input.getAttribute("data-hole");
+            if (obj.scores && obj.scores.hasOwnProperty(hole)) {
+              input.value = obj.scores[hole];
+            }
+          });
+
+          // notes
+          if (notesField && typeof obj.notes === "string") {
+            notesField.value = obj.notes;
+          }
+
+          // tee
+          if (teeSelect && obj.teeId) {
+            teeSelect.value = obj.teeId;
+          }
+
+          recalcScores(true);
+        } catch (e) {
+          console.warn("[draft] failed to load", DRAFT_KEY, e);
+        }
+      }
+
+      function updateFinishButtonState() {
+        if (!finishBtn) return;
+        var snap = getCurrentSnapshot();
+        // always clickable, just highlight when all filled and at least one score
+        if (snap.hasAny && snap.allFilled) {
+          finishBtn.classList.add("btn-primary");
+        } else {
+          finishBtn.classList.remove("btn-primary");
+        }
+      }
+
+      function recalcScores(skipSaveDraft) {
+        var snap = getCurrentSnapshot();
+        if (outCell) outCell.textContent = snap.out || "";
+        if (inCell) inCell.textContent = (hasBack ? (snap.in || "") : "");
+        if (totalCell) totalCell.textContent = snap.total || "";
+        updateFinishButtonState();
+        if (!skipSaveDraft) saveDraft();
+      }
+
+      function loadRoundsFromStorage() {
+        try {
+          var raw = localStorage.getItem(ROUNDS_KEY);
+          if (!raw) return [];
+          var arr = JSON.parse(raw);
+          if (!Array.isArray(arr)) return [];
+          return arr;
+        } catch (e) {
+          console.warn("[rounds] failed to load", ROUNDS_KEY, e);
+          return [];
+        }
+      }
+
+      function saveRoundsToStorage(rounds) {
+        try {
+          localStorage.setItem(ROUNDS_KEY, JSON.stringify(rounds));
+        } catch (e) {
+          console.warn("[rounds] failed to save", ROUNDS_KEY, e);
+        }
+      }
+
+      function formatDate(iso) {
+        try {
+          var d = new Date(iso);
+          if (isNaN(d.getTime())) return iso || "";
+          return d.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+          });
+        } catch {
+          return iso || "";
+        }
+      }
+
+      function teeNameById(id) {
+        var t = tees.find(function(tt) { return tt.id === id; });
+        return t ? (t.name || t.id) : "";
+      }
+
+      function renderScorebook() {
+        var rounds = loadRoundsFromStorage();
+        if (!rounds.length) {
+          scorebookListEl.innerHTML =
+            "<div class='scorebook-empty'>No saved rounds yet. Finish a round to add it here.</div>";
+          return;
+        }
+
+        var html = "";
+        rounds.forEach(function(r) {
+          var teeName = r.teeName || teeNameById(r.teeId || "");
+          var metaParts = [];
+          if (teeName) metaParts.push(teeName);
+          if (r.complete) metaParts.push("18 holes");
+          else metaParts.push("Incomplete");
+          if (typeof r.out === "number" && typeof r.in === "number") {
+            metaParts.push("OUT " + r.out + " / IN " + r.in);
+          }
+          var metaText = metaParts.join(" · ");
+          var preview = (r.notes || "").replace(/\s+/g," ").trim();
+          if (preview.length > 80) preview = preview.slice(0,77) + "…";
+
+          html +=
+            "<div class='scorebook-round' data-round-id='" + r.id + "'>" +
+              "<div class='scorebook-round-header'>" +
+                "<span>" + formatDate(r.dateISO) + "</span>" +
+                "<span>" + (typeof r.total === "number" ? ("Total " + r.total) : "") + "</span>" +
+              "</div>" +
+              "<div class='scorebook-round-meta'>" + metaText + "</div>" +
+              (preview ? "<div class='scorebook-round-notes'>" + preview + "</div>" : "") +
+            "</div>";
+        });
+
+        scorebookListEl.innerHTML = html;
+
+        var items = scorebookListEl.querySelectorAll(".scorebook-round");
+        items.forEach(function(item) {
+          item.addEventListener("click", function() {
+            var roundId = item.getAttribute("data-round-id");
+            var rounds = loadRoundsFromStorage();
+            var round = rounds.find(function(r) { return String(r.id) === String(roundId); });
+            if (round) loadRoundIntoUI(round);
+          });
+        });
+      }
+
+      function loadRoundIntoUI(round) {
+        // scores
+        scoreInputs.forEach(function(input) {
+          var hole = input.getAttribute("data-hole");
+          if (round.scores && round.scores.hasOwnProperty(hole)) {
+            input.value = round.scores[hole];
+          } else {
+            input.value = "";
+          }
+        });
+
+        // notes
+        if (notesField) notesField.value = round.notes || "";
+
+        // tee
+        if (teeSelect && round.teeId) teeSelect.value = round.teeId;
+
+        recalcScores(true);
+        saveDraft(); // treat loading a round as current draft now
+      }
+
+      // event wiring
+      scoreInputs.forEach(function(input) {
+        input.addEventListener("input", function() {
+          recalcScores(false);
+        });
+      });
+      if (notesField) {
+        notesField.addEventListener("input", function() {
+          recalcScores(false);
+        });
+      }
+      if (teeSelect) {
+        teeSelect.addEventListener("change", function() {
+          recalcScores(false);
+        });
+      }
+
+      if (clearBtn) {
+        clearBtn.addEventListener("click", function() {
+          scoreInputs.forEach(function(input) { input.value = ""; });
+          if (notesField) notesField.value = "";
+          if (teeSelect) teeSelect.value = "";
+          try { localStorage.removeItem(DRAFT_KEY); } catch {}
+          recalcScores(true);
+        });
+      }
+
+      if (finishBtn) {
+        finishBtn.addEventListener("click", function() {
+          var snap = getCurrentSnapshot();
+          var teeId = teeSelect ? teeSelect.value : "";
+          var teeName = teeNameById(teeId);
+
+          if (!snap.hasAny && !snap.notes.trim()) {
+            // nothing to save
+            return;
+          }
+
+          var rounds = loadRoundsFromStorage();
+          var round = {
+            id: Date.now(),
+            dateISO: new Date().toISOString(),
+            teeId: teeId,
+            teeName: teeName,
+            scores: snap.scores,
+            out: snap.out,
+            in: snap.in,
+            total: snap.total,
+            notes: snap.notes,
+            complete: snap.allFilled
+          };
+          rounds.unshift(round);
+          saveRoundsToStorage(rounds);
+
+          // clear draft + UI
+          try { localStorage.removeItem(DRAFT_KEY); } catch {}
+          scoreInputs.forEach(function(input) { input.value = ""; });
+          if (notesField) notesField.value = "";
+          if (teeSelect) teeSelect.value = "";
+
+          recalcScores(true);
+          renderScorebook();
+        });
+      }
+
+      // virtual caddy setup
       if (holeSelect) {
-        for (h = 1; h <= maxHole; h++) {
+        for (hNum = 1; hNum <= maxHole; hNum++) {
           var opt = document.createElement("option");
-          opt.value = String(h);
-          opt.textContent = String(h);
+          opt.value = String(hNum);
+          opt.textContent = String(hNum);
           holeSelect.appendChild(opt);
         }
 
         function updateMediaUI(holeStr) {
           var holeNum = parseInt(holeStr, 10);
           if (!holeNum) holeNum = 1;
-          var data = mediaByHole[holeNum] || {};
+          var media = mediaByHole[holeNum] || {};
           var caddy = caddyByHole[holeNum] || {};
           var imgArea = container.querySelector("#mediaImageArea");
           var flyArea = container.querySelector("#mediaFlyoverArea");
           var notesArea = container.querySelector("#caddyNotesArea");
 
-          // Image
+          // image
           if (imgArea) {
-            if (data.image) {
+            if (media.image) {
               imgArea.innerHTML =
-                "<img src='" +
-                data.image +
-                "' alt='Hole " +
-                holeNum +
-                " image' />";
+                "<img src='" + media.image +
+                "' alt='Hole " + holeNum + " image' />";
             } else {
-              imgArea.innerHTML =
-                "No image set for hole " + holeNum + " yet.";
+              imgArea.innerHTML = "No image set for hole " + holeNum + " yet.";
             }
           }
 
-          // Flyover
+          // flyover
           if (flyArea) {
-            if (data.flyover) {
-              var lower = data.flyover.toLowerCase();
-              if (
-                lower.indexOf(".mp4") !== -1 ||
-                lower.indexOf(".webm") !== -1 ||
-                lower.indexOf(".mov") !== -1
-              ) {
-                flyArea.innerHTML =
-                  "<video controls src='" +
-                  data.flyover +
-                  "'></video>";
+            if (media.flyover) {
+              var lower = media.flyover.toLowerCase();
+              if (lower.endsWith(".mp4") || lower.endsWith(".webm") || lower.endsWith(".mov")) {
+                flyArea.innerHTML = "<video controls src='" + media.flyover + "'></video>";
               } else {
                 flyArea.innerHTML =
-                  "<a href='" +
-                  data.flyover +
+                  "<a href='" + media.flyover +
                   "' target='_blank' rel='noopener'>Open flyover for hole " +
-                  holeNum +
-                  "</a>";
+                  holeNum + "</a>";
               }
             } else {
-              flyArea.innerHTML =
-                "No flyover set for hole " + holeNum + " yet.";
+              flyArea.innerHTML = "No flyover set for hole " + holeNum + " yet.";
             }
           }
 
-          // Caddy Notes
+          // caddy notes
           if (notesArea) {
             var parVal = parByHole[holeNum];
             var hdVal = hdcpByHole[holeNum];
@@ -1150,36 +1424,25 @@ var mapLink =
             });
 
             var html =
-              "<div class='caddy-header'>Hole " +
-              holeNum +
-              " · Par " +
-              (typeof parVal === 'number' ? parVal : "–") +
-              " · Hdcp " +
-              ((hdVal === 0 || hdVal) ? hdVal : "–") +
+              "<div class='caddy-header'>Hole " + holeNum +
+              " · Par " + (typeof parVal === "number" ? parVal : "–") +
+              " · Hdcp " + ((hdVal === 0 || hdVal) ? hdVal : "–") +
               "</div>";
 
             if (yardageLines.length) {
-              html +=
-                "<div class='caddy-sub'>Yardages – " +
-                yardageLines.join(" · ") +
-                "</div>";
+              html += "<div class='caddy-sub'>Yardages – " +
+                yardageLines.join(" · ") + "</div>";
             }
 
             var tips = caddy.tips;
-            if (tips && Array.isArray(tips) && tips.length) {
+            if (Array.isArray(tips) && tips.length) {
               html += "<ul class='caddy-tips'>";
-              tips.forEach(function(tip) {
-                html += "<li>" + tip + "</li>";
-              });
+              tips.forEach(function(t) { html += "<li>" + t + "</li>"; });
               html += "</ul>";
             } else if (typeof tips === "string" && tips.trim().length) {
-              html +=
-                "<ul class='caddy-tips'><li>" +
-                tips +
-                "</li></ul>";
+              html += "<ul class='caddy-tips'><li>" + tips + "</li></ul>";
             } else {
-              html +=
-                "<p class='muted'>No written notes yet. Add a <code>\"tips\"</code> field for this hole in <code>holes.json</code>.</p>";
+              html += "<p class='muted'>No written notes yet. Add a <code>\"notes\"</code> field for this hole in <code>holes.json</code>.</p>";
             }
 
             notesArea.innerHTML = html;
@@ -1189,9 +1452,12 @@ var mapLink =
         holeSelect.addEventListener("change", function() {
           updateMediaUI(holeSelect.value);
         });
-
         updateMediaUI(holeSelect.value || "1");
       }
+
+      // initial load: draft + scorebook
+      loadDraft();
+      renderScorebook();
     }
 
     loadCourses();
