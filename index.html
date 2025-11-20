@@ -107,7 +107,8 @@
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+                  border-color 0.12s ease, background 0.12s ease;
       font-size: 0.85rem;
     }
 
@@ -227,7 +228,7 @@
       flex-shrink: 0;
     }
 
-    /* ===== SCORECARD TABLES ===== */
+    /* ===== SCORECARD TABLES (YARDAGE) ===== */
     .scorecard-wrapper {
       max-width: 100%;
       overflow-x: auto;
@@ -302,47 +303,57 @@
       flex-shrink: 0;
     }
 
-    /* SCORE TABLE (separate – big clickable boxes) */
-.scorecard-wrapper-score {
-  margin-top: 6px;
-}
+    /* ===== SCORE TABLE (separate – full-cell inputs, centered text) ===== */
+    .scorecard-wrapper-score {
+      margin-top: 6px;
+    }
 
-table.scorecard.scorecard-score {
-  border-collapse: separate;
-  border-spacing: 0;
-}
+    table.scorecard.scorecard-score {
+      border-collapse: separate;
+      border-spacing: 0;
+    }
 
-table.scorecard.scorecard-score th,
-table.scorecard.scorecard-score td {
-  padding: 0;
-}
+    table.scorecard.scorecard-score th,
+    table.scorecard.scorecard-score td {
+      padding: 0;
+      height: 32px;          /* overall box height */
+      text-align: center;
+      vertical-align: middle;
+    }
 
-table.scorecard.scorecard-score th:first-child {
-  min-width: 70px;
-}
+    table.scorecard.scorecard-score th:first-child {
+      min-width: 70px;
+    }
 
-/* The cell border becomes the “box”; the input fills it */
-table.scorecard.scorecard-score td {
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  border-right: 1px solid rgba(0,0,0,0.06);
-  background: #fdf7ea;
-}
+    .score-row-label {
+      background: #e9deca;
+    }
 
-.scorecard-score input.score-input {
-  width: 100%;
-  height: 34px;             /* make these bigger if you want: 38px, 40px, etc. */
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  font-size: 0.9rem;
-  text-align: center;
-  background: transparent;
-  box-sizing: border-box;
-}
+    table.scorecard.scorecard-score td {
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      border-right: 1px solid rgba(0,0,0,0.06);
+      background: #fdf7ea;
+    }
 
-.score-row-label {
-  background: #e9deca;
-}
+    /* OUT / IN / TOTAL cells (no input) */
+    table.scorecard.scorecard-score td.score-out,
+    table.scorecard.scorecard-score td.score-in,
+    table.scorecard.scorecard-score td.score-total {
+      font-weight: 600;
+    }
+
+    /* Input fills the whole cell; text centered */
+    .scorecard-score input.score-input {
+      width: 100%;
+      height: 100%;
+      padding: 0 2px;
+      border: none;
+      border-radius: 0;
+      font-size: 0.8rem;
+      text-align: center;
+      background: transparent;
+      box-sizing: border-box;
+    }
 
     /* ===== MEDIA / VIRTUAL CADDY ===== */
     .media-stack {
@@ -445,7 +456,9 @@ table.scorecard.scorecard-score td {
     <section class="panel">
       <h2>Course Detail</h2>
       <div id="courseDetail">
-        <p class="muted">Choose a course on the left to see its scorecards and virtual caddy panel.</p>
+        <p class="muted">
+          Choose a course on the left to see its scorecards and virtual caddy panel.
+        </p>
       </div>
     </section>
   </main>
@@ -471,7 +484,8 @@ table.scorecard.scorecard-score td {
       fetchJSON(COURSES_INDEX_PATH)
         .then(function(courses) {
           if (!Array.isArray(courses) || courses.length === 0) {
-            listEl.innerHTML = "<p class='muted'>No courses found in data/courses.json.</p>";
+            listEl.innerHTML =
+              "<p class='muted'>No courses found in data/courses.json.</p>";
             return;
           }
           renderCourseList(courses);
@@ -484,7 +498,8 @@ table.scorecard.scorecard-score td {
         .catch(function(err) {
           console.error("[courses] Failed to load", err);
           listEl.innerHTML = "";
-          errorEl.textContent = "Could not load " + COURSES_INDEX_PATH + " – " + err.message;
+          errorEl.textContent =
+            "Could not load " + COURSES_INDEX_PATH + " – " + err.message;
           errorEl.style.display = "block";
         });
     }
@@ -549,26 +564,23 @@ table.scorecard.scorecard-score td {
       var coursePath = basePath + "/course.json";
       var holesPath = basePath + "/holes.json";
 
-      Promise.all([
-        fetchJSON(coursePath),
-        fetchJSON(holesPath)
-      ])
-      .then(function(results) {
-        var course = results[0];
-        var holes = results[1];
-        renderCourseDetail(course, holes);
-      })
-      .catch(function(err) {
-        console.error("[course] Failed to load", courseId, err);
-        container.innerHTML =
-          "<p class='error'>Could not load <code>" +
-          courseId +
-          "</code> data. Check that <code>" +
-          coursePath +
-          "</code> and <code>" +
-          holesPath +
-          "</code> exist and are valid JSON.</p>";
-      });
+      Promise.all([fetchJSON(coursePath), fetchJSON(holesPath)])
+        .then(function(results) {
+          var course = results[0];
+          var holes = results[1];
+          renderCourseDetail(course, holes);
+        })
+        .catch(function(err) {
+          console.error("[course] Failed to load", courseId, err);
+          container.innerHTML =
+            "<p class='error'>Could not load <code>" +
+            courseId +
+            "</code> data. Check that <code>" +
+            coursePath +
+            "</code> and <code>" +
+            holesPath +
+            "</code> exist and are valid JSON.</p>";
+        });
     }
 
     function renderCourseDetail(course, holes) {
@@ -602,29 +614,38 @@ table.scorecard.scorecard-score td {
           var name = t.name || t.id;
           teesInfo +=
             "<span>" +
-              "<span class='tee-dot' style='background:" + color + ";'></span>" +
-              name +
-              (t.totalYardage ? " · " + t.totalYardage + " yds" : "") +
+            "<span class='tee-dot' style='background:" +
+            color +
+            ";'></span>" +
+            name +
+            (t.totalYardage ? " · " + t.totalYardage + " yds" : "") +
             "</span>";
         });
       } else {
-        teesInfo = "<span>No tees defined yet in <code>course.json</code>.</span>";
+        teesInfo =
+          "<span>No tees defined yet in <code>course.json</code>.</span>";
       }
 
       if (!hasHoles) {
         container.innerHTML =
           "<div class='course-header'>" +
-            "<div class='course-header-main'>" +
-              "<h3>" + (course.name || "Unnamed Course") + "</h3>" +
-              "<p>" + (locLine || "") + "</p>" +
-            "</div>" +
-            "<div class='course-badges'>" +
-              "<span class='badge badge-pill'>Local DB</span>" +
-              notesBadge +
-            "</div>" +
+          "<div class='course-header-main'>" +
+          "<h3>" +
+          (course.name || "Unnamed Course") +
+          "</h3>" +
+          "<p>" +
+          (locLine || "") +
+          "</p>" +
+          "</div>" +
+          "<div class='course-badges'>" +
+          "<span class='badge badge-pill'>Local DB</span>" +
+          notesBadge +
+          "</div>" +
           "</div>" +
           "<div class='detail-section-title'>Tees</div>" +
-          "<div id='teesInfo'>" + teesInfo + "</div>" +
+          "<div id='teesInfo'>" +
+          teesInfo +
+          "</div>" +
           "<p class='muted'>No holes.json data yet – once you start filling in hole info, the scorecards and media panel will appear.</p>";
         return;
       }
@@ -632,7 +653,7 @@ table.scorecard.scorecard-score td {
       // ===== BUILD HOLE / YARDAGE DATA =====
       var maxHole = 0;
       holes.forEach(function(h, idx) {
-        var num = h.hole || (idx + 1);
+        var num = h.hole || idx + 1;
         if (num > maxHole) maxHole = num;
       });
 
@@ -650,7 +671,7 @@ table.scorecard.scorecard-score td {
       var teeTotals = {};
 
       holes.forEach(function(h, idx) {
-        var holeNum = h.hole || (idx + 1);
+        var holeNum = h.hole || idx + 1;
         parByHole[holeNum] = h.par;
         hdcpByHole[holeNum] = h.handicap;
 
@@ -687,12 +708,11 @@ table.scorecard.scorecard-score td {
         };
       });
 
-      // ===== DISTANCE SCORECARD TABLE =====
+      // ===== DISTANCE (YARDAGE) SCORECARD TABLE =====
       var distTable = "";
       var h, hb, ph, phb;
 
-      distTable += "<thead>";
-      distTable += "<tr>";
+      distTable += "<thead><tr>";
       distTable += "<th></th>";
 
       for (h = 1; h <= frontEnd; h++) {
@@ -711,15 +731,12 @@ table.scorecard.scorecard-score td {
       }
 
       distTable += "<th class='total-col'>TOTAL</th>";
-      distTable += "</tr>";
-      distTable += "</thead>";
+      distTable += "</tr></thead>";
 
       distTable += "<tbody>";
 
       // Par row
-      distTable += "<tr>";
-      distTable += "<th>Par</th>";
-
+      distTable += "<tr><th>Par</th>";
       var parFrontOut = 0;
       var parBackIn = 0;
 
@@ -746,8 +763,7 @@ table.scorecard.scorecard-score td {
       distTable += "</tr>";
 
       // Handicap row
-      distTable += "<tr>";
-      distTable += "<th>Hdcp</th>";
+      distTable += "<tr><th>Hdcp</th>";
       var hd, hdb;
 
       for (h = 1; h <= frontEnd; h++) {
@@ -778,39 +794,44 @@ table.scorecard.scorecard-score td {
         var totals = teeTotals[teeId] || { front: 0, back: 0, total: 0 };
 
         distTable += "<tr>";
-        distTable += "<th><span class='tee-name-cell'><span class='tee-name-swatch' style='background:" +
+        distTable +=
+          "<th><span class='tee-name-cell'><span class='tee-name-swatch' style='background:" +
           teeColor +
           ";'></span><span>" +
           teeName +
           "</span></span></th>";
 
         for (h = 1; h <= frontEnd; h++) {
-          var yh = yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][h];
+          var yh =
+            yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][h];
           distTable += "<td>" + (typeof yh === "number" ? yh : "–") + "</td>";
         }
 
         if (hasBack) {
-          distTable += "<td class='out-in-col'>" + (totals.front || "–") + "</td>";
+          distTable +=
+            "<td class='out-in-col'>" + (totals.front || "–") + "</td>";
         }
 
         if (hasBack) {
           for (hb = backStart; hb <= maxHole; hb++) {
-            var yhb = yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][hb];
-            distTable += "<td>" + (typeof yhb === "number" ? yhb : "–") + "</td>";
+            var yhb =
+              yardagesByTeeHole[teeId] && yardagesByTeeHole[teeId][hb];
+            distTable +=
+              "<td>" + (typeof yhb === "number" ? yhb : "–") + "</td>";
           }
-          distTable += "<td class='out-in-col'>" + (totals.back || "–") + "</td>";
+          distTable +=
+            "<td class='out-in-col'>" + (totals.back || "–") + "</td>";
         }
 
-        distTable += "<td class='total-col'>" + (totals.total || "–") + "</td>";
+        distTable +=
+          "<td class='total-col'>" + (totals.total || "–") + "</td>";
         distTable += "</tr>";
       });
 
       distTable += "</tbody>";
 
       // Footer labels
-      distTable += "<tfoot>";
-      distTable += "<tr>";
-      distTable += "<td></td>";
+      distTable += "<tfoot><tr><td></td>";
       for (h = 1; h <= frontEnd; h++) {
         distTable += "<td></td>";
       }
@@ -821,9 +842,7 @@ table.scorecard.scorecard-score td {
         }
         distTable += "<td class='out-in-col'>Back 9</td>";
       }
-      distTable += "<td class='total-col'>Card</td>";
-      distTable += "</tr>";
-      distTable += "</tfoot>";
+      distTable += "<td class='total-col'>Card</td></tr></tfoot>";
 
       // ===== SCORE ENTRY TABLE (separate) =====
       var scoreTable = "";
@@ -849,13 +868,19 @@ table.scorecard.scorecard-score td {
       scoreTable += "<th class='score-row-label'>Score</th>";
 
       for (h = 1; h <= frontEnd; h++) {
-        scoreTable += "<td><input type='number' min='1' max='20' class='score-input' data-hole='" + h + "' /></td>";
+        scoreTable +=
+          "<td><input type='number' min='1' max='20' class='score-input' data-hole='" +
+          h +
+          "' /></td>";
       }
 
       if (hasBack) {
         scoreTable += "<td class='out-in-col score-out'></td>";
         for (hb = backStart; hb <= maxHole; hb++) {
-          scoreTable += "<td><input type='number' min='1' max='20' class='score-input' data-hole='" + hb + "' /></td>";
+          scoreTable +=
+            "<td><input type='number' min='1' max='20' class='score-input' data-hole='" +
+            hb +
+            "' /></td>";
         }
         scoreTable += "<td class='out-in-col score-in'></td>";
       }
@@ -866,53 +891,63 @@ table.scorecard.scorecard-score td {
       // ===== BUILD MAIN UI =====
       container.innerHTML =
         "<div class='course-header'>" +
-          "<div class='course-header-main'>" +
-            "<h3>" + (course.name || "Unnamed Course") + "</h3>" +
-            "<p>" + (locLine || "") + "</p>" +
-          "</div>" +
-          "<div class='course-badges'>" +
-            "<span class='badge badge-pill'>Local DB</span>" +
-            notesBadge +
-          "</div>" +
+        "<div class='course-header-main'>" +
+        "<h3>" +
+        (course.name || "Unnamed Course") +
+        "</h3>" +
+        "<p>" +
+        (locLine || "") +
+        "</p>" +
+        "</div>" +
+        "<div class='course-badges'>" +
+        "<span class='badge badge-pill'>Local DB</span>" +
+        notesBadge +
+        "</div>" +
         "</div>" +
         "<div class='detail-section-title'>Tees</div>" +
-        "<div id='teesInfo'>" + teesInfo + "</div>" +
+        "<div id='teesInfo'>" +
+        teesInfo +
+        "</div>" +
         "<div class='detail-section-title'>Yardage Card</div>" +
         "<div class='scorecard-wrapper'>" +
-          "<table class='scorecard'>" +
-            distTable +
-          "</table>" +
+        "<table class='scorecard'>" +
+        distTable +
+        "</table>" +
         "</div>" +
         "<div class='detail-section-title'>Round Score</div>" +
         "<div class='scorecard-wrapper scorecard-wrapper-score'>" +
-          "<table class='scorecard scorecard-score'>" +
-            scoreTable +
-          "</table>" +
+        "<table class='scorecard scorecard-score'>" +
+        scoreTable +
+        "</table>" +
         "</div>" +
         "<div class='detail-section-title'>Virtual Caddy</div>" +
         "<div class='media-stack'>" +
-          "<div class='media-card'>" +
-            "<div class='media-controls'>" +
-              "<label>Hole " +
-                "<select id='mediaHoleSelect'></select>" +
-              "</label>" +
-              "<span class='muted' style='font-size:0.7rem;'>Images and flyovers come from holes.json</span>" +
-            "</div>" +
-            "<h3>Hole Image</h3>" +
-            "<div id='mediaImageArea' class='media-body'>No image set for this hole yet.</div>" +
-          "</div>" +
-          "<div class='media-card'>" +
-            "<h3>Flyover</h3>" +
-            "<div id='mediaFlyoverArea' class='media-body'>No flyover set for this hole yet.</div>" +
-            "<div class='media-note'>When you add a flyover file or link in <code>media.flyover</code>, it will appear here.</div>" +
-          "</div>" +
+        "<div class='media-card'>" +
+        "<div class='media-controls'>" +
+        "<label>Hole " +
+        "<select id='mediaHoleSelect'></select>" +
+        "</label>" +
+        "<span class='muted' style='font-size:0.7rem;'>Images and flyovers come from holes.json</span>" +
+        "</div>" +
+        "<h3>Hole Image</h3>" +
+        "<div id='mediaImageArea' class='media-body'>No image set for this hole yet.</div>" +
+        "</div>" +
+        "<div class='media-card'>" +
+        "<h3>Flyover</h3>" +
+        "<div id='mediaFlyoverArea' class='media-body'>No flyover set for this hole yet.</div>" +
+        "<div class='media-note'>When you add a flyover file or link in <code>media.flyover</code>, it will appear here.</div>" +
+        "</div>" +
         "</div>";
 
       // ===== SCORE INPUT TOTALS =====
-      var scoreInputs = container.querySelectorAll(".scorecard-score .score-input");
+      var scoreInputs = container.querySelectorAll(
+        ".scorecard-score .score-input"
+      );
       var outCell = container.querySelector(".scorecard-score .score-out");
       var inCell = container.querySelector(".scorecard-score .score-in");
-      var totalCell = container.querySelector(".scorecard-score .score-total");
+      var totalCell = container.querySelector(
+        ".scorecard-score .score-total"
+      );
 
       function recalcScores() {
         var outSum = 0;
@@ -960,9 +995,14 @@ table.scorecard.scorecard-score td {
           if (imgArea) {
             if (data.image) {
               imgArea.innerHTML =
-                "<img src='" + data.image + "' alt='Hole " + holeNum + " image' />";
+                "<img src='" +
+                data.image +
+                "' alt='Hole " +
+                holeNum +
+                " image' />";
             } else {
-              imgArea.innerHTML = "No image set for hole " + holeNum + " yet.";
+              imgArea.innerHTML =
+                "No image set for hole " + holeNum + " yet.";
             }
           }
 
@@ -975,13 +1015,20 @@ table.scorecard.scorecard-score td {
                 lower.indexOf(".mov") !== -1
               ) {
                 flyArea.innerHTML =
-                  "<video controls src='" + data.flyover + "'></video>";
+                  "<video controls src='" +
+                  data.flyover +
+                  "'></video>";
               } else {
                 flyArea.innerHTML =
-                  "<a href='" + data.flyover + "' target='_blank' rel='noopener'>Open flyover for hole " + holeNum + "</a>";
+                  "<a href='" +
+                  data.flyover +
+                  "' target='_blank' rel='noopener'>Open flyover for hole " +
+                  holeNum +
+                  "</a>";
               }
             } else {
-              flyArea.innerHTML = "No flyover set for hole " + holeNum + " yet.";
+              flyArea.innerHTML =
+                "No flyover set for hole " + holeNum + " yet.";
             }
           }
         }
