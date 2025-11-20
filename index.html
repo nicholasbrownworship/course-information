@@ -241,7 +241,7 @@
     .map-embed-wrapper {
       border-radius: 8px;
       overflow: hidden;
-      height: 180px;
+      height: 300px;
       background: #d1d5db;
     }
 
@@ -687,11 +687,15 @@
       if (typeof loc.lat === "number" && typeof loc.lng === "number") {
         var coords = loc.lat + "," + loc.lng;
         var mapSrc =
-          "https://www.google.com/maps?q=" +
-          encodeURIComponent(coords) +
-          "&output=embed";
-        var mapLink =
-          "https://www.google.com/maps?q=" + encodeURIComponent(coords);
+  "https://www.google.com/maps?q=" +
+  encodeURIComponent(coords) +
+  "&t=k&output=embed";  // t=k = satellite
+
+var mapLink =
+  "https://www.google.com/maps?q=" +
+  encodeURIComponent(coords) +
+  "&t=k";
+
 
         mapHtml =
           "<div class='detail-section-title'>Location &amp; Map</div>" +
