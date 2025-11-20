@@ -1,16 +1,15 @@
 <!-- header.html -->
-<link rel="stylesheet" href="styles.css" />
-
 <header class="topnav">
   <div class="topnav-inner">
     <a href="index.html" class="nav-title">Course Book</a>
 
     <nav class="nav-links">
-      <a href="index.html">Courses</a>
-      <a href="hole.html">Per-Hole Tracker</a>
-      <!-- Add more pages later -->
-      <!-- <a href="stats.html">Stats</a> -->
-      <!-- <a href="settings.html">Settings</a> -->
+      <a href="index.html" class="nav-link">Courses</a>
+      <a href="hole.html" class="nav-link">Per-Hole Tracker</a>
+      <!-- Future:
+      <a href="settings.html" class="nav-link">Settings</a>
+      <a href="stats.html" class="nav-link">Stats</a>
+      -->
     </nav>
   </div>
 </header>
@@ -26,9 +25,12 @@
   }
 
   .topnav-inner {
+    max-width: 1200px;
+    margin: 0 auto;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 12px;
   }
 
   .nav-title {
@@ -37,29 +39,34 @@
     text-decoration: none;
     font-weight: 600;
     letter-spacing: 0.04em;
+    white-space: nowrap;
   }
 
-  .nav-links a {
-    color: #fffbea;
-    margin-left: 16px;
+  .nav-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-link {
+    color: #1b2620;
+    background: #fefcf5;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.85rem;
     text-decoration: none;
-    font-size: 0.9rem;
-    opacity: 0.9;
+    border: 1px solid rgba(0,0,0,0.15);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
   }
 
-  .nav-links a:hover {
-    opacity: 1;
-    text-decoration: underline;
+  .nav-link:hover {
+    background: #fff1c2;
   }
 
   @media (max-width: 700px) {
-    .nav-links {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .nav-links a {
-      margin-left: 0;
+    .topnav-inner {
+      flex-direction: column;
+      align-items: flex-start;
     }
   }
 </style>
