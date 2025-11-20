@@ -220,34 +220,7 @@
       flex-shrink: 0;
     }
 
-    /* SHOT STATS */
-    .stats-row-toggles {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 4px;
-      font-size: 0.8rem;
-    }
-
-    .toggle-group {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
-
-    .toggle-group span.muted {
-      font-size: 0.78rem;
-    }
-
-    .toggle-group label {
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-      font-size: 0.78rem;
-      color: var(--muted);
-    }
-
+    /* SHOT STATS – ALL DROPDOWNS */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
@@ -267,8 +240,7 @@
       color: var(--muted);
     }
 
-    .stats-grid select,
-    .stats-grid input[type="number"] {
+    .stats-grid select {
       padding: 3px 6px;
       border-radius: 8px;
       border: 1px solid rgba(0,0,0,0.2);
@@ -371,7 +343,7 @@
   ></script>
 </head>
 <body>
-  <!-- HEADER INJECTION (same pattern as index) -->
+  <!-- HEADER INJECTION -->
   <div id="header-placeholder"></div>
   <script>
     fetch("header.html")
@@ -424,25 +396,30 @@
 
       <div class="detail-section-title">Shot Stats</div>
 
-      <div class="stats-row-toggles">
-        <div class="toggle-group">
-          <span class="muted">Fairway:</span>
-          <label><input type="radio" name="fairway" value="hit"> Hit</label>
-          <label><input type="radio" name="fairway" value="miss-left"> Miss L</label>
-          <label><input type="radio" name="fairway" value="miss-right"> Miss R</label>
-          <label><input type="radio" name="fairway" value="na"> N/A</label>
-        </div>
-        <div class="toggle-group">
-          <span class="muted">GIR:</span>
-          <label><input type="radio" name="gir" value="yes"> Yes</label>
-          <label><input type="radio" name="gir" value="no"> No</label>
-        </div>
-      </div>
-
       <div class="stats-grid">
         <div class="field">
+          <label for="fairwayResult">Fairway</label>
+          <select id="fairwayResult">
+            <option value="">—</option>
+            <option value="hit">Hit</option>
+            <option value="miss-left">Miss left</option>
+            <option value="miss-right">Miss right</option>
+            <option value="na">N/A</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="girResult">GIR</label>
+          <select id="girResult">
+            <option value="">—</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+            <option value="na">N/A</option>
+          </select>
+        </div>
+
+        <div class="field">
           <label for="shotShape">Shot shape</label>
-          <!-- SHOT SHAPE DROPDOWN, NOT BUBBLES -->
           <select id="shotShape">
             <option value="">—</option>
             <option value="straight">Straight</option>
@@ -453,17 +430,42 @@
             <option value="other">Other</option>
           </select>
         </div>
+
         <div class="field">
           <label for="numPutts">Putts</label>
-          <input type="number" id="numPutts" min="0" max="6" />
+          <select id="numPutts">
+            <option value="">—</option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6+</option>
+          </select>
         </div>
+
         <div class="field">
           <label for="numChips">Chips / pitches</label>
-          <input type="number" id="numChips" min="0" max="6" />
+          <select id="numChips">
+            <option value="">—</option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4+</option>
+          </select>
         </div>
+
         <div class="field">
           <label for="numBunkers">Bunker shots</label>
-          <input type="number" id="numBunkers" min="0" max="6" />
+          <select id="numBunkers">
+            <option value="">—</option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3+</option>
+          </select>
         </div>
       </div>
 
