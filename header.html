@@ -1,0 +1,65 @@
+<!-- header.html -->
+<link rel="stylesheet" href="styles.css" />
+
+<header class="topnav">
+  <div class="topnav-inner">
+    <a href="index.html" class="nav-title">Course Book</a>
+
+    <nav class="nav-links">
+      <a href="index.html">Courses</a>
+      <a href="hole.html">Per-Hole Tracker</a>
+      <!-- Add more pages later -->
+      <!-- <a href="stats.html">Stats</a> -->
+      <!-- <a href="settings.html">Settings</a> -->
+    </nav>
+  </div>
+</header>
+
+<style>
+  .topnav {
+    background: linear-gradient(120deg, #163023, #244f3c);
+    padding: 10px 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+  }
+
+  .topnav-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-title {
+    color: #fffbea;
+    font-size: 1.1rem;
+    text-decoration: none;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .nav-links a {
+    color: #fffbea;
+    margin-left: 16px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    opacity: 0.9;
+  }
+
+  .nav-links a:hover {
+    opacity: 1;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 700px) {
+    .nav-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .nav-links a {
+      margin-left: 0;
+    }
+  }
+</style>
