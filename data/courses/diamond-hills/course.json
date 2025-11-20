@@ -15,7 +15,7 @@
     {
       "id": "back",
       "name": "Blues",
-      "color": "#000000",
+      "color": "#4169E1",
       "totalYardage": 6469,
       "rating": 70.1,
       "slope": 120,
@@ -26,7 +26,7 @@
     {
       "id": "middle",
       "name": "White",
-      "color": "#1D4ED8",
+      "color": "#FFFFFF",
       "totalYardage": 6173,
       "rating": 68.8,
       "slope": 118,
@@ -37,7 +37,7 @@
     {
       "id": "forward",
       "name": "Gold",
-      "color": "#DC2626",
+      "color": "#FFD700",
       "totalYardage": 5661,
       "rating": 67.8,
       "slope": 108,
