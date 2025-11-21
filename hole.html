@@ -615,15 +615,20 @@
     let clickToGreenLine = null;
     let clickDistLabelMarker = null;
 
+    // NEW: tee → selected point
+    let teeToClickLine = null;
+    let teeToClickLabelMarker = null;
+
     let currentGpsTarget = null; // green center
     let currentTeePoint = null;  // tee coordinate (if present)
     let gpsWatchId = null;
 
-    // distance cache so we can build a single readout string
+    // distance cache for combined readout
     const lastDistances = {
       teeToGreen: null,
       playerToGreen: null,
-      clickToGreen: null
+      clickToGreen: null,
+      teeToClick: null
     };
 
     function updateDistanceReadout() {
@@ -645,6 +650,9 @@
       if (lastDistances.clickToGreen != null) {
         parts.push("Selected→Green: " + lastDistances.clickToGreen + " yds");
       }
+      if (lastDistances.teeToClick != null) {
+        parts.push("Tee→Selected: " + lastDistances.teeToClick + " yds");
+      }
 
       if (parts.length) {
         readout.textContent = parts.join("  |  ");
@@ -659,7 +667,7 @@
 
       const latlng = e.latlng;
 
-      // Clear any previous selected marker / line / label
+      // Clear previous selected marker / line / label
       if (clickMarker) {
         leafMap.removeLayer(clickMarker);
         clickMarker = null;
@@ -671,6 +679,14 @@
       if (clickDistLabelMarker) {
         leafMap.removeLayer(clickDistLabelMarker);
         clickDistLabelMarker = null;
+      }
+      if (teeToClickLine) {
+        leafMap.removeLayer(teeToClickLine);
+        teeToClickLine = null;
+      }
+      if (teeToClickLabelMarker) {
+        leafMap.removeLayer(teeToClickLabelMarker);
+        teeToClickLabelMarker = null;
       }
 
       // Marker at clicked point
@@ -691,7 +707,7 @@
         }
       ).addTo(leafMap);
 
-      // Distance + midpoint label
+      // Distance + midpoint label (selected → green)
       const yards = distanceInYards(
         latlng.lat,
         latlng.lng,
@@ -712,6 +728,45 @@
       }).addTo(leafMap);
 
       lastDistances.clickToGreen = yards;
+
+      // NEW: tee → selected point
+      if (currentTeePoint) {
+        // Line from tee to clicked point
+        teeToClickLine = L.polyline(
+          [
+            [currentTeePoint.lat, currentTeePoint.lng],
+            [latlng.lat, latlng.lng]
+          ],
+          {
+            color: "#059669",
+            weight: 3,
+            dashArray: "2 4"
+          }
+        ).addTo(leafMap);
+
+        const yardsTC = distanceInYards(
+          currentTeePoint.lat,
+          currentTeePoint.lng,
+          latlng.lat,
+          latlng.lng
+        );
+        lastDistances.teeToClick = yardsTC;
+
+        const midLatTC = (currentTeePoint.lat + latlng.lat) / 2;
+        const midLngTC = (currentTeePoint.lng + latlng.lng) / 2;
+
+        teeToClickLabelMarker = L.marker([midLatTC, midLngTC], {
+          interactive: false,
+          icon: L.divIcon({
+            className: "distance-label",
+            html: yardsTC + " yds",
+            iconSize: [0, 0]
+          })
+        }).addTo(leafMap);
+      } else {
+        lastDistances.teeToClick = null;
+      }
+
       updateDistanceReadout();
     }
 
@@ -722,7 +777,8 @@
       // reset distance cache specific to this hole
       lastDistances.teeToGreen = null;
       lastDistances.clickToGreen = null;
-      // keep playerToGreen; GPS watch will update it to the new target
+      lastDistances.teeToClick = null;
+      // playerToGreen will update when GPS callback fires
 
       // Clear previous tee / lines / selected point / labels
       if (leafMap) {
@@ -749,6 +805,14 @@
         if (clickDistLabelMarker) {
           leafMap.removeLayer(clickDistLabelMarker);
           clickDistLabelMarker = null;
+        }
+        if (teeToClickLine) {
+          leafMap.removeLayer(teeToClickLine);
+          teeToClickLine = null;
+        }
+        if (teeToClickLabelMarker) {
+          leafMap.removeLayer(teeToClickLabelMarker);
+          teeToClickLabelMarker = null;
         }
       }
 
@@ -1194,7 +1258,7 @@
 
         // GPS map for this hole (tee + green)
         initHoleMap(hole.gps || null);
-        startGpsWatch(); // ensure continuous GPS updates
+        startGpsWatch(); // continuous GPS updates
       }
 
       // EVENT WIRING
