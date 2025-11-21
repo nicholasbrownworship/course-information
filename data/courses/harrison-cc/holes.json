@@ -1,20 +1,380 @@
 [
-  { "hole": 1,  "par": 4, "handicap": 12, "yardages": { "back": 331, "middle": 319, "forward": 315 }, "media": {}, "notes": "" },
-  { "hole": 2,  "par": 4, "handicap": 18, "yardages": { "back": 288, "middle": 278, "forward": 270 }, "media": {}, "notes": "" },
-  { "hole": 3,  "par": 4, "handicap": 4, "yardages": { "back": 411, "middle": 371, "forward": 330 }, "media": {}, "notes": "" },
-  { "hole": 4,  "par": 4, "handicap": 10, "yardages": { "back": 397, "middle": 366, "forward": 355 }, "media": {}, "notes": "" },
-  { "hole": 5,  "par": 3, "handicap": 2, "yardages": { "back": 206, "middle": 189, "forward": 155 }, "media": {}, "notes": "" },
-  { "hole": 6,  "par": 4, "handicap": 16, "yardages": { "back": 298, "middle": 288, "forward": 278 }, "media": {}, "notes": "" },
-  { "hole": 7,  "par": 4, "handicap": 14, "yardages": { "back": 368, "middle": 360, "forward": 280 }, "media": {}, "notes": "" },
-  { "hole": 8,  "par": 3, "handicap": 8, "yardages": { "back": 179, "middle": 182, "forward": 144 }, "media": {}, "notes": "" },
-  { "hole": 9,  "par": 5, "handicap": 6, "yardages": { "back": 513, "middle": 484, "forward": 388 }, "media": {}, "notes": "" },
-  { "hole": 10, "par": 4, "handicap": 1, "yardages": { "back": 434, "middle": 376, "forward": 367 }, "media": {}, "notes": "" },
-  { "hole": 11, "par": 4, "handicap": 3, "yardages": { "back": 383, "middle": 378, "forward": 324 }, "media": {}, "notes": "" },
-  { "hole": 12, "par": 4, "handicap": 13, "yardages": { "back": 373, "middle": 355, "forward": 281 }, "media": {}, "notes": "" },
-  { "hole": 13, "par": 4, "handicap": 15, "yardages": { "back": 380, "middle": 374, "forward": 345 }, "media": {}, "notes": "" },
-  { "hole": 14, "par": 3, "handicap": 11, "yardages": { "back": 175, "middle": 160, "forward": 145 }, "media": {}, "notes": "" },
-  { "hole": 15, "par": 5, "handicap": 7, "yardages": { "back": 476, "middle": 474, "forward": 395 }, "media": {}, "notes": "" },
-  { "hole": 16, "par": 4, "handicap": 5, "yardages": { "back": 441, "middle": 406, "forward": 347 }, "media": {}, "notes": "" },
-  { "hole": 17, "par": 3, "handicap": 6, "yardages": { "back": 153, "middle": 151, "forward": 136 }, "media": {}, "notes": "" },
-  { "hole": 18, "par": 4, "handicap": 9, "yardages": { "back": 265, "middle": 260, "forward": 194 }, "media": {}, "notes": "" }
+  {
+    "hole": 1,
+    "par": 4,
+    "handicap": 12,
+    "yardages": { "back": 331, "middle": 319, "forward": 315 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": 36.263448816745914,
+        "lng": -93.12844169909754
+      },
+      "greenCenter": {
+        "lat": 36.2608988622072,
+        "lng": -93.12907422531488
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 2,
+    "par": 4,
+    "handicap": 18,
+    "yardages": { "back": 288, "middle": 278, "forward": 270 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": 36.26099156212695,
+        "lng": -93.12937121823757
+      },
+      "greenCenter": {
+        "lat": 36.26323053129131,
+        "lng": -93.12900638819454
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 3,
+    "par": 4,
+    "handicap": 4,
+    "yardages": { "back": 411, "middle": 371, "forward": 330 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 4,
+    "par": 4,
+    "handicap": 10,
+    "yardages": { "back": 397, "middle": 366, "forward": 355 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 5,
+    "par": 3,
+    "handicap": 2,
+    "yardages": { "back": 206, "middle": 189, "forward": 155 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 6,
+    "par": 4,
+    "handicap": 16,
+    "yardages": { "back": 298, "middle": 288, "forward": 278 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 7,
+    "par": 4,
+    "handicap": 14,
+    "yardages": { "back": 368, "middle": 360, "forward": 280 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 8,
+    "par": 3,
+    "handicap": 8,
+    "yardages": { "back": 179, "middle": 182, "forward": 144 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 9,
+    "par": 5,
+    "handicap": 6,
+    "yardages": { "back": 513, "middle": 484, "forward": 388 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 10,
+    "par": 4,
+    "handicap": 1,
+    "yardages": { "back": 434, "middle": 376, "forward": 367 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 11,
+    "par": 4,
+    "handicap": 3,
+    "yardages": { "back": 383, "middle": 378, "forward": 324 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 12,
+    "par": 4,
+    "handicap": 13,
+    "yardages": { "back": 373, "middle": 355, "forward": 281 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 13,
+    "par": 4,
+    "handicap": 15,
+    "yardages": { "back": 380, "middle": 374, "forward": 345 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 14,
+    "par": 3,
+    "handicap": 11,
+    "yardages": { "back": 175, "middle": 160, "forward": 145 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 15,
+    "par": 5,
+    "handicap": 7,
+    "yardages": { "back": 476, "middle": 474, "forward": 395 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 16,
+    "par": 4,
+    "handicap": 5,
+    "yardages": { "back": 441, "middle": 406, "forward": 347 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 17,
+    "par": 3,
+    "handicap": 6,
+    "yardages": { "back": 153, "middle": 151, "forward": 136 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 18,
+    "par": 4,
+    "handicap": 9,
+    "yardages": { "back": 265, "middle": 260, "forward": 194 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "tee": {
+        "lat": null,
+        "lng": null
+      },
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  }
 ]
