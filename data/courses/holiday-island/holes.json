@@ -10,8 +10,7 @@
     },
     "gps": {
       "tee": {
-        "lat": null,
-        "lng": null
+        "lat": 36.462314070375456, "lng": -93.72515971881428
       },
       "greenCenter": {
         "lat": null,
