@@ -595,14 +595,99 @@
     let targetMarker = null;
     let teeMarker = null;
     let teeToGreenLine = null;
-    let currentGpsTarget = null;
+    let clickMarker = null;
+    let clickToGreenLine = null;
+
+    let currentGpsTarget = null;   // green center
+    let currentTeePoint = null;    // tee coordinate (if present)
+    let gpsWatchId = null;
+
+    // distance cache so we can build a single readout string
+    const lastDistances = {
+      teeToGreen: null,
+      playerToGreen: null,
+      clickToGreen: null
+    };
+
+    function updateDistanceReadout() {
+      const readout = document.getElementById("gpsReadout");
+      if (!readout) return;
+
+      if (!currentGpsTarget) {
+        readout.textContent = "No GPS data set for this hole yet.";
+        return;
+      }
+
+      const parts = [];
+      if (lastDistances.teeToGreen != null) {
+        parts.push("Tee\u2192Green: " + lastDistances.teeToGreen + " yds");
+      }
+      if (lastDistances.playerToGreen != null) {
+        parts.push("You\u2192Green: " + lastDistances.playerToGreen + " yds");
+      }
+      if (lastDistances.clickToGreen != null) {
+        parts.push("Selected\u2192Green: " + lastDistances.clickToGreen + " yds");
+      }
+
+      if (parts.length) {
+        readout.textContent = parts.join("  |  ");
+      } else {
+        readout.textContent =
+          "Tap Refresh GPS or click the map to measure distances.";
+      }
+    }
+
+    function onMapClick(e) {
+      if (!leafMap || !currentGpsTarget) return;
+
+      const latlng = e.latlng;
+
+      if (clickMarker) {
+        leafMap.removeLayer(clickMarker);
+      }
+      if (clickToGreenLine) {
+        leafMap.removeLayer(clickToGreenLine);
+      }
+
+      clickMarker = L.marker(latlng)
+        .addTo(leafMap)
+        .bindPopup("Selected point");
+
+      clickToGreenLine = L.polyline(
+        [
+          [latlng.lat, latlng.lng],
+          [currentGpsTarget.lat, currentGpsTarget.lng]
+        ],
+        {
+          color: "#d97706",
+          weight: 3,
+          dashArray: "4 4"
+        }
+      ).addTo(leafMap);
+
+      const yards = distanceInYards(
+        latlng.lat,
+        latlng.lng,
+        currentGpsTarget.lat,
+        currentGpsTarget.lng
+      );
+
+      lastDistances.clickToGreen = yards;
+      updateDistanceReadout();
+    }
 
     function initHoleMap(gps) {
       const mapEl = document.getElementById("holeMap");
-      const readout = document.getElementById("gpsReadout");
       if (!mapEl) return;
 
-      // Clear previous tee / line
+      // reset distance cache specific to this hole
+      lastDistances.teeToGreen = null;
+      lastDistances.clickToGreen = null;
+      // keep playerToGreen; GPS watch will update it to the new target
+
+      const readout = document.getElementById("gpsReadout");
+
+      // Clear previous tee / lines / selected point
       if (leafMap) {
         if (teeMarker) {
           leafMap.removeLayer(teeMarker);
@@ -612,26 +697,38 @@
           leafMap.removeLayer(teeToGreenLine);
           teeToGreenLine = null;
         }
+        if (clickMarker) {
+          leafMap.removeLayer(clickMarker);
+          clickMarker = null;
+        }
+        if (clickToGreenLine) {
+          leafMap.removeLayer(clickToGreenLine);
+          clickToGreenLine = null;
+        }
       }
 
-      if (!gps || !gps.greenCenter ||
-          typeof gps.greenCenter.lat !== "number" ||
-          typeof gps.greenCenter.lng !== "number") {
+      if (
+        !gps ||
+        !gps.greenCenter ||
+        typeof gps.greenCenter.lat !== "number" ||
+        typeof gps.greenCenter.lng !== "number"
+      ) {
         currentGpsTarget = null;
-        if (readout) {
-          readout.textContent = "No GPS data set for this hole yet.";
-        }
+        currentTeePoint = null;
+        updateDistanceReadout();
         return;
       }
 
       const green = gps.greenCenter;
-      const tee = (gps.tee &&
+      const tee =
+        gps.tee &&
         typeof gps.tee.lat === "number" &&
-        typeof gps.tee.lng === "number")
-        ? gps.tee
-        : null;
+        typeof gps.tee.lng === "number"
+          ? gps.tee
+          : null;
 
       currentGpsTarget = green;
+      currentTeePoint = tee;
 
       if (!leafMap) {
         leafMap = L.map("holeMap");
@@ -639,6 +736,7 @@
           maxZoom: 19,
           attribution: "&copy; OpenStreetMap"
         }).addTo(leafMap);
+        leafMap.on("click", onMapClick);
       }
 
       // Fit map to show tee + green if both exist, otherwise center on green
@@ -648,22 +746,13 @@
           [green.lat, green.lng]
         );
         leafMap.fitBounds(bounds, { padding: [20, 20] });
-      } else {
-        leafMap.setView([green.lat, green.lng], 17);
-      }
 
-      if (targetMarker) {
-        leafMap.removeLayer(targetMarker);
-      }
-      targetMarker = L.marker([green.lat, green.lng])
-        .addTo(leafMap)
-        .bindPopup("Green center");
-
-      if (tee) {
+        // tee marker
         teeMarker = L.marker([tee.lat, tee.lng])
           .addTo(leafMap)
           .bindPopup("Tee");
 
+        // dashed line tee -> green
         teeToGreenLine = L.polyline(
           [
             [tee.lat, tee.lng],
@@ -676,41 +765,76 @@
           }
         ).addTo(leafMap);
 
-        if (readout) {
-          const yards = distanceInYards(
-            tee.lat,
-            tee.lng,
-            green.lat,
-            green.lng
-          );
-          readout.textContent =
-            yards +
-            " yds from tee to green. Tap Refresh GPS for live distance.";
-        }
+        const yards = distanceInYards(
+          tee.lat,
+          tee.lng,
+          green.lat,
+          green.lng
+        );
+        lastDistances.teeToGreen = yards;
       } else {
-        if (readout) {
-          readout.textContent = "Waiting for GPS location…";
-        }
+        leafMap.setView([green.lat, green.lng], 17);
       }
+
+      // green marker
+      if (targetMarker) {
+        leafMap.removeLayer(targetMarker);
+      }
+      targetMarker = L.marker([green.lat, green.lng])
+        .addTo(leafMap)
+        .bindPopup("Green center");
+
+      updateDistanceReadout();
     }
 
-    function updateGpsDistance() {
-      const readout = document.getElementById("gpsReadout");
-      const overlay = document.getElementById("holeImageOverlay");
+    function startGpsWatch() {
+      if (!navigator.geolocation) return;
+      if (gpsWatchId !== null) return; // already running
 
+      gpsWatchId = navigator.geolocation.watchPosition(
+        function(pos) {
+          if (!currentGpsTarget) return;
+
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+
+          if (leafMap) {
+            if (playerMarker) leafMap.removeLayer(playerMarker);
+            playerMarker = L.marker([lat, lng])
+              .addTo(leafMap)
+              .bindPopup("You");
+          }
+
+          const yards = distanceInYards(
+            lat,
+            lng,
+            currentGpsTarget.lat,
+            currentGpsTarget.lng
+          );
+          lastDistances.playerToGreen = yards;
+          updateDistanceReadout();
+
+          const overlay = document.getElementById("holeImageOverlay");
+          if (overlay) {
+            overlay.style.display = "inline-flex";
+            overlay.textContent = "You\u2192Green: " + yards + " yds";
+          }
+        },
+        function(err) {
+          console.warn("GPS watch error", err);
+        },
+        { enableHighAccuracy: true }
+      );
+    }
+
+    // One-shot update (used by Refresh button)
+    function updateGpsDistance() {
       if (!currentGpsTarget) {
-        if (readout) readout.textContent = "No GPS data set for this hole yet.";
-        if (overlay) {
-          overlay.style.display = "none";
-        }
+        updateDistanceReadout();
         return;
       }
-
       if (!navigator.geolocation) {
-        if (readout) readout.textContent = "GPS not supported in this browser.";
-        if (overlay) {
-          overlay.style.display = "none";
-        }
+        updateDistanceReadout();
         return;
       }
 
@@ -732,25 +856,17 @@
             currentGpsTarget.lat,
             currentGpsTarget.lng
           );
-          if (readout) {
-            readout.textContent =
-              yards + " yds to green center (approx.).";
-          }
+          lastDistances.playerToGreen = yards;
+          updateDistanceReadout();
+
+          const overlay = document.getElementById("holeImageOverlay");
           if (overlay) {
             overlay.style.display = "inline-flex";
-            overlay.textContent =
-              yards + " yds to green center (GPS)";
+            overlay.textContent = "You\u2192Green: " + yards + " yds";
           }
         },
         function(err) {
           console.warn("GPS error", err);
-          if (readout) {
-            readout.textContent =
-              "Could not get GPS location (" + err.message + ")";
-          }
-          if (overlay) {
-            overlay.style.display = "none";
-          }
         },
         { enableHighAccuracy: true }
       );
@@ -777,7 +893,6 @@
       const holeImageOverlay = document.getElementById("holeImageOverlay");
       const holeImageCaption = document.getElementById("holeImageCaption");
 
-      let allCourses = [];
       let loadedCourse = null;
       let loadedHoles = [];
       let currentHoleNum = Number.isFinite(urlHole) && urlHole > 0 ? urlHole : 1;
@@ -794,7 +909,6 @@
               courseSelect.innerHTML = "<option value=''>No courses found</option>";
               return;
             }
-            allCourses = courses;
 
             let html = "<option value=''>Select course…</option>";
             courses.forEach(function(c) {
@@ -802,12 +916,9 @@
             });
             courseSelect.innerHTML = html;
 
-            // Preselect from URL if present
             if (urlCourse) {
               courseSelect.value = urlCourse;
             }
-
-            // If still empty, default to first
             if (!courseSelect.value) {
               courseSelect.value = courses[0].id;
             }
@@ -849,9 +960,10 @@
             maxHole = 0;
 
             loadedHoles.forEach(function(h, idx) {
-              const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
+              const n = typeof h.hole === "number" ? h.hole : idx + 1;
               if (n > maxHole) maxHole = n;
             });
+
             if (!maxHole) maxHole = loadedHoles.length || 1;
             if (!Number.isFinite(currentHoleNum) || currentHoleNum < 1) currentHoleNum = 1;
             if (currentHoleNum > maxHole) currentHoleNum = maxHole;
@@ -885,34 +997,33 @@
 
         let html = "";
         loadedHoles.forEach(function(h, idx) {
-          const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
+          const n = typeof h.hole === "number" ? h.hole : idx + 1;
           html += "<option value='" + n + "'>Hole " + n + "</option>";
         });
         holeSelect.innerHTML = html;
 
-        // keep in range
         if (currentHoleNum < 1) currentHoleNum = 1;
         if (currentHoleNum > maxHole) currentHoleNum = maxHole;
-
         holeSelect.value = String(currentHoleNum);
       }
 
       function renderHoleView() {
         if (!loadedCourse || !loadedHoles.length) return;
 
-        // clamp hole again
         if (!Number.isFinite(currentHoleNum) || currentHoleNum < 1) currentHoleNum = 1;
         if (currentHoleNum > maxHole) currentHoleNum = maxHole;
         if (holeSelect) holeSelect.value = String(currentHoleNum);
 
-        const hole = loadedHoles.find(function(h, idx) {
-          const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
-          return n === currentHoleNum;
-        }) || loadedHoles[0];
+        const hole =
+          loadedHoles.find(function(h, idx) {
+            const n = typeof h.hole === "number" ? h.hole : idx + 1;
+            return n === currentHoleNum;
+          }) || loadedHoles[0];
 
-        const resolvedHoleNum = (typeof hole.hole === "number")
-          ? hole.hole
-          : loadedHoles.indexOf(hole) + 1;
+        const resolvedHoleNum =
+          typeof hole.hole === "number"
+            ? hole.hole
+            : loadedHoles.indexOf(hole) + 1;
 
         currentHoleNum = resolvedHoleNum;
 
@@ -928,28 +1039,30 @@
         if (courseNameEl) courseNameEl.textContent = loadedCourse.name || "Unnamed Course";
         if (courseLocEl) courseLocEl.textContent = locLine || "";
 
-        const par = (typeof hole.par === "number") ? hole.par : "–";
-        const hdcpVal = (hole.handicap === 0 || typeof hole.handicap === "number")
-          ? hole.handicap
-          : "–";
+        const par = typeof hole.par === "number" ? hole.par : "–";
+        const hdcpVal =
+          hole.handicap === 0 || typeof hole.handicap === "number"
+            ? hole.handicap
+            : "–";
 
         if (holeLabelEl) {
-          holeLabelEl.textContent = "Hole " + resolvedHoleNum + " · Par " + par + " · Hdcp " + hdcpVal;
+          holeLabelEl.textContent =
+            "Hole " + resolvedHoleNum + " · Par " + par + " · Hdcp " + hdcpVal;
         }
 
-        // Prev / Next buttons
         if (prevBtn) {
-          prevBtn.disabled = (resolvedHoleNum <= 1);
+          prevBtn.disabled = resolvedHoleNum <= 1;
         }
         if (nextBtn) {
-          nextBtn.disabled = (resolvedHoleNum >= maxHole);
+          nextBtn.disabled = resolvedHoleNum >= maxHole;
         }
 
         // Yardages
         const tees = Array.isArray(loadedCourse.tees) ? loadedCourse.tees : [];
         if (yardageRowEl) {
           if (!tees.length || !hole.yardages) {
-            yardageRowEl.innerHTML = "<span class='muted'>No yardage data yet.</span>";
+            yardageRowEl.innerHTML =
+              "<span class='muted'>No yardage data yet.</span>";
           } else {
             let html = "";
             tees.forEach(function(t) {
@@ -957,24 +1070,32 @@
               const name = t.name || teeId;
               const color = t.color || "#e5e7eb";
               const y = hole.yardages[teeId];
-              const text = (typeof y === "number") ? (y + " yds") : "–";
+              const text = typeof y === "number" ? y + " yds" : "–";
               html +=
                 "<span class='yardage-chip'>" +
-                  "<span class='tee-dot' style='background:" + color + ";'></span>" +
-                  "<span>" + name + " · " + text + "</span>" +
+                "<span class='tee-dot' style='background:" +
+                color +
+                ";'></span>" +
+                "<span>" +
+                name +
+                " · " +
+                text +
+                "</span>" +
                 "</span>";
             });
-            yardageRowEl.innerHTML = html || "<span class='muted'>No yardage data yet.</span>";
+            yardageRowEl.innerHTML =
+              html || "<span class='muted'>No yardage data yet.</span>";
           }
         }
 
-        // Hole image (layout) + caption
+        // Hole image + caption
         if (holeImageEl && holeImageCaption && holeImageOverlay) {
           const holeImgSrc = media.image || hole.image || null;
           if (holeImgSrc) {
             holeImageEl.src = holeImgSrc;
             holeImageEl.style.display = "block";
-            holeImageCaption.textContent = media.caption || ("Layout for hole " + resolvedHoleNum);
+            holeImageCaption.textContent =
+              media.caption || "Layout for hole " + resolvedHoleNum;
             holeImageOverlay.style.display = "none";
           } else {
             holeImageEl.removeAttribute("src");
@@ -988,17 +1109,25 @@
         if (flyoverBody) {
           if (media.flyover) {
             const lower = media.flyover.toLowerCase();
-            if (lower.endsWith(".mp4") || lower.endsWith(".webm") || lower.endsWith(".mov")) {
+            if (
+              lower.endsWith(".mp4") ||
+              lower.endsWith(".webm") ||
+              lower.endsWith(".mov")
+            ) {
               flyoverBody.innerHTML =
                 "<video controls style='max-width:100%;border-radius:8px;display:block;background:#000;'>" +
-                  "<source src='" + media.flyover + "'>" +
-                  "Your browser does not support the video tag." +
+                "<source src='" +
+                media.flyover +
+                "'>" +
+                "Your browser does not support the video tag." +
                 "</video>";
             } else {
               flyoverBody.innerHTML =
-                "<a href='" + media.flyover +
+                "<a href='" +
+                media.flyover +
                 "' target='_blank' rel='noopener'>Open flyover for hole " +
-                resolvedHoleNum + "</a>";
+                resolvedHoleNum +
+                "</a>";
             }
           } else {
             flyoverBody.textContent = "No flyover set for this hole yet.";
@@ -1008,8 +1137,7 @@
         // Caddy notes
         if (caddyBody) {
           const tips = hole.notes || hole.tips || null;
-          let html =
-            "<div>Par " + par + " · Hdcp " + hdcpVal + "</div>";
+          let html = "<div>Par " + par + " · Hdcp " + hdcpVal + "</div>";
 
           if (tips) {
             if (Array.isArray(tips)) {
@@ -1022,13 +1150,15 @@
               html += "<ul class='caddy-list'><li>" + tips + "</li></ul>";
             }
           } else {
-            html += "<div class='media-note'>No written notes yet. Add a <code>\"notes\"</code> or <code>\"tips\"</code> field for this hole in <code>holes.json</code>.</div>";
+            html +=
+              "<div class='media-note'>No written notes yet. Add a <code>\"notes\"</code> or <code>\"tips\"</code> field for this hole in <code>holes.json</code>.</div>";
           }
           caddyBody.innerHTML = html;
         }
 
         // GPS map for this hole (tee + green)
         initHoleMap(hole.gps || null);
+        startGpsWatch(); // start/keep the continuous GPS updates running
       }
 
       // EVENT WIRING
@@ -1070,7 +1200,8 @@
 
       if (refreshGpsBtn) {
         refreshGpsBtn.addEventListener("click", function() {
-          updateGpsDistance();
+          startGpsWatch();   // ensure watch is started
+          updateGpsDistance(); // and do an immediate one-shot
         });
       }
 
