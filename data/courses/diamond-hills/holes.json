@@ -198,12 +198,16 @@
       "caption": ""
     },
     "gps": {
+      "tee": {
+        "lat": 36.4441298653692
+        "lng": -92.92069695806656
+      },
       "greenCenter": {
-        "lat": null,
-        "lng": null
+        "lat": 36.440918578910484,
+        "lng": -92.92096744109301
       }
     },
-    "notes": ""
+    "notes": "Slight dogleg left, easy 3 if you don't go crazy on the drive."
   },
   {
     "hole": 11,
@@ -215,12 +219,16 @@
       "caption": ""
     },
     "gps": {
+      "tee": {
+        "lat": 36.440550392317945,
+        "lng":-92.92133710167094
+      },
       "greenCenter": {
-        "lat": null,
-        "lng": null
+        "lat": 36.43922373487714,
+        "lng": -92.92135944341905
       }
     },
-    "notes": ""
+    "notes": "Don't miss left. Just go at the green, the bunker isn't really in play."
   },
   {
     "hole": 12,
@@ -232,12 +240,16 @@
       "caption": ""
     },
     "gps": {
+      "tee": {
+        "lat": 36.43874224923916,
+        "lng":-92.92154804575136
+      },
       "greenCenter": {
-        "lat": null,
-        "lng": null
+        "lat": 36.43544164222616,
+        "lng": -92.91987201990607
       }
     },
-    "notes": ""
+    "notes": "Stripe it. This should always be a relatively easy 3."
   },
   {
     "hole": 13,
@@ -249,12 +261,16 @@
       "caption": ""
     },
     "gps": {
+      "tee": {
+        "lat": 36.43477367435374,
+        "lng": -92.91979020979865
+      },
       "greenCenter": {
-        "lat": null,
-        "lng": null
+        "lat": 36.43474955208735,
+        "lng": -92.91615508319899
       }
     },
-    "notes": ""
+    "notes": "Slight dogleg right. Just play to the corner, don't try to cut it. Uphill approach, so be careful."
   },
   {
     "hole": 14,
@@ -266,12 +282,16 @@
       "caption": ""
     },
     "gps": {
+      "tee": {
+        "lat": 36.43406855133971,
+        "lng": -92.9165266282552
+      },
       "greenCenter": {
-        "lat": null,
-        "lng": null
+        "lat": 36.43444283817458,
+        "lng": -92.91557858721713
       }
     },
-    "notes": ""
+    "notes": "This hole sucks. Play it straight, don't be scared."
   },
   {
     "hole": 15,
@@ -283,12 +303,16 @@
       "caption": ""
     },
     "gps": {
+      "tee": {
+        "lat": 36.43494032308551,
+        "lng": -92.915332107847
+      },
       "greenCenter": {
-        "lat": null,
-        "lng": null
+        "lat": 36.43782568165902,
+        "lng": -92.9160192744688
       }
     },
-    "notes": ""
+    "notes": "Dogleg right, play it over the corner. Play a wedge shot in to the green for a solid 3."
   },
   {
     "hole": 16,
@@ -300,12 +324,16 @@
       "caption": ""
     },
     "gps": {
+      "tee": {
+        "lat": 36.43875885460626,
+        "lng": -92.91702661352119
+      },
       "greenCenter": {
-        "lat": null,
-        "lng": null
+        "lat": 36.435445639656876,
+        "lng": -92.91899102295085
       }
     },
-    "notes": ""
+    "notes": "On in 3 is good here. Don't get greedy."
   },
   {
     "hole": 17,
@@ -317,12 +345,16 @@
       "caption": ""
     },
     "gps": {
+      "tee": {
+        "lat": 36.43600883661912,
+        "lng": -92.91935117145427
+      },
       "greenCenter": {
-        "lat": null,
-        "lng": null
+        "lat": 36.4391862266426,
+        "lng": -92.92041641731737
       }
     },
-    "notes": ""
+    "notes": "Play to the top of the hill for a clear shot at the green. Play low left for a little bit longer approach, but a clean visual of the green."
   },
   {
     "hole": 18,
@@ -334,11 +366,15 @@
       "caption": ""
     },
     "gps": {
+      "tee": {
+        "lat": 36.4399324949349,
+        "lng": -92.92021339661612
+      },
       "greenCenter": {
-        "lat": null,
-        "lng": null
+        "lat": 36.44329327942348,
+        "lng": -92.92023501350306
       }
     },
-    "notes": ""
+    "notes": "Bring it home easy here. Relatively straight shot, but don't let the uphill approach catch you off guard."
   }
 ]
