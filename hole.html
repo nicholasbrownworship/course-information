@@ -382,7 +382,7 @@
       transform: translate(-50%, -50%);
     }
 
-    /* FLYOVER / CADDY NOTES */
+    /* FLYOVER / CADDY / SUMMARY / HISTORY */
     .media-card {
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,0.08);
@@ -469,7 +469,7 @@
           </div>
         </div>
 
-        <!-- NEW: ROUND CONTROLS -->
+        <!-- ROUND CONTROLS -->
         <div class="round-row">
           <div class="round-label">Round</div>
           <div class="round-controls">
@@ -581,7 +581,7 @@
           </select>
         </div>
 
-        <!-- NEW: SCORE FIELD (SAVED PER ROUND + HOLE) -->
+        <!-- SCORE FIELD -->
         <div class="field">
           <label for="holeScore">Score</label>
           <select id="holeScore">
@@ -609,7 +609,7 @@
       ></textarea>
     </section>
 
-    <!-- RIGHT: GPS map + flyover + caddy notes -->
+    <!-- RIGHT: GPS map + flyover + caddy notes + summaries -->
     <section class="panel">
       <h2>On-Course View</h2>
       <small id="onCourseSubtitle">Per-hole GPS, flyover, and notes.</small>
@@ -636,6 +636,20 @@
         <h3>Caddy Notes</h3>
         <div id="caddyBody" class="media-note">
           No notes for this hole yet. Add a <code>"notes"</code> or <code>"tips"</code> field for this hole in <code>holes.json</code>.
+        </div>
+      </div>
+
+      <div class="media-card" id="roundSummaryCard">
+        <h3>Round Summary</h3>
+        <div id="roundSummaryBody" class="media-note">
+          Start saving stats to see a summary for this round.
+        </div>
+      </div>
+
+      <div class="media-card" id="holeHistoryCard">
+        <h3>Hole History</h3>
+        <div id="holeHistoryBody" class="media-note">
+          Play and save a few rounds to see trends on this hole.
         </div>
       </div>
     </section>
@@ -677,7 +691,7 @@
     let clickToGreenLine = null;
     let clickDistLabelMarker = null;
 
-    // NEW: tee → selected point
+    // tee → selected point
     let teeToClickLine = null;
     let teeToClickLabelMarker = null;
 
@@ -791,9 +805,8 @@
 
       lastDistances.clickToGreen = yards;
 
-      // NEW: tee → selected point
+      // tee → selected point
       if (currentTeePoint) {
-        // Line from tee to clicked point
         teeToClickLine = L.polyline(
           [
             [currentTeePoint.lat, currentTeePoint.lng],
@@ -840,7 +853,6 @@
       lastDistances.teeToGreen = null;
       lastDistances.clickToGreen = null;
       lastDistances.teeToClick = null;
-      // playerToGreen will update when GPS callback fires
 
       // Clear previous tee / lines / selected point / labels
       if (leafMap) {
@@ -1072,7 +1084,7 @@
       const holeImageOverlay = document.getElementById("holeImageOverlay");
       const holeImageCaption = document.getElementById("holeImageCaption");
 
-      // NEW: round + stats field refs
+      // Round + stats field refs
       const roundSelect = document.getElementById("roundSelect");
       const newRoundBtn = document.getElementById("btnNewRound");
       const deleteRoundBtn = document.getElementById("btnDeleteRound");
@@ -1085,6 +1097,10 @@
       const numBunkersEl = document.getElementById("numBunkers");
       const holeScoreEl = document.getElementById("holeScore");
       const holeNotesEl = document.getElementById("holeNotes");
+
+      // Summary / history elements
+      const roundSummaryBody = document.getElementById("roundSummaryBody");
+      const holeHistoryBody = document.getElementById("holeHistoryBody");
 
       let loadedCourse = null;
       let loadedHoles = [];
@@ -1174,7 +1190,7 @@
           name: name,
           createdAt: new Date().toISOString(),
           courseId: courseId || null,
-          holes: {} // key: courseId + ":" + holeNum
+          holes: {} // key: courseId + ":H" + holeNum
         };
 
         roundsState.rounds.push(round);
@@ -1276,6 +1292,276 @@
         applyHoleStateFromRound(courseId, currentHoleNum || 1);
       }
 
+      function getHoleNumber(holeObj) {
+        if (!holeObj) return null;
+        if (typeof holeObj.hole === "number") return holeObj.hole;
+        const idx = loadedHoles.indexOf(holeObj);
+        return idx >= 0 ? (idx + 1) : null;
+      }
+
+      // ==== SUMMARY + HISTORY ====
+      function renderRoundSummary() {
+        if (!roundSummaryBody) return;
+
+        const round = findActiveRound();
+        if (!round || !round.holes) {
+          roundSummaryBody.textContent =
+            "Start saving stats to see a summary for this round.";
+          return;
+        }
+
+        const courseId =
+          (courseSelect && courseSelect.value) ||
+          round.courseId ||
+          (loadedCourse && loadedCourse.id) ||
+          "unknown";
+
+        let scoreTotal = 0;
+        let holesWithScore = 0;
+        let parTotal = 0;
+
+        let fairwayHit = 0;
+        let fairwayOpp = 0;
+
+        let girHit = 0;
+        let girOpp = 0;
+
+        let totalPutts = 0;
+        let puttEntries = 0;
+        let threePlusPutts = 0;
+
+        const keys = Object.keys(round.holes);
+        keys.forEach(function(key) {
+          const prefix = courseId + ":H";
+          if (!key.startsWith(prefix)) return;
+
+          const data = round.holes[key];
+          if (!data) return;
+
+          const numStr = key.substring(prefix.length);
+          const holeNum = parseInt(numStr, 10);
+          if (!Number.isFinite(holeNum)) return;
+
+          const holeDef = loadedHoles.find(function(h) {
+            const n = getHoleNumber(h);
+            return n === holeNum;
+          });
+          const par = holeDef && typeof holeDef.par === "number" ? holeDef.par : null;
+
+          // Score
+          if (data.score) {
+            const s = parseInt(data.score, 10);
+            if (!Number.isNaN(s)) {
+              scoreTotal += s;
+              holesWithScore++;
+              if (par != null) parTotal += par;
+            }
+          }
+
+          // Fairway
+          if (data.fairwayResult && data.fairwayResult !== "" && data.fairwayResult !== "na") {
+            fairwayOpp++;
+            if (data.fairwayResult === "hit") fairwayHit++;
+          }
+
+          // GIR
+          if (data.girResult && data.girResult !== "" && data.girResult !== "na") {
+            girOpp++;
+            if (data.girResult === "yes") girHit++;
+          }
+
+          // Putts
+          if (data.numPutts) {
+            const p = parseInt(data.numPutts, 10);
+            if (!Number.isNaN(p)) {
+              totalPutts += p;
+              puttEntries++;
+              if (p >= 3) threePlusPutts++;
+            }
+          }
+        });
+
+        if (!holesWithScore && !fairwayOpp && !girOpp && !puttEntries) {
+          roundSummaryBody.textContent =
+            "No stats saved yet for this round on this course.";
+          return;
+        }
+
+        let html = "<ul class='caddy-list'>";
+
+        if (holesWithScore) {
+          const avgScore = (scoreTotal / holesWithScore).toFixed(1);
+          let vsParText = "";
+          if (parTotal) {
+            const diff = scoreTotal - parTotal;
+            if (diff > 0) vsParText = " (+" + diff + " vs par)";
+            else if (diff < 0) vsParText = " (" + diff + " vs par)";
+            else vsParText = " (even par)";
+          }
+          html +=
+            "<li><strong>Total score:</strong> " +
+            scoreTotal +
+            " over " +
+            holesWithScore +
+            " holes" +
+            vsParText +
+            "</li>";
+          html +=
+            "<li><strong>Avg score per hole:</strong> " + avgScore + "</li>";
+        }
+
+        if (fairwayOpp) {
+          const pct = Math.round((fairwayHit / fairwayOpp) * 100);
+          html +=
+            "<li><strong>Fairways hit:</strong> " +
+            fairwayHit +
+            " / " +
+            fairwayOpp +
+            " (" +
+            pct +
+            "%)</li>";
+        }
+
+        if (girOpp) {
+          const pct = Math.round((girHit / girOpp) * 100);
+          html +=
+            "<li><strong>GIR:</strong> " +
+            girHit +
+            " / " +
+            girOpp +
+            " (" +
+            pct +
+            "%)</li>";
+        }
+
+        if (puttEntries) {
+          const avgPutts = (totalPutts / puttEntries).toFixed(2);
+          html +=
+            "<li><strong>Putts per hole:</strong> " +
+            avgPutts +
+            " (3+ putts on " +
+            threePlusPutts +
+            " holes)</li>";
+        }
+
+        html += "</ul>";
+
+        roundSummaryBody.innerHTML = html;
+      }
+
+      function renderHoleHistory() {
+        if (!holeHistoryBody) return;
+        if (!loadedCourse || !loadedHoles.length) {
+          holeHistoryBody.textContent =
+            "Select a course and hole to see history.";
+          return;
+        }
+
+        const courseId =
+          (courseSelect && courseSelect.value) ||
+          loadedCourse.id ||
+          "unknown";
+        const holeNum = currentHoleNum || 1;
+
+        let entries = 0;
+        let scoreTotal = 0;
+        let fairwayHit = 0;
+        let fairwayOpp = 0;
+        let girHit = 0;
+        let girOpp = 0;
+        let totalPutts = 0;
+        let puttEntries = 0;
+
+        roundsState.rounds.forEach(function(round) {
+          if (!round.holes) return;
+          if (round.courseId && round.courseId !== courseId) return;
+
+          const key = makeHoleKey(courseId, holeNum);
+          const data = round.holes[key];
+          if (!data) return;
+
+          entries++;
+
+          // Score
+          if (data.score) {
+            const s = parseInt(data.score, 10);
+            if (!Number.isNaN(s)) {
+              scoreTotal += s;
+            }
+          }
+
+          // Fairway
+          if (data.fairwayResult && data.fairwayResult !== "" && data.fairwayResult !== "na") {
+            fairwayOpp++;
+            if (data.fairwayResult === "hit") fairwayHit++;
+          }
+
+          // GIR
+          if (data.girResult && data.girResult !== "" && data.girResult !== "na") {
+            girOpp++;
+            if (data.girResult === "yes") girHit++;
+          }
+
+          // Putts
+          if (data.numPutts) {
+            const p = parseInt(data.numPutts, 10);
+            if (!Number.isNaN(p)) {
+              totalPutts += p;
+              puttEntries++;
+            }
+          }
+        });
+
+        if (!entries) {
+          holeHistoryBody.textContent =
+            "No saved history yet for this hole. Play and save a few rounds to see trends here.";
+          return;
+        }
+
+        let html = "<ul class='caddy-list'>";
+
+        if (scoreTotal) {
+          const avgScore = (scoreTotal / entries).toFixed(2);
+          html +=
+            "<li><strong>Avg score on this hole:</strong> " +
+            avgScore +
+            " over " +
+            entries +
+            " recorded rounds</li>";
+        } else {
+          html +=
+            "<li><strong>Avg score on this hole:</strong> not enough data yet</li>";
+        }
+
+        if (fairwayOpp) {
+          const pct = Math.round((fairwayHit / fairwayOpp) * 100);
+          html +=
+            "<li><strong>Fairway hit:</strong> " +
+            pct +
+            "% of recorded tee shots</li>";
+        }
+
+        if (girOpp) {
+          const pct = Math.round((girHit / girOpp) * 100);
+          html +=
+            "<li><strong>GIR:</strong> " +
+            pct +
+            "% of recorded approaches</li>";
+        }
+
+        if (puttEntries) {
+          const avgPutts = (totalPutts / puttEntries).toFixed(2);
+          html +=
+            "<li><strong>Avg putts on this hole:</strong> " +
+            avgPutts +
+            "</li>";
+        }
+
+        html += "</ul>";
+
+        holeHistoryBody.innerHTML = html;
+      }
+
       // Load rounds from storage and set up UI BEFORE loading courses
       loadRoundsState();
       ensureAtLeastOneRound();
@@ -1289,6 +1575,8 @@
           roundsState.activeRoundId = newId || null;
           saveRoundsState();
           applyHoleStateForCurrentHole();
+          renderRoundSummary();
+          renderHoleHistory();
         });
       }
 
@@ -1302,6 +1590,8 @@
             roundSelect.value = round.id;
           }
           clearHoleControls();
+          renderRoundSummary();
+          renderHoleHistory();
         });
       }
 
@@ -1318,6 +1608,8 @@
           saveRoundsState();
           rebuildRoundSelect();
           clearHoleControls();
+          renderRoundSummary();
+          renderHoleHistory();
         });
       }
 
@@ -1335,11 +1627,15 @@
         if (!el) return;
         el.addEventListener("change", function() {
           saveCurrentHoleState();
+          renderRoundSummary();
+          renderHoleHistory();
         });
       });
       if (holeNotesEl) {
         holeNotesEl.addEventListener("input", function() {
           saveCurrentHoleState();
+          renderRoundSummary();
+          renderHoleHistory();
         });
       }
 
@@ -1602,6 +1898,10 @@
         // GPS map for this hole (tee + green)
         initHoleMap(hole.gps || null);
         startGpsWatch(); // continuous GPS updates
+
+        // Update summary + history for this hole
+        renderRoundSummary();
+        renderHoleHistory();
       }
 
       // EVENT WIRING
