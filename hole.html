@@ -191,6 +191,38 @@
       filter: brightness(0.98);
     }
 
+    /* ROUND CONTROLS */
+    .round-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .round-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--green-dark);
+    }
+
+    .round-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+    }
+
+    #roundSelect {
+      padding: 3px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: #fffbf4;
+      font-size: 0.8rem;
+      min-width: 140px;
+    }
+
     /* YARDAGES */
     .yardage-row {
       display: flex;
@@ -437,6 +469,16 @@
           </div>
         </div>
 
+        <!-- NEW: ROUND CONTROLS -->
+        <div class="round-row">
+          <div class="round-label">Round</div>
+          <div class="round-controls">
+            <select id="roundSelect"></select>
+            <button type="button" class="btn" id="btnNewRound">New</button>
+            <button type="button" class="btn" id="btnDeleteRound">Delete</button>
+          </div>
+        </div>
+
         <div class="hole-nav-row">
           <div class="hole-info-label" id="holeLabel">Hole –</div>
           <div class="nav-buttons">
@@ -536,6 +578,26 @@
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3+</option>
+          </select>
+        </div>
+
+        <!-- NEW: SCORE FIELD (SAVED PER ROUND + HOLE) -->
+        <div class="field">
+          <label for="holeScore">Score</label>
+          <select id="holeScore">
+            <option value="">—</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12+</option>
           </select>
         </div>
       </div>
@@ -1010,11 +1072,278 @@
       const holeImageOverlay = document.getElementById("holeImageOverlay");
       const holeImageCaption = document.getElementById("holeImageCaption");
 
+      // NEW: round + stats field refs
+      const roundSelect = document.getElementById("roundSelect");
+      const newRoundBtn = document.getElementById("btnNewRound");
+      const deleteRoundBtn = document.getElementById("btnDeleteRound");
+
+      const fairwayResultEl = document.getElementById("fairwayResult");
+      const girResultEl = document.getElementById("girResult");
+      const shotShapeEl = document.getElementById("shotShape");
+      const numPuttsEl = document.getElementById("numPutts");
+      const numChipsEl = document.getElementById("numChips");
+      const numBunkersEl = document.getElementById("numBunkers");
+      const holeScoreEl = document.getElementById("holeScore");
+      const holeNotesEl = document.getElementById("holeNotes");
+
       let loadedCourse = null;
       let loadedHoles = [];
       let currentHoleNum = Number.isFinite(urlHole) && urlHole > 0 ? urlHole : 1;
       let maxHole = 0;
 
+      // ===== ROUND STORAGE (localStorage) =====
+      const STORAGE_KEY = "localGolfScorebook_rounds_v1";
+
+      let roundsState = {
+        rounds: [],
+        activeRoundId: null
+      };
+
+      function loadRoundsState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== "object") return;
+          if (!Array.isArray(parsed.rounds)) return;
+          roundsState.rounds = parsed.rounds;
+          roundsState.activeRoundId = parsed.activeRoundId || null;
+        } catch (e) {
+          console.warn("[rounds] Failed to load state", e);
+        }
+      }
+
+      function saveRoundsState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(roundsState));
+        } catch (e) {
+          console.warn("[rounds] Failed to save state", e);
+        }
+      }
+
+      function findActiveRound() {
+        if (!roundsState.activeRoundId) return null;
+        return roundsState.rounds.find(r => r.id === roundsState.activeRoundId) || null;
+      }
+
+      function rebuildRoundSelect() {
+        if (!roundSelect) return;
+
+        const rounds = roundsState.rounds;
+        if (!rounds.length) {
+          roundSelect.innerHTML = "<option value=''>No rounds yet</option>";
+          return;
+        }
+
+        let html = "";
+        rounds.forEach(function(r) {
+          html += "<option value='" + r.id + "'>" + (r.name || "Unnamed round") + "</option>";
+        });
+        roundSelect.innerHTML = html;
+
+        if (roundsState.activeRoundId) {
+          roundSelect.value = roundsState.activeRoundId;
+        } else {
+          roundsState.activeRoundId = rounds[0].id;
+          roundSelect.value = rounds[0].id;
+          saveRoundsState();
+        }
+      }
+
+      function createNewRoundName(courseObj) {
+        const today = new Date().toISOString().slice(0, 10);
+        const courseName =
+          (courseObj && courseObj.name) ||
+          (courseSelect &&
+            courseSelect.options[courseSelect.selectedIndex] &&
+            courseSelect.options[courseSelect.selectedIndex].text) ||
+          "Practice";
+        return courseName + " – " + today;
+      }
+
+      function createNewRound(courseObj) {
+        const id = "r_" + Date.now();
+        const name = createNewRoundName(courseObj);
+        const courseId =
+          (courseObj && courseObj.id) ||
+          (courseSelect && courseSelect.value) ||
+          "";
+
+        const round = {
+          id: id,
+          name: name,
+          createdAt: new Date().toISOString(),
+          courseId: courseId || null,
+          holes: {} // key: courseId + ":" + holeNum
+        };
+
+        roundsState.rounds.push(round);
+        roundsState.activeRoundId = id;
+        saveRoundsState();
+        rebuildRoundSelect();
+        return round;
+      }
+
+      function ensureAtLeastOneRound() {
+        if (!roundsState.rounds.length) {
+          createNewRound(null);
+        } else if (!roundsState.activeRoundId) {
+          roundsState.activeRoundId = roundsState.rounds[0].id;
+          saveRoundsState();
+        }
+        rebuildRoundSelect();
+      }
+
+      function makeHoleKey(courseId, holeNum) {
+        const cid = courseId || (loadedCourse && loadedCourse.id) || "unknown";
+        return cid + ":H" + holeNum;
+      }
+
+      function clearHoleControls() {
+        if (fairwayResultEl) fairwayResultEl.value = "";
+        if (girResultEl) girResultEl.value = "";
+        if (shotShapeEl) shotShapeEl.value = "";
+        if (numPuttsEl) numPuttsEl.value = "";
+        if (numChipsEl) numChipsEl.value = "";
+        if (numBunkersEl) numBunkersEl.value = "";
+        if (holeScoreEl) holeScoreEl.value = "";
+        if (holeNotesEl) holeNotesEl.value = "";
+      }
+
+      function applyHoleStateFromRound(courseId, holeNum) {
+        const round = findActiveRound();
+        if (!round) {
+          clearHoleControls();
+          return;
+        }
+        const key = makeHoleKey(courseId, holeNum);
+        const data = round.holes && round.holes[key];
+
+        if (!data) {
+          clearHoleControls();
+          return;
+        }
+
+        if (fairwayResultEl) fairwayResultEl.value = data.fairwayResult || "";
+        if (girResultEl) girResultEl.value = data.girResult || "";
+        if (shotShapeEl) shotShapeEl.value = data.shotShape || "";
+        if (numPuttsEl) numPuttsEl.value = data.numPutts || "";
+        if (numChipsEl) numChipsEl.value = data.numChips || "";
+        if (numBunkersEl) numBunkersEl.value = data.numBunkers || "";
+        if (holeScoreEl) holeScoreEl.value = data.score || "";
+        if (holeNotesEl) holeNotesEl.value = data.notes || "";
+      }
+
+      function saveCurrentHoleState(forceCourseId) {
+        const round = findActiveRound();
+        if (!round) return;
+
+        const courseId =
+          forceCourseId ||
+          (courseSelect && courseSelect.value) ||
+          (loadedCourse && loadedCourse.id) ||
+          "unknown";
+
+        const holeNum = currentHoleNum || 1;
+        const key = makeHoleKey(courseId, holeNum);
+
+        if (!round.holes) round.holes = {};
+
+        round.holes[key] = {
+          fairwayResult: fairwayResultEl ? (fairwayResultEl.value || "") : "",
+          girResult: girResultEl ? (girResultEl.value || "") : "",
+          shotShape: shotShapeEl ? (shotShapeEl.value || "") : "",
+          numPutts: numPuttsEl ? (numPuttsEl.value || "") : "",
+          numChips: numChipsEl ? (numChipsEl.value || "") : "",
+          numBunkers: numBunkersEl ? (numBunkersEl.value || "") : "",
+          score: holeScoreEl ? (holeScoreEl.value || "") : "",
+          notes: holeNotesEl ? (holeNotesEl.value || "") : ""
+        };
+
+        // also record courseId on the round if empty
+        if (!round.courseId && courseId && courseId !== "unknown") {
+          round.courseId = courseId;
+        }
+
+        saveRoundsState();
+      }
+
+      function applyHoleStateForCurrentHole() {
+        const courseId =
+          (courseSelect && courseSelect.value) ||
+          (loadedCourse && loadedCourse.id) ||
+          "unknown";
+        applyHoleStateFromRound(courseId, currentHoleNum || 1);
+      }
+
+      // Load rounds from storage and set up UI BEFORE loading courses
+      loadRoundsState();
+      ensureAtLeastOneRound();
+
+      // Wire round UI
+      if (roundSelect) {
+        roundSelect.addEventListener("change", function() {
+          // Save current hole on current round before switching
+          saveCurrentHoleState();
+          const newId = roundSelect.value || "";
+          roundsState.activeRoundId = newId || null;
+          saveRoundsState();
+          applyHoleStateForCurrentHole();
+        });
+      }
+
+      if (newRoundBtn) {
+        newRoundBtn.addEventListener("click", function() {
+          // Save current hole into current round first
+          saveCurrentHoleState();
+          const round = createNewRound(loadedCourse);
+          if (roundSelect) {
+            rebuildRoundSelect();
+            roundSelect.value = round.id;
+          }
+          clearHoleControls();
+        });
+      }
+
+      if (deleteRoundBtn) {
+        deleteRoundBtn.addEventListener("click", function() {
+          const active = findActiveRound();
+          if (!active) return;
+          if (!confirm("Delete this round and all its saved hole data?")) return;
+
+          roundsState.rounds = roundsState.rounds.filter(r => r.id !== active.id);
+          roundsState.activeRoundId = roundsState.rounds.length
+            ? roundsState.rounds[0].id
+            : null;
+          saveRoundsState();
+          rebuildRoundSelect();
+          clearHoleControls();
+        });
+      }
+
+      // Auto-save when stats / notes change
+      const statFields = [
+        fairwayResultEl,
+        girResultEl,
+        shotShapeEl,
+        numPuttsEl,
+        numChipsEl,
+        numBunkersEl,
+        holeScoreEl
+      ];
+      statFields.forEach(function(el) {
+        if (!el) return;
+        el.addEventListener("change", function() {
+          saveCurrentHoleState();
+        });
+      });
+      if (holeNotesEl) {
+        holeNotesEl.addEventListener("input", function() {
+          saveCurrentHoleState();
+        });
+      }
+
+      // ===== COURSE / HOLE LOADING =====
       function loadCoursesIndex() {
         if (!courseSelect) return;
 
@@ -1073,6 +1402,13 @@
         fetchJSON(coursePath)
           .then(function(course) {
             loadedCourse = course;
+            // update name of active round if it's still the default
+            const active = findActiveRound();
+            if (active && (!active.name || active.name.indexOf("Practice") === 0)) {
+              active.name = createNewRoundName(course);
+              saveRoundsState();
+              rebuildRoundSelect();
+            }
             return fetchJSON(holesPath);
           })
           .then(function(holes) {
@@ -1256,6 +1592,13 @@
           caddyBody.innerHTML = html;
         }
 
+        // Apply saved stats/notes for this round + hole
+        const courseId =
+          (courseSelect && courseSelect.value) ||
+          (loadedCourse && loadedCourse.id) ||
+          "unknown";
+        applyHoleStateFromRound(courseId, currentHoleNum);
+
         // GPS map for this hole (tee + green)
         initHoleMap(hole.gps || null);
         startGpsWatch(); // continuous GPS updates
@@ -1264,15 +1607,23 @@
       // EVENT WIRING
       if (courseSelect) {
         courseSelect.addEventListener("change", function() {
-          const id = courseSelect.value;
-          if (!id) return;
+          const newId = courseSelect.value;
+          if (!newId) return;
+          // save current hole for previous course if we had one
+          if (loadedCourse && loadedCourse.id) {
+            saveCurrentHoleState(loadedCourse.id);
+          } else {
+            saveCurrentHoleState();
+          }
           currentHoleNum = 1;
-          loadCourse(id);
+          loadCourse(newId);
         });
       }
 
       if (holeSelect) {
         holeSelect.addEventListener("change", function() {
+          // save current before switching hole
+          saveCurrentHoleState();
           const val = parseInt(holeSelect.value || "1", 10);
           if (!Number.isFinite(val)) return;
           currentHoleNum = val;
@@ -1283,6 +1634,7 @@
       if (prevBtn) {
         prevBtn.addEventListener("click", function() {
           if (currentHoleNum > 1) {
+            saveCurrentHoleState();
             currentHoleNum -= 1;
             renderHoleView();
           }
@@ -1292,6 +1644,7 @@
       if (nextBtn) {
         nextBtn.addEventListener("click", function() {
           if (currentHoleNum < maxHole) {
+            saveCurrentHoleState();
             currentHoleNum += 1;
             renderHoleView();
           }
