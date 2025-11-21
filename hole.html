@@ -544,6 +544,60 @@
           </select>
         </div>
 
+        <!-- NEW: Tee club -->
+        <div class="field">
+          <label for="teeClub">Tee club</label>
+          <select id="teeClub">
+            <option value="">—</option>
+            <option value="Driver">Driver</option>
+            <option value="3W">3-wood</option>
+            <option value="5W">5-wood</option>
+            <option value="7W">7-wood</option>
+            <option value="3H">3-hybrid</option>
+            <option value="4H">4-hybrid</option>
+            <option value="5H">5-hybrid</option>
+            <option value="4i">4-iron</option>
+            <option value="5i">5-iron</option>
+            <option value="6i">6-iron</option>
+            <option value="7i">7-iron</option>
+            <option value="8i">8-iron</option>
+            <option value="9i">9-iron</option>
+            <option value="PW">Pitching wedge</option>
+            <option value="GW">Gap wedge</option>
+            <option value="SW">Sand wedge</option>
+            <option value="LW">Lob wedge</option>
+            <option value="Putter">Putter</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- NEW: Approach club -->
+        <div class="field">
+          <label for="approachClub">Approach club</label>
+          <select id="approachClub">
+            <option value="">—</option>
+            <option value="Driver">Driver</option>
+            <option value="3W">3-wood</option>
+            <option value="5W">5-wood</option>
+            <option value="7W">7-wood</option>
+            <option value="3H">3-hybrid</option>
+            <option value="4H">4-hybrid</option>
+            <option value="5H">5-hybrid</option>
+            <option value="4i">4-iron</option>
+            <option value="5i">5-iron</option>
+            <option value="6i">6-iron</option>
+            <option value="7i">7-iron</option>
+            <option value="8i">8-iron</option>
+            <option value="9i">9-iron</option>
+            <option value="PW">Pitching wedge</option>
+            <option value="GW">Gap wedge</option>
+            <option value="SW">Sand wedge</option>
+            <option value="LW">Lob wedge</option>
+            <option value="Putter">Putter</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
         <div class="field">
           <label for="numPutts">Putts</label>
           <select id="numPutts">
@@ -1092,6 +1146,8 @@
       const fairwayResultEl = document.getElementById("fairwayResult");
       const girResultEl = document.getElementById("girResult");
       const shotShapeEl = document.getElementById("shotShape");
+      const teeClubEl = document.getElementById("teeClub");          // NEW
+      const approachClubEl = document.getElementById("approachClub"); // NEW
       const numPuttsEl = document.getElementById("numPutts");
       const numChipsEl = document.getElementById("numChips");
       const numBunkersEl = document.getElementById("numBunkers");
@@ -1219,6 +1275,8 @@
         if (fairwayResultEl) fairwayResultEl.value = "";
         if (girResultEl) girResultEl.value = "";
         if (shotShapeEl) shotShapeEl.value = "";
+        if (teeClubEl) teeClubEl.value = "";         // NEW
+        if (approachClubEl) approachClubEl.value = ""; // NEW
         if (numPuttsEl) numPuttsEl.value = "";
         if (numChipsEl) numChipsEl.value = "";
         if (numBunkersEl) numBunkersEl.value = "";
@@ -1243,6 +1301,8 @@
         if (fairwayResultEl) fairwayResultEl.value = data.fairwayResult || "";
         if (girResultEl) girResultEl.value = data.girResult || "";
         if (shotShapeEl) shotShapeEl.value = data.shotShape || "";
+        if (teeClubEl) teeClubEl.value = data.teeClub || "";               // NEW
+        if (approachClubEl) approachClubEl.value = data.approachClub || "";// NEW
         if (numPuttsEl) numPuttsEl.value = data.numPutts || "";
         if (numChipsEl) numChipsEl.value = data.numChips || "";
         if (numBunkersEl) numBunkersEl.value = data.numBunkers || "";
@@ -1269,6 +1329,8 @@
           fairwayResult: fairwayResultEl ? (fairwayResultEl.value || "") : "",
           girResult: girResultEl ? (girResultEl.value || "") : "",
           shotShape: shotShapeEl ? (shotShapeEl.value || "") : "",
+          teeClub: teeClubEl ? (teeClubEl.value || "") : "",               // NEW
+          approachClub: approachClubEl ? (approachClubEl.value || "") : "",// NEW
           numPutts: numPuttsEl ? (numPuttsEl.value || "") : "",
           numChips: numChipsEl ? (numChipsEl.value || "") : "",
           numBunkers: numBunkersEl ? (numBunkersEl.value || "") : "",
@@ -1618,6 +1680,8 @@
         fairwayResultEl,
         girResultEl,
         shotShapeEl,
+        teeClubEl,        // NEW
+        approachClubEl,   // NEW
         numPuttsEl,
         numChipsEl,
         numBunkersEl,
