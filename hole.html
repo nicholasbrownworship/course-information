@@ -220,6 +220,49 @@
       flex-shrink: 0;
     }
 
+    /* HOLE IMAGE + GPS OVERLAY */
+    .hole-image-card {
+      border-radius: 10px;
+      border: 1px solid rgba(0,0,0,0.08);
+      background: #fffdf6;
+      padding: 8px 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      margin-top: 4px;
+      font-size: 0.8rem;
+    }
+
+    .hole-image-wrapper {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      max-height: 260px;
+      background: #e5e7eb;
+    }
+
+    #holeImage {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .hole-image-overlay {
+      position: absolute;
+      left: 8px;
+      bottom: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.7);
+      color: #f9fafb;
+      font-size: 0.75rem;
+      display: none;
+    }
+
+    .hole-image-caption {
+      margin-top: 4px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
     /* SHOT STATS – ALL DROPDOWNS */
     .stats-grid {
       display: grid;
@@ -392,6 +435,20 @@
       <div class="detail-section-title">Yardages</div>
       <div id="yardageRow" class="yardage-row">
         <span class="muted">No course selected.</span>
+      </div>
+
+      <!-- HOLE IMAGE + GPS OVERLAY -->
+      <div class="detail-section-title">Hole Image & GPS</div>
+      <div class="hole-image-card">
+        <div class="hole-image-wrapper">
+          <img id="holeImage" src="" alt="Hole layout" style="display:none;" />
+          <div id="holeImageOverlay" class="hole-image-overlay">
+            Waiting for GPS…
+          </div>
+        </div>
+        <div id="holeImageCaption" class="hole-image-caption">
+          No image set for this hole yet.
+        </div>
       </div>
 
       <div class="detail-section-title">Shot Stats</div>
@@ -576,13 +633,21 @@
 
     function updateGpsDistance() {
       const readout = document.getElementById("gpsReadout");
+      const overlay = document.getElementById("holeImageOverlay");
+
       if (!currentGpsTarget) {
         if (readout) readout.textContent = "No GPS data set for this hole yet.";
+        if (overlay) {
+          overlay.style.display = "none";
+        }
         return;
       }
 
       if (!navigator.geolocation) {
         if (readout) readout.textContent = "GPS not supported in this browser.";
+        if (overlay) {
+          overlay.style.display = "none";
+        }
         return;
       }
 
@@ -600,11 +665,18 @@
           if (readout) {
             readout.textContent = yards + " yds to green center (approx.)";
           }
+          if (overlay) {
+            overlay.style.display = "inline-flex";
+            overlay.textContent = yards + " yds to green center (GPS)";
+          }
         },
         function(err) {
           console.warn("GPS error", err);
           if (readout) {
             readout.textContent = "Could not get GPS location (" + err.message + ")";
+          }
+          if (overlay) {
+            overlay.style.display = "none";
           }
         },
         { enableHighAccuracy: true }
@@ -627,6 +699,10 @@
       const prevBtn = document.getElementById("btnPrevHole");
       const nextBtn = document.getElementById("btnNextHole");
       const refreshGpsBtn = document.getElementById("btnRefreshGPS");
+
+      const holeImageEl = document.getElementById("holeImage");
+      const holeImageOverlay = document.getElementById("holeImageOverlay");
+      const holeImageCaption = document.getElementById("holeImageCaption");
 
       let allCourses = [];
       let loadedCourse = null;
@@ -680,6 +756,17 @@
 
         if (yardageRowEl) {
           yardageRowEl.innerHTML = "<span class='muted'>Loading hole data…</span>";
+        }
+
+        if (holeImageEl) {
+          holeImageEl.style.display = "none";
+          holeImageEl.removeAttribute("src");
+        }
+        if (holeImageOverlay) {
+          holeImageOverlay.style.display = "none";
+        }
+        if (holeImageCaption) {
+          holeImageCaption.textContent = "No image set for this hole yet.";
         }
 
         Promise.all([fetchJSON(coursePath), fetchJSON(holesPath)])
@@ -756,6 +843,8 @@
 
         currentHoleNum = resolvedHoleNum;
 
+        const media = hole.media || {};
+
         // Course header
         const loc = loadedCourse.location || {};
         let locLine = "";
@@ -806,8 +895,23 @@
           }
         }
 
+        // Hole image (layout) + caption
+        if (holeImageEl && holeImageCaption && holeImageOverlay) {
+          const holeImgSrc = media.image || hole.image || null;
+          if (holeImgSrc) {
+            holeImageEl.src = holeImgSrc;
+            holeImageEl.style.display = "block";
+            holeImageCaption.textContent = media.caption || ("Layout for hole " + resolvedHoleNum);
+            holeImageOverlay.style.display = "none";
+          } else {
+            holeImageEl.removeAttribute("src");
+            holeImageEl.style.display = "none";
+            holeImageCaption.textContent = "No image set for this hole yet.";
+            holeImageOverlay.style.display = "none";
+          }
+        }
+
         // Flyover
-        const media = hole.media || {};
         if (flyoverBody) {
           if (media.flyover) {
             const lower = media.flyover.toLowerCase();
