@@ -382,7 +382,7 @@
       transform: translate(-50%, -50%);
     }
 
-    /* FLYOVER / CADDY / SUMMARY / HISTORY */
+    /* FLYOVER / CADDY / SUMMARY / HISTORY / CLUBS */
     .media-card {
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,0.08);
@@ -415,6 +415,62 @@
 
     .caddy-list li {
       margin-bottom: 2px;
+    }
+
+    /* Club recommender / bag */
+    .field-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: flex-end;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+    }
+
+    .field-row label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .field-row input[type="number"] {
+      margin-top: 2px;
+      padding: 3px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: #fffbf4;
+      font-size: 0.8rem;
+      width: 90px;
+    }
+
+    .bag-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 4px 10px;
+      margin-top: 4px;
+      font-size: 0.78rem;
+    }
+
+    .bag-grid-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bag-grid-row span {
+      white-space: nowrap;
+    }
+
+    .bag-grid-row input {
+      width: 64px;
+      text-align: right;
+      padding: 3px 4px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: #fffbf4;
+      font-size: 0.78rem;
     }
   </style>
 
@@ -544,7 +600,7 @@
           </select>
         </div>
 
-        <!-- NEW: Tee club -->
+        <!-- Tee club -->
         <div class="field">
           <label for="teeClub">Tee club</label>
           <select id="teeClub">
@@ -571,7 +627,7 @@
           </select>
         </div>
 
-        <!-- NEW: Approach club -->
+        <!-- Approach club -->
         <div class="field">
           <label for="approachClub">Approach club</label>
           <select id="approachClub">
@@ -663,7 +719,7 @@
       ></textarea>
     </section>
 
-    <!-- RIGHT: GPS map + flyover + caddy notes + summaries -->
+    <!-- RIGHT: GPS map + flyover + caddy notes + summaries + club recommender -->
     <section class="panel">
       <h2>On-Course View</h2>
       <small id="onCourseSubtitle">Per-hole GPS, flyover, and notes.</small>
@@ -706,6 +762,102 @@
           Play and save a few rounds to see trends on this hole.
         </div>
       </div>
+
+      <!-- NEW: Club recommendation + bag distances -->
+      <div class="media-card" id="clubRecommenderCard">
+        <h3>Club Recommendation</h3>
+        <div class="club-rec-section">
+          <div class="field-row">
+            <label for="targetDistance">
+              Target distance (yds)
+              <input type="number" id="targetDistance" inputmode="numeric" min="1" step="1" />
+            </label>
+            <button type="button" class="btn" id="btnUseGpsDistance">Use GPS</button>
+          </div>
+          <button type="button" class="btn btn-primary" id="btnRecommendClub">Recommend club</button>
+          <div id="clubRecResult" class="media-note" style="margin-top:4px;">
+            Enter or pull a distance to get a suggestion.
+          </div>
+        </div>
+
+        <div class="detail-section-title" style="margin-top:8px;">My Bag Distances</div>
+        <div class="media-note">
+          Approximate carry distances (yards). Saved locally on this device.
+        </div>
+        <div class="bag-grid" id="bagGrid">
+          <div class="bag-grid-row">
+            <span>Driver</span>
+            <input type="number" class="club-distance-input" data-club-id="Driver" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>3-wood</span>
+            <input type="number" class="club-distance-input" data-club-id="3W" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>5-wood</span>
+            <input type="number" class="club-distance-input" data-club-id="5W" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>7-wood</span>
+            <input type="number" class="club-distance-input" data-club-id="7W" min="1" step="1" placeholder="yds" />
+          </div>
+
+          <div class="bag-grid-row">
+            <span>3-hybrid</span>
+            <input type="number" class="club-distance-input" data-club-id="3H" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>4-hybrid</span>
+            <input type="number" class="club-distance-input" data-club-id="4H" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>5-hybrid</span>
+            <input type="number" class="club-distance-input" data-club-id="5H" min="1" step="1" placeholder="yds" />
+          </div>
+
+          <div class="bag-grid-row">
+            <span>4-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="4i" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>5-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="5i" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>6-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="6i" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>7-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="7i" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>8-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="8i" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>9-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="9i" min="1" step="1" placeholder="yds" />
+          </div>
+
+          <div class="bag-grid-row">
+            <span>PW</span>
+            <input type="number" class="club-distance-input" data-club-id="PW" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>GW</span>
+            <input type="number" class="club-distance-input" data-club-id="GW" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>SW</span>
+            <input type="number" class="club-distance-input" data-club-id="SW" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>LW</span>
+            <input type="number" class="club-distance-input" data-club-id="LW" min="1" step="1" placeholder="yds" />
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -733,7 +885,129 @@
       return Math.round(meters * 1.09361); // yards
     }
 
-    // Leaflet map state
+    // ===== BAG DISTANCES / CLUB RECOMMENDER =====
+    const BAG_STORAGE_KEY = "localGolfScorebook_bag_v1";
+    const CLUB_LABELS = {
+      "Driver": "Driver",
+      "3W": "3-wood",
+      "5W": "5-wood",
+      "7W": "7-wood",
+      "3H": "3-hybrid",
+      "4H": "4-hybrid",
+      "5H": "5-hybrid",
+      "4i": "4-iron",
+      "5i": "5-iron",
+      "6i": "6-iron",
+      "7i": "7-iron",
+      "8i": "8-iron",
+      "9i": "9-iron",
+      "PW": "Pitching wedge",
+      "GW": "Gap wedge",
+      "SW": "Sand wedge",
+      "LW": "Lob wedge",
+      "Putter": "Putter"
+    };
+
+    let bagDistances = {};
+
+    function loadBagDistances() {
+      try {
+        const raw = localStorage.getItem(BAG_STORAGE_KEY);
+        if (!raw) {
+          bagDistances = {};
+          return;
+        }
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") {
+          bagDistances = parsed;
+        } else {
+          bagDistances = {};
+        }
+      } catch (e) {
+        console.warn("[bag] Failed to load bag distances", e);
+        bagDistances = {};
+      }
+    }
+
+    function saveBagDistances() {
+      try {
+        localStorage.setItem(BAG_STORAGE_KEY, JSON.stringify(bagDistances));
+      } catch (e) {
+        console.warn("[bag] Failed to save bag distances", e);
+      }
+    }
+
+    function applyBagDistancesToInputs() {
+      const inputs = document.querySelectorAll(".club-distance-input");
+      inputs.forEach(function(input) {
+        const id = input.getAttribute("data-club-id");
+        if (!id) return;
+        const stored = bagDistances[id];
+        if (typeof stored === "number" && !Number.isNaN(stored)) {
+          input.value = String(stored);
+        }
+      });
+    }
+
+    function syncSingleBagInput(input) {
+      if (!input) return;
+      const id = input.getAttribute("data-club-id");
+      if (!id) return;
+      const v = parseInt(input.value || "", 10);
+      if (!Number.isNaN(v) && v > 0) {
+        bagDistances[id] = v;
+      } else {
+        delete bagDistances[id];
+      }
+      saveBagDistances();
+    }
+
+    function recommendClubForDistance(targetYards) {
+      const entries = Object.entries(bagDistances)
+        .filter(function(pair) {
+          const v = pair[1];
+          return typeof v === "number" && !Number.isNaN(v) && v > 0;
+        })
+        .sort(function(a, b) {
+          return a[1] - b[1];
+        });
+
+      if (!entries.length) return null;
+
+      // Default to longest club
+      let best = entries[entries.length - 1];
+
+      // First club that carries at least target
+      for (let i = 0; i < entries.length; i++) {
+        const [id, dist] = entries[i];
+        if (dist >= targetYards) {
+          best = entries[i];
+          break;
+        }
+      }
+
+      // Nearest shorter and longer options for context
+      let shorter = null;
+      let longer = null;
+
+      for (let i = entries.length - 1; i >= 0; i--) {
+        if (entries[i][1] < targetYards) {
+          shorter = entries[i];
+          break;
+        }
+      }
+
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i][1] > best[1]) {
+          longer = entries[i];
+          break;
+        }
+      }
+
+      return { best, shorter, longer };
+    }
+
+    // ===== Leaflet map state =====
     let leafMap = null;
     let playerMarker = null;
     let targetMarker = null;
@@ -1146,8 +1420,8 @@
       const fairwayResultEl = document.getElementById("fairwayResult");
       const girResultEl = document.getElementById("girResult");
       const shotShapeEl = document.getElementById("shotShape");
-      const teeClubEl = document.getElementById("teeClub");          // NEW
-      const approachClubEl = document.getElementById("approachClub"); // NEW
+      const teeClubEl = document.getElementById("teeClub");
+      const approachClubEl = document.getElementById("approachClub");
       const numPuttsEl = document.getElementById("numPutts");
       const numChipsEl = document.getElementById("numChips");
       const numBunkersEl = document.getElementById("numBunkers");
@@ -1157,6 +1431,13 @@
       // Summary / history elements
       const roundSummaryBody = document.getElementById("roundSummaryBody");
       const holeHistoryBody = document.getElementById("holeHistoryBody");
+
+      // Club recommender elements
+      const targetDistanceEl = document.getElementById("targetDistance");
+      const btnUseGpsDistance = document.getElementById("btnUseGpsDistance");
+      const btnRecommendClub = document.getElementById("btnRecommendClub");
+      const clubRecResultEl = document.getElementById("clubRecResult");
+      const bagInputs = document.querySelectorAll(".club-distance-input");
 
       let loadedCourse = null;
       let loadedHoles = [];
@@ -1275,8 +1556,8 @@
         if (fairwayResultEl) fairwayResultEl.value = "";
         if (girResultEl) girResultEl.value = "";
         if (shotShapeEl) shotShapeEl.value = "";
-        if (teeClubEl) teeClubEl.value = "";         // NEW
-        if (approachClubEl) approachClubEl.value = ""; // NEW
+        if (teeClubEl) teeClubEl.value = "";
+        if (approachClubEl) approachClubEl.value = "";
         if (numPuttsEl) numPuttsEl.value = "";
         if (numChipsEl) numChipsEl.value = "";
         if (numBunkersEl) numBunkersEl.value = "";
@@ -1301,8 +1582,8 @@
         if (fairwayResultEl) fairwayResultEl.value = data.fairwayResult || "";
         if (girResultEl) girResultEl.value = data.girResult || "";
         if (shotShapeEl) shotShapeEl.value = data.shotShape || "";
-        if (teeClubEl) teeClubEl.value = data.teeClub || "";               // NEW
-        if (approachClubEl) approachClubEl.value = data.approachClub || "";// NEW
+        if (teeClubEl) teeClubEl.value = data.teeClub || "";
+        if (approachClubEl) approachClubEl.value = data.approachClub || "";
         if (numPuttsEl) numPuttsEl.value = data.numPutts || "";
         if (numChipsEl) numChipsEl.value = data.numChips || "";
         if (numBunkersEl) numBunkersEl.value = data.numBunkers || "";
@@ -1329,8 +1610,8 @@
           fairwayResult: fairwayResultEl ? (fairwayResultEl.value || "") : "",
           girResult: girResultEl ? (girResultEl.value || "") : "",
           shotShape: shotShapeEl ? (shotShapeEl.value || "") : "",
-          teeClub: teeClubEl ? (teeClubEl.value || "") : "",               // NEW
-          approachClub: approachClubEl ? (approachClubEl.value || "") : "",// NEW
+          teeClub: teeClubEl ? (teeClubEl.value || "") : "",
+          approachClub: approachClubEl ? (approachClubEl.value || "") : "",
           numPutts: numPuttsEl ? (numPuttsEl.value || "") : "",
           numChips: numChipsEl ? (numChipsEl.value || "") : "",
           numBunkers: numBunkersEl ? (numBunkersEl.value || "") : "",
@@ -1628,6 +1909,88 @@
       loadRoundsState();
       ensureAtLeastOneRound();
 
+      // Load bag distances + apply to UI
+      loadBagDistances();
+      applyBagDistancesToInputs();
+
+      // Wire bag inputs
+      bagInputs.forEach(function(input) {
+        input.addEventListener("change", function() {
+          syncSingleBagInput(input);
+        });
+      });
+
+      // Wire club recommender buttons
+      if (btnUseGpsDistance) {
+        btnUseGpsDistance.addEventListener("click", function() {
+          let d = null;
+          if (lastDistances.playerToGreen != null) {
+            d = lastDistances.playerToGreen;
+          } else if (lastDistances.clickToGreen != null) {
+            d = lastDistances.clickToGreen;
+          } else if (lastDistances.teeToGreen != null) {
+            d = lastDistances.teeToGreen;
+          }
+
+          if (d != null && targetDistanceEl) {
+            targetDistanceEl.value = d;
+            if (clubRecResultEl) {
+              clubRecResultEl.textContent = "Using " + d + " yds as target distance.";
+            }
+          } else if (clubRecResultEl) {
+            clubRecResultEl.textContent =
+              "No GPS distance available yet. Refresh GPS or click the map first.";
+          }
+        });
+      }
+
+      if (btnRecommendClub) {
+        btnRecommendClub.addEventListener("click", function() {
+          if (!targetDistanceEl || !clubRecResultEl) return;
+          const t = parseInt(targetDistanceEl.value || "", 10);
+          if (Number.isNaN(t) || t <= 0) {
+            clubRecResultEl.textContent =
+              "Enter a target distance in yards first.";
+            return;
+          }
+
+          const rec = recommendClubForDistance(t);
+          if (!rec) {
+            clubRecResultEl.textContent =
+              "Set at least one carry distance in your bag to get a recommendation.";
+            return;
+          }
+
+          const [bestId, bestDist] = rec.best;
+          const bestLabel = CLUB_LABELS[bestId] || bestId;
+
+          let text =
+            "Suggested: " +
+            bestLabel +
+            " (" +
+            bestDist +
+            " yds carry) for a " +
+            t +
+            " yd shot.";
+
+          if (rec.shorter) {
+            const [sid, sd] = rec.shorter;
+            const sLabel = CLUB_LABELS[sid] || sid;
+            text +=
+              " Shorter option: " + sLabel + " (" + sd + " yds).";
+          }
+
+          if (rec.longer) {
+            const [lid, ld] = rec.longer;
+            const lLabel = CLUB_LABELS[lid] || lid;
+            text +=
+              " Longer option: " + lLabel + " (" + ld + " yds).";
+          }
+
+          clubRecResultEl.textContent = text;
+        });
+      }
+
       // Wire round UI
       if (roundSelect) {
         roundSelect.addEventListener("change", function() {
@@ -1680,8 +2043,8 @@
         fairwayResultEl,
         girResultEl,
         shotShapeEl,
-        teeClubEl,        // NEW
-        approachClubEl,   // NEW
+        teeClubEl,
+        approachClubEl,
         numPuttsEl,
         numChipsEl,
         numBunkersEl,
