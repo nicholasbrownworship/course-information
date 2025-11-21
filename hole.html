@@ -593,6 +593,8 @@
     let leafMap = null;
     let playerMarker = null;
     let targetMarker = null;
+    let teeMarker = null;
+    let teeToGreenLine = null;
     let currentGpsTarget = null;
 
     function initHoleMap(gps) {
@@ -600,7 +602,21 @@
       const readout = document.getElementById("gpsReadout");
       if (!mapEl) return;
 
-      if (!gps || !gps.greenCenter || typeof gps.greenCenter.lat !== "number" || typeof gps.greenCenter.lng !== "number") {
+      // Clear previous tee / line
+      if (leafMap) {
+        if (teeMarker) {
+          leafMap.removeLayer(teeMarker);
+          teeMarker = null;
+        }
+        if (teeToGreenLine) {
+          leafMap.removeLayer(teeToGreenLine);
+          teeToGreenLine = null;
+        }
+      }
+
+      if (!gps || !gps.greenCenter ||
+          typeof gps.greenCenter.lat !== "number" ||
+          typeof gps.greenCenter.lng !== "number") {
         currentGpsTarget = null;
         if (readout) {
           readout.textContent = "No GPS data set for this hole yet.";
@@ -608,26 +624,73 @@
         return;
       }
 
-      const target = gps.greenCenter;
-      currentGpsTarget = target;
+      const green = gps.greenCenter;
+      const tee = (gps.tee &&
+        typeof gps.tee.lat === "number" &&
+        typeof gps.tee.lng === "number")
+        ? gps.tee
+        : null;
+
+      currentGpsTarget = green;
 
       if (!leafMap) {
-        leafMap = L.map("holeMap").setView([target.lat, target.lng], 17);
+        leafMap = L.map("holeMap");
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           maxZoom: 19,
           attribution: "&copy; OpenStreetMap"
         }).addTo(leafMap);
+      }
+
+      // Fit map to show tee + green if both exist, otherwise center on green
+      if (tee) {
+        const bounds = L.latLngBounds(
+          [tee.lat, tee.lng],
+          [green.lat, green.lng]
+        );
+        leafMap.fitBounds(bounds, { padding: [20, 20] });
       } else {
-        leafMap.setView([target.lat, target.lng], 17);
+        leafMap.setView([green.lat, green.lng], 17);
       }
 
       if (targetMarker) {
         leafMap.removeLayer(targetMarker);
       }
-      targetMarker = L.marker([target.lat, target.lng]).addTo(leafMap).bindPopup("Green center");
+      targetMarker = L.marker([green.lat, green.lng])
+        .addTo(leafMap)
+        .bindPopup("Green center");
 
-      if (readout) {
-        readout.textContent = "Waiting for GPS location…";
+      if (tee) {
+        teeMarker = L.marker([tee.lat, tee.lng])
+          .addTo(leafMap)
+          .bindPopup("Tee");
+
+        teeToGreenLine = L.polyline(
+          [
+            [tee.lat, tee.lng],
+            [green.lat, green.lng]
+          ],
+          {
+            color: "#244f3c",
+            weight: 3,
+            dashArray: "6 4"
+          }
+        ).addTo(leafMap);
+
+        if (readout) {
+          const yards = distanceInYards(
+            tee.lat,
+            tee.lng,
+            green.lat,
+            green.lng
+          );
+          readout.textContent =
+            yards +
+            " yds from tee to green. Tap Refresh GPS for live distance.";
+        }
+      } else {
+        if (readout) {
+          readout.textContent = "Waiting for GPS location…";
+        }
       }
     }
 
@@ -658,22 +721,32 @@
 
           if (leafMap) {
             if (playerMarker) leafMap.removeLayer(playerMarker);
-            playerMarker = L.marker([lat, lng]).addTo(leafMap).bindPopup("You");
+            playerMarker = L.marker([lat, lng])
+              .addTo(leafMap)
+              .bindPopup("You");
           }
 
-          const yards = distanceInYards(lat, lng, currentGpsTarget.lat, currentGpsTarget.lng);
+          const yards = distanceInYards(
+            lat,
+            lng,
+            currentGpsTarget.lat,
+            currentGpsTarget.lng
+          );
           if (readout) {
-            readout.textContent = yards + " yds to green center (approx.)";
+            readout.textContent =
+              yards + " yds to green center (approx.).";
           }
           if (overlay) {
             overlay.style.display = "inline-flex";
-            overlay.textContent = yards + " yds to green center (GPS)";
+            overlay.textContent =
+              yards + " yds to green center (GPS)";
           }
         },
         function(err) {
           console.warn("GPS error", err);
           if (readout) {
-            readout.textContent = "Could not get GPS location (" + err.message + ")";
+            readout.textContent =
+              "Could not get GPS location (" + err.message + ")";
           }
           if (overlay) {
             overlay.style.display = "none";
@@ -954,7 +1027,7 @@
           caddyBody.innerHTML = html;
         }
 
-        // GPS map for this hole
+        // GPS map for this hole (tee + green)
         initHoleMap(hole.gps || null);
       }
 
