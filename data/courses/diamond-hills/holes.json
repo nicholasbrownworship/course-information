@@ -1,20 +1,308 @@
 [
-  { "hole": 1,  "par": 4, "handicap": 7, "yardages": { "back": 394, "middle": 382, "forward": 361 }, "media": {}, "notes": "" },
-  { "hole": 2,  "par": 3, "handicap": 15, "yardages": { "back": 169, "middle": 150, "forward": 142 }, "media": {}, "notes": "" },
-  { "hole": 3,  "par": 4, "handicap": 5, "yardages": { "back": 342, "middle": 321, "forward": 275 }, "media": {}, "notes": "" },
-  { "hole": 4,  "par": 4, "handicap": 11, "yardages": { "back": 400, "middle": 382, "forward": 315 }, "media": {}, "notes": "" },
-  { "hole": 5,  "par": 4, "handicap": 1, "yardages": { "back": 439, "middle": 412, "forward": 371 }, "media": {}, "notes": "" },
-  { "hole": 6,  "par": 4, "handicap": 13, "yardages": { "back": 307, "middle": 295, "forward": 289 }, "media": {}, "notes": "" },
-  { "hole": 7,  "par": 4, "handicap": 3, "yardages": { "back": 430, "middle": 413, "forward": 393 }, "media": {}, "notes": "" },
-  { "hole": 8,  "par": 3, "handicap": 17, "yardages": { "back": 154, "middle": 139, "forward": 130 }, "media": {}, "notes": "" },
-  { "hole": 9,  "par": 5, "handicap": 9, "yardages": { "back": 496, "middle": 485, "forward": 376 }, "media": {}, "notes": "" },
-  { "hole": 10, "par": 4, "handicap": 6, "yardages": { "back": 434, "middle": 406, "forward": 381 }, "media": {}, "notes": "" },
-  { "hole": 11, "par": 3, "handicap": 16, "yardages": { "back": 177, "middle": 160, "forward": 150 }, "media": {}, "notes": "" },
-  { "hole": 12, "par": 5, "handicap": 14, "yardages": { "back": 467, "middle": 451, "forward": 437 }, "media": {}, "notes": "" },
-  { "hole": 13, "par": 4, "handicap": 12, "yardages": { "back": 395, "middle": 375, "forward": 346 }, "media": {}, "notes": "" },
-  { "hole": 14, "par": 3, "handicap": 18, "yardages": { "back": 123, "middle": 108, "forward": 101 }, "media": {}, "notes": "" },
-  { "hole": 15, "par": 4, "handicap": 10, "yardages": { "back": 397, "middle": 381, "forward": 373 }, "media": {}, "notes": "" },
-  { "hole": 16, "par": 5, "handicap": 4, "yardages": { "back": 508, "middle": 498, "forward": 415 }, "media": {}, "notes": "" },
-  { "hole": 17, "par": 4, "handicap": 8, "yardages": { "back": 417, "middle": 403, "forward": 396 }, "media": {}, "notes": "" },
-  { "hole": 18, "par": 4, "handicap": 2, "yardages": { "back": 420, "middle": 412, "forward": 410 }, "media": {}, "notes": "" }
+  {
+    "hole": 1,
+    "par": 4,
+    "handicap": 7,
+    "yardages": { "back": 394, "middle": 382, "forward": 361 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": 34.4440118675222,
+        "lng": -92.91528356532093
+      }
+    },
+    "notes": "Long bombs, and uphill approaches."
+  },
+  {
+    "hole": 2,
+    "par": 3,
+    "handicap": 15,
+    "yardages": { "back": 169, "middle": 150, "forward": 142 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": 36.44469411504622,
+        "lng": -92.91671226166214
+      }
+    },
+    "notes": "Short par 3, miss the bunkers and you're set for a birdie 2."
+  },
+  {
+    "hole": 3,
+    "par": 4,
+    "handicap": 5,
+    "yardages": { "back": 342, "middle": 321, "forward": 275 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": 36.44371362522975,
+        "lng": -92.91462893197074
+      }
+    },
+    "notes": "Huge dogleg right, cut the corner over 2 tee for a wedge shot in at a GIR."
+  },
+  {
+    "hole": 4,
+    "par": 4,
+    "handicap": 11,
+    "yardages": { "back": 400, "middle": 382, "forward": 315 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": 36.44411337408992,
+        "lng": -92.91890943977255
+      }
+    },
+    "notes": "Straightaway bombs. Uphill approach to the green with the clubhouse crowd behind it."
+  },
+  {
+    "hole": 5,
+    "par": 4,
+    "handicap": 1,
+    "yardages": { "back": 439, "middle": 412, "forward": 371 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": 36.443229110421804,
+        "lng": -92.91480595441651
+      }
+    },
+    "notes": "Slight dogleg left. Aim at the trees on the left edge of the corner. Uphill approach shot into a challenging green. Stick it close, or you'll have a good chance at a 3 putt here."
+  },
+  {
+    "hole": 6,
+    "par": 4,
+    "handicap": 13,
+    "yardages": { "back": 307, "middle": 295, "forward": 289 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": 36.442482448776005,
+        "lng": -92.9173030466333
+      }
+    },
+    "notes": "Short par 4 up over the hill. With the trees hiding the window to go for the green off the tee, the better play is a long iron/hybrid to the top of the hill then play a wedge into the green. The right side of the fairway has a good view of the green."
+  },
+  {
+    "hole": 7,
+    "par": 4,
+    "handicap": 3,
+    "yardages": { "back": 430, "middle": 413, "forward": 393 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": 36.439261047977396,
+        "lng": -92.91664790316719
+      }
+    },
+    "notes": "Don't let the water scare you. It's a straight tee shot, and a straight approach shot. The bunker and the water by the green make the approach scarier than it needs to be."
+  },
+  {
+    "hole": 8,
+    "par": 3,
+    "handicap": 17,
+    "yardages": { "back": 154, "middle": 139, "forward": 130 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": 36.44125663432313,
+        "lng": -92.91761847108656
+      }
+    },
+    "notes": "Play it uphill about 3 yards. Don't miss right at the bunker."
+  },
+  {
+    "hole": 9,
+    "par": 5,
+    "handicap": 9,
+    "yardages": { "back": 496, "middle": 485, "forward": 376 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": 36.4435350753993,
+        "lng": -92.9195014328976
+      }
+    },
+    "notes": "Gettable par 5. Keep your tee shot straight, and you'll have a shot at a 3 with a decent uphill approach shot."
+  },
+  {
+    "hole": 10,
+    "par": 4,
+    "handicap": 6,
+    "yardages": { "back": 434, "middle": 406, "forward": 381 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 11,
+    "par": 3,
+    "handicap": 16,
+    "yardages": { "back": 177, "middle": 160, "forward": 150 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 12,
+    "par": 5,
+    "handicap": 14,
+    "yardages": { "back": 467, "middle": 451, "forward": 437 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 13,
+    "par": 4,
+    "handicap": 12,
+    "yardages": { "back": 395, "middle": 375, "forward": 346 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 14,
+    "par": 3,
+    "handicap": 18,
+    "yardages": { "back": 123, "middle": 108, "forward": 101 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 15,
+    "par": 4,
+    "handicap": 10,
+    "yardages": { "back": 397, "middle": 381, "forward": 373 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 16,
+    "par": 5,
+    "handicap": 4,
+    "yardages": { "back": 508, "middle": 498, "forward": 415 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 17,
+    "par": 4,
+    "handicap": 8,
+    "yardages": { "back": 417, "middle": 403, "forward": 396 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  },
+  {
+    "hole": 18,
+    "par": 4,
+    "handicap": 2,
+    "yardages": { "back": 420, "middle": 412, "forward": 410 },
+    "media": {
+      "image": "",
+      "caption": ""
+    },
+    "gps": {
+      "greenCenter": {
+        "lat": null,
+        "lng": null
+      }
+    },
+    "notes": ""
+  }
 ]
