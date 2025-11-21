@@ -334,6 +334,20 @@
       margin-top: 4px;
       font-size: 0.78rem;
       color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* DISTANCE LABELS ON LINES */
+    .distance-label {
+      background: rgba(0,0,0,0.78);
+      color: #f9fafb;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.25);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      transform: translate(-50%, -50%);
     }
 
     /* FLYOVER / CADDY NOTES */
@@ -595,11 +609,14 @@
     let targetMarker = null;
     let teeMarker = null;
     let teeToGreenLine = null;
+    let teeDistLabelMarker = null;
+
     let clickMarker = null;
     let clickToGreenLine = null;
+    let clickDistLabelMarker = null;
 
-    let currentGpsTarget = null;   // green center
-    let currentTeePoint = null;    // tee coordinate (if present)
+    let currentGpsTarget = null; // green center
+    let currentTeePoint = null;  // tee coordinate (if present)
     let gpsWatchId = null;
 
     // distance cache so we can build a single readout string
@@ -620,13 +637,13 @@
 
       const parts = [];
       if (lastDistances.teeToGreen != null) {
-        parts.push("Tee\u2192Green: " + lastDistances.teeToGreen + " yds");
+        parts.push("Tee→Green: " + lastDistances.teeToGreen + " yds");
       }
       if (lastDistances.playerToGreen != null) {
-        parts.push("You\u2192Green: " + lastDistances.playerToGreen + " yds");
+        parts.push("You→Green: " + lastDistances.playerToGreen + " yds");
       }
       if (lastDistances.clickToGreen != null) {
-        parts.push("Selected\u2192Green: " + lastDistances.clickToGreen + " yds");
+        parts.push("Selected→Green: " + lastDistances.clickToGreen + " yds");
       }
 
       if (parts.length) {
@@ -642,17 +659,26 @@
 
       const latlng = e.latlng;
 
+      // Clear any previous selected marker / line / label
       if (clickMarker) {
         leafMap.removeLayer(clickMarker);
+        clickMarker = null;
       }
       if (clickToGreenLine) {
         leafMap.removeLayer(clickToGreenLine);
+        clickToGreenLine = null;
+      }
+      if (clickDistLabelMarker) {
+        leafMap.removeLayer(clickDistLabelMarker);
+        clickDistLabelMarker = null;
       }
 
+      // Marker at clicked point
       clickMarker = L.marker(latlng)
         .addTo(leafMap)
         .bindPopup("Selected point");
 
+      // Line from clicked point to green
       clickToGreenLine = L.polyline(
         [
           [latlng.lat, latlng.lng],
@@ -660,17 +686,30 @@
         ],
         {
           color: "#d97706",
-          weight: 3,
+          weight: 4,
           dashArray: "4 4"
         }
       ).addTo(leafMap);
 
+      // Distance + midpoint label
       const yards = distanceInYards(
         latlng.lat,
         latlng.lng,
         currentGpsTarget.lat,
         currentGpsTarget.lng
       );
+
+      const midLat = (latlng.lat + currentGpsTarget.lat) / 2;
+      const midLng = (latlng.lng + currentGpsTarget.lng) / 2;
+
+      clickDistLabelMarker = L.marker([midLat, midLng], {
+        interactive: false,
+        icon: L.divIcon({
+          className: "distance-label",
+          html: yards + " yds",
+          iconSize: [0, 0]
+        })
+      }).addTo(leafMap);
 
       lastDistances.clickToGreen = yards;
       updateDistanceReadout();
@@ -685,9 +724,7 @@
       lastDistances.clickToGreen = null;
       // keep playerToGreen; GPS watch will update it to the new target
 
-      const readout = document.getElementById("gpsReadout");
-
-      // Clear previous tee / lines / selected point
+      // Clear previous tee / lines / selected point / labels
       if (leafMap) {
         if (teeMarker) {
           leafMap.removeLayer(teeMarker);
@@ -697,6 +734,10 @@
           leafMap.removeLayer(teeToGreenLine);
           teeToGreenLine = null;
         }
+        if (teeDistLabelMarker) {
+          leafMap.removeLayer(teeDistLabelMarker);
+          teeDistLabelMarker = null;
+        }
         if (clickMarker) {
           leafMap.removeLayer(clickMarker);
           clickMarker = null;
@@ -704,6 +745,10 @@
         if (clickToGreenLine) {
           leafMap.removeLayer(clickToGreenLine);
           clickToGreenLine = null;
+        }
+        if (clickDistLabelMarker) {
+          leafMap.removeLayer(clickDistLabelMarker);
+          clickDistLabelMarker = null;
         }
       }
 
@@ -759,19 +804,27 @@
             [green.lat, green.lng]
           ],
           {
-            color: "#244f3c",
-            weight: 3,
+            color: "#111827",
+            weight: 4,
             dashArray: "6 4"
           }
         ).addTo(leafMap);
 
-        const yards = distanceInYards(
-          tee.lat,
-          tee.lng,
-          green.lat,
-          green.lng
-        );
+        // Distance + midpoint label
+        const yards = distanceInYards(tee.lat, tee.lng, green.lat, green.lng);
         lastDistances.teeToGreen = yards;
+
+        const midLat = (tee.lat + green.lat) / 2;
+        const midLng = (tee.lng + green.lng) / 2;
+
+        teeDistLabelMarker = L.marker([midLat, midLng], {
+          interactive: false,
+          icon: L.divIcon({
+            className: "distance-label",
+            html: yards + " yds",
+            iconSize: [0, 0]
+          })
+        }).addTo(leafMap);
       } else {
         leafMap.setView([green.lat, green.lng], 17);
       }
@@ -817,7 +870,7 @@
           const overlay = document.getElementById("holeImageOverlay");
           if (overlay) {
             overlay.style.display = "inline-flex";
-            overlay.textContent = "You\u2192Green: " + yards + " yds";
+            overlay.textContent = "You→Green: " + yards + " yds";
           }
         },
         function(err) {
@@ -862,7 +915,7 @@
           const overlay = document.getElementById("holeImageOverlay");
           if (overlay) {
             overlay.style.display = "inline-flex";
-            overlay.textContent = "You\u2192Green: " + yards + " yds";
+            overlay.textContent = "You→Green: " + yards + " yds";
           }
         },
         function(err) {
@@ -953,17 +1006,19 @@
           holeImageCaption.textContent = "No image set for this hole yet.";
         }
 
-        Promise.all([fetchJSON(coursePath), fetchJSON(holesPath)])
-          .then(function(results) {
-            loadedCourse = results[0];
-            loadedHoles = Array.isArray(results[1]) ? results[1] : [];
+        fetchJSON(coursePath)
+          .then(function(course) {
+            loadedCourse = course;
+            return fetchJSON(holesPath);
+          })
+          .then(function(holes) {
+            loadedHoles = Array.isArray(holes) ? holes : [];
             maxHole = 0;
 
             loadedHoles.forEach(function(h, idx) {
-              const n = typeof h.hole === "number" ? h.hole : idx + 1;
+              const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
               if (n > maxHole) maxHole = n;
             });
-
             if (!maxHole) maxHole = loadedHoles.length || 1;
             if (!Number.isFinite(currentHoleNum) || currentHoleNum < 1) currentHoleNum = 1;
             if (currentHoleNum > maxHole) currentHoleNum = maxHole;
@@ -997,13 +1052,14 @@
 
         let html = "";
         loadedHoles.forEach(function(h, idx) {
-          const n = typeof h.hole === "number" ? h.hole : idx + 1;
+          const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
           html += "<option value='" + n + "'>Hole " + n + "</option>";
         });
         holeSelect.innerHTML = html;
 
         if (currentHoleNum < 1) currentHoleNum = 1;
         if (currentHoleNum > maxHole) currentHoleNum = maxHole;
+
         holeSelect.value = String(currentHoleNum);
       }
 
@@ -1014,16 +1070,14 @@
         if (currentHoleNum > maxHole) currentHoleNum = maxHole;
         if (holeSelect) holeSelect.value = String(currentHoleNum);
 
-        const hole =
-          loadedHoles.find(function(h, idx) {
-            const n = typeof h.hole === "number" ? h.hole : idx + 1;
-            return n === currentHoleNum;
-          }) || loadedHoles[0];
+        const hole = loadedHoles.find(function(h, idx) {
+          const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
+          return n === currentHoleNum;
+        }) || loadedHoles[0];
 
-        const resolvedHoleNum =
-          typeof hole.hole === "number"
-            ? hole.hole
-            : loadedHoles.indexOf(hole) + 1;
+        const resolvedHoleNum = (typeof hole.hole === "number")
+          ? hole.hole
+          : loadedHoles.indexOf(hole) + 1;
 
         currentHoleNum = resolvedHoleNum;
 
@@ -1039,30 +1093,28 @@
         if (courseNameEl) courseNameEl.textContent = loadedCourse.name || "Unnamed Course";
         if (courseLocEl) courseLocEl.textContent = locLine || "";
 
-        const par = typeof hole.par === "number" ? hole.par : "–";
-        const hdcpVal =
-          hole.handicap === 0 || typeof hole.handicap === "number"
-            ? hole.handicap
-            : "–";
+        const par = (typeof hole.par === "number") ? hole.par : "–";
+        const hdcpVal = (hole.handicap === 0 || typeof hole.handicap === "number")
+          ? hole.handicap
+          : "–";
 
         if (holeLabelEl) {
-          holeLabelEl.textContent =
-            "Hole " + resolvedHoleNum + " · Par " + par + " · Hdcp " + hdcpVal;
+          holeLabelEl.textContent = "Hole " + resolvedHoleNum + " · Par " + par + " · Hdcp " + hdcpVal;
         }
 
+        // Prev / Next buttons
         if (prevBtn) {
-          prevBtn.disabled = resolvedHoleNum <= 1;
+          prevBtn.disabled = (resolvedHoleNum <= 1);
         }
         if (nextBtn) {
-          nextBtn.disabled = resolvedHoleNum >= maxHole;
+          nextBtn.disabled = (resolvedHoleNum >= maxHole);
         }
 
         // Yardages
         const tees = Array.isArray(loadedCourse.tees) ? loadedCourse.tees : [];
         if (yardageRowEl) {
           if (!tees.length || !hole.yardages) {
-            yardageRowEl.innerHTML =
-              "<span class='muted'>No yardage data yet.</span>";
+            yardageRowEl.innerHTML = "<span class='muted'>No yardage data yet.</span>";
           } else {
             let html = "";
             tees.forEach(function(t) {
@@ -1070,32 +1122,24 @@
               const name = t.name || teeId;
               const color = t.color || "#e5e7eb";
               const y = hole.yardages[teeId];
-              const text = typeof y === "number" ? y + " yds" : "–";
+              const text = (typeof y === "number") ? (y + " yds") : "–";
               html +=
                 "<span class='yardage-chip'>" +
-                "<span class='tee-dot' style='background:" +
-                color +
-                ";'></span>" +
-                "<span>" +
-                name +
-                " · " +
-                text +
-                "</span>" +
+                  "<span class='tee-dot' style='background:" + color + ";'></span>" +
+                  "<span>" + name + " · " + text + "</span>" +
                 "</span>";
             });
-            yardageRowEl.innerHTML =
-              html || "<span class='muted'>No yardage data yet.</span>";
+            yardageRowEl.innerHTML = html || "<span class='muted'>No yardage data yet.</span>";
           }
         }
 
-        // Hole image + caption
+        // Hole image (layout) + caption
         if (holeImageEl && holeImageCaption && holeImageOverlay) {
           const holeImgSrc = media.image || hole.image || null;
           if (holeImgSrc) {
             holeImageEl.src = holeImgSrc;
             holeImageEl.style.display = "block";
-            holeImageCaption.textContent =
-              media.caption || "Layout for hole " + resolvedHoleNum;
+            holeImageCaption.textContent = media.caption || ("Layout for hole " + resolvedHoleNum);
             holeImageOverlay.style.display = "none";
           } else {
             holeImageEl.removeAttribute("src");
@@ -1109,25 +1153,17 @@
         if (flyoverBody) {
           if (media.flyover) {
             const lower = media.flyover.toLowerCase();
-            if (
-              lower.endsWith(".mp4") ||
-              lower.endsWith(".webm") ||
-              lower.endsWith(".mov")
-            ) {
+            if (lower.endsWith(".mp4") || lower.endsWith(".webm") || lower.endsWith(".mov")) {
               flyoverBody.innerHTML =
                 "<video controls style='max-width:100%;border-radius:8px;display:block;background:#000;'>" +
-                "<source src='" +
-                media.flyover +
-                "'>" +
-                "Your browser does not support the video tag." +
+                  "<source src='" + media.flyover + "'>" +
+                  "Your browser does not support the video tag." +
                 "</video>";
             } else {
               flyoverBody.innerHTML =
-                "<a href='" +
-                media.flyover +
+                "<a href='" + media.flyover +
                 "' target='_blank' rel='noopener'>Open flyover for hole " +
-                resolvedHoleNum +
-                "</a>";
+                resolvedHoleNum + "</a>";
             }
           } else {
             flyoverBody.textContent = "No flyover set for this hole yet.";
@@ -1137,7 +1173,8 @@
         // Caddy notes
         if (caddyBody) {
           const tips = hole.notes || hole.tips || null;
-          let html = "<div>Par " + par + " · Hdcp " + hdcpVal + "</div>";
+          let html =
+            "<div>Par " + par + " · Hdcp " + hdcpVal + "</div>";
 
           if (tips) {
             if (Array.isArray(tips)) {
@@ -1150,15 +1187,14 @@
               html += "<ul class='caddy-list'><li>" + tips + "</li></ul>";
             }
           } else {
-            html +=
-              "<div class='media-note'>No written notes yet. Add a <code>\"notes\"</code> or <code>\"tips\"</code> field for this hole in <code>holes.json</code>.</div>";
+            html += "<div class='media-note'>No written notes yet. Add a <code>\"notes\"</code> or <code>\"tips\"</code> field for this hole in <code>holes.json</code>.</div>";
           }
           caddyBody.innerHTML = html;
         }
 
         // GPS map for this hole (tee + green)
         initHoleMap(hole.gps || null);
-        startGpsWatch(); // start/keep the continuous GPS updates running
+        startGpsWatch(); // ensure continuous GPS updates
       }
 
       // EVENT WIRING
@@ -1200,8 +1236,8 @@
 
       if (refreshGpsBtn) {
         refreshGpsBtn.addEventListener("click", function() {
-          startGpsWatch();   // ensure watch is started
-          updateGpsDistance(); // and do an immediate one-shot
+          startGpsWatch();   // ensure watch is running
+          updateGpsDistance(); // plus an immediate one-shot
         });
       }
 
