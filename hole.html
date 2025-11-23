@@ -450,6 +450,7 @@
       cursor: pointer;
       white-space: nowrap;
       min-width: 36px;
+      flex-shrink: 0;
     }
 
     .scorecard-hole-num {
@@ -479,6 +480,50 @@
     }
 
     .score-worse {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #7f1d1d;
+    }
+
+    /* TOTAL RELATIVE-TO-PAR PILL */
+    .scorecard-total {
+      border: 1px solid rgba(0,0,0,0.09);
+      background: rgba(255,255,255,0.95);
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 0.72rem;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      white-space: nowrap;
+      margin-left: 4px;
+      flex-shrink: 0;
+    }
+
+    .scorecard-total-main {
+      font-weight: 600;
+    }
+
+    .scorecard-total-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .score-total-better {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #14532d;
+    }
+
+    .score-total-par {
+      background: #fefce8;
+      border-color: #eab308;
+      color: #854d0e;
+    }
+
+    .score-total-worse {
       background: #fee2e2;
       border-color: #ef4444;
       color: #7f1d1d;
@@ -622,7 +667,7 @@
         <span class="muted">No course selected.</span>
       </div>
 
-      <!-- HOLE IMAGE + GPS OVERLAY -->
+      <!-- HOLE IMAGE + GPS -->
       <div class="detail-section-title">Hole Image & GPS</div>
       <div class="hole-image-card">
         <div class="hole-image-wrapper">
@@ -1981,7 +2026,7 @@
         holeHistoryBody.innerHTML = html;
       }
 
-      // Round scorecard strip — NOW RELATIVE TO PAR
+      // Round scorecard strip — per-hole + total relative to par
       function renderScorecardStrip() {
         if (!scorecardStripEl) return;
 
@@ -1999,6 +2044,11 @@
           "unknown";
 
         let html = "";
+
+        // Totals
+        let sumScore = 0;
+        let sumPar = 0;
+        let holesCount = 0;
 
         for (let i = 1; i <= maxHole; i++) {
           const key = makeHoleKey(courseId, i);
@@ -2025,6 +2075,11 @@
                 } else {
                   scoreDisplay = String(diff);
                 }
+
+                // contribute to totals
+                sumScore += s;
+                sumPar += par;
+                holesCount++;
               } else {
                 // no par defined, fall back to raw score
                 scoreDisplay = s;
@@ -2051,7 +2106,30 @@
             "</button>";
         }
 
-        scorecardStripEl.innerHTML = html;
+        // TOTAL pill on the right
+        let totalHtml = "";
+        if (holesCount > 0 && sumPar > 0) {
+          const totalDiff = sumScore - sumPar;
+          let mainText;
+          if (totalDiff === 0) mainText = "E";
+          else if (totalDiff > 0) mainText = "+" + totalDiff;
+          else mainText = String(totalDiff);
+
+          const subText = "thru " + holesCount;
+
+          let totalCls = "scorecard-total";
+          if (totalDiff < 0) totalCls += " score-total-better";
+          else if (totalDiff === 0) totalCls += " score-total-par";
+          else totalCls += " score-total-worse";
+
+          totalHtml =
+            "<div class='" + totalCls + "'>" +
+              "<span class='scorecard-total-main'>" + mainText + "</span>" +
+              "<span class='scorecard-total-sub'>" + subText + "</span>" +
+            "</div>";
+        }
+
+        scorecardStripEl.innerHTML = html + totalHtml;
       }
 
       // Load rounds from storage and set up UI BEFORE loading courses
