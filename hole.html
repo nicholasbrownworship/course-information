@@ -611,7 +611,7 @@
         </div>
       </div>
 
-      <!-- NEW: Round scorecard strip -->
+      <!-- Round scorecard strip -->
       <div class="detail-section-title">Round Scorecard</div>
       <div id="scorecardStrip" class="scorecard-strip">
         <span class="muted">Scorecard will appear here once you load a course.</span>
@@ -836,7 +836,7 @@
         </div>
       </div>
 
-      <!-- NEW: Club recommendation + bag distances -->
+      <!-- Club recommendation + bag distances -->
       <div class="media-card" id="clubRecommenderCard">
         <h3>Club Recommendation</h3>
         <div class="club-rec-section">
@@ -1592,7 +1592,7 @@
 
       function createNewRound(courseObj) {
         const id = "r_" + Date.now();
-               const name = createNewRoundName(courseObj);
+        const name = createNewRoundName(courseObj);
         const courseId =
           (courseObj && courseObj.id) ||
           (courseSelect && courseSelect.value) ||
@@ -1981,7 +1981,7 @@
         holeHistoryBody.innerHTML = html;
       }
 
-      // NEW: round scorecard strip
+      // Round scorecard strip — NOW RELATIVE TO PAR
       function renderScorecardStrip() {
         if (!scorecardStripEl) return;
 
@@ -2004,7 +2004,6 @@
           const key = makeHoleKey(courseId, i);
           const data = round.holes && round.holes[key];
 
-          // score + par
           let scoreDisplay = "–";
           let diff = null;
 
@@ -2017,8 +2016,19 @@
           if (data && data.score) {
             const s = parseInt(data.score, 10);
             if (!Number.isNaN(s)) {
-              scoreDisplay = s;
-              if (par != null) diff = s - par;
+              if (par != null) {
+                diff = s - par;
+                if (diff === 0) {
+                  scoreDisplay = "E";
+                } else if (diff > 0) {
+                  scoreDisplay = "+" + diff;
+                } else {
+                  scoreDisplay = String(diff);
+                }
+              } else {
+                // no par defined, fall back to raw score
+                scoreDisplay = s;
+              }
             }
           }
 
@@ -2512,9 +2522,10 @@
           // save current before switching hole
           saveCurrentHoleState();
           const val = parseInt(holeSelect.value || "1", 10);
-          if (!Number.isFinite(val)) return;
-          currentHoleNum = val;
-          renderHoleView();
+          if (!Number.isNaN(val)) {
+            currentHoleNum = val;
+            renderHoleView();
+          }
         });
       }
 
