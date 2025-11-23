@@ -417,6 +417,73 @@
       margin-bottom: 2px;
     }
 
+    /* Scorecard strip */
+    .scorecard-strip {
+      margin-top: 2px;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 4px;
+      overflow-x: auto;
+      padding: 2px 0 4px;
+    }
+
+    .scorecard-strip::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .scorecard-strip::-webkit-scrollbar-thumb {
+      background: rgba(0,0,0,0.15);
+      border-radius: 999px;
+    }
+
+    .scorecard-hole {
+      border: 1px solid rgba(0,0,0,0.09);
+      background: rgba(255,255,255,0.95);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      cursor: pointer;
+      white-space: nowrap;
+      min-width: 36px;
+    }
+
+    .scorecard-hole-num {
+      font-weight: 600;
+    }
+
+    .scorecard-hole-score {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .scorecard-hole-current {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 1px rgba(209,161,75,0.5);
+    }
+
+    .score-better {
+      background: #dcfce7;
+      border-color: #22c55e;
+      color: #14532d;
+    }
+
+    .score-par {
+      background: #fefce8;
+      border-color: #eab308;
+      color: #854d0e;
+    }
+
+    .score-worse {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #7f1d1d;
+    }
+
     /* Club recommender / bag */
     .field-row {
       display: flex;
@@ -542,6 +609,12 @@
             <button type="button" class="btn" id="btnNextHole">Next ▶</button>
           </div>
         </div>
+      </div>
+
+      <!-- NEW: Round scorecard strip -->
+      <div class="detail-section-title">Round Scorecard</div>
+      <div id="scorecardStrip" class="scorecard-strip">
+        <span class="muted">Scorecard will appear here once you load a course.</span>
       </div>
 
       <div class="detail-section-title">Yardages</div>
@@ -1439,6 +1512,9 @@
       const clubRecResultEl = document.getElementById("clubRecResult");
       const bagInputs = document.querySelectorAll(".club-distance-input");
 
+      // Scorecard strip element
+      const scorecardStripEl = document.getElementById("scorecardStrip");
+
       let loadedCourse = null;
       let loadedHoles = [];
       let currentHoleNum = Number.isFinite(urlHole) && urlHole > 0 ? urlHole : 1;
@@ -1516,7 +1592,7 @@
 
       function createNewRound(courseObj) {
         const id = "r_" + Date.now();
-        const name = createNewRoundName(courseObj);
+               const name = createNewRoundName(courseObj);
         const courseId =
           (courseObj && courseObj.id) ||
           (courseSelect && courseSelect.value) ||
@@ -1905,6 +1981,69 @@
         holeHistoryBody.innerHTML = html;
       }
 
+      // NEW: round scorecard strip
+      function renderScorecardStrip() {
+        if (!scorecardStripEl) return;
+
+        const round = findActiveRound();
+        if (!round || !loadedCourse || !loadedHoles.length || !maxHole) {
+          scorecardStripEl.innerHTML =
+            "<span class='muted'>Scorecard will appear here once you start a round on this course.</span>";
+          return;
+        }
+
+        const courseId =
+          (courseSelect && courseSelect.value) ||
+          round.courseId ||
+          (loadedCourse && loadedCourse.id) ||
+          "unknown";
+
+        let html = "";
+
+        for (let i = 1; i <= maxHole; i++) {
+          const key = makeHoleKey(courseId, i);
+          const data = round.holes && round.holes[key];
+
+          // score + par
+          let scoreDisplay = "–";
+          let diff = null;
+
+          const holeDef = loadedHoles.find(function(h, idx) {
+            const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
+            return n === i;
+          });
+          const par = holeDef && typeof holeDef.par === "number" ? holeDef.par : null;
+
+          if (data && data.score) {
+            const s = parseInt(data.score, 10);
+            if (!Number.isNaN(s)) {
+              scoreDisplay = s;
+              if (par != null) diff = s - par;
+            }
+          }
+
+          let cls = "scorecard-hole";
+
+          if (diff != null) {
+            if (diff < 0) cls += " score-better";
+            else if (diff === 0) cls += " score-par";
+            else cls += " score-worse";
+          }
+
+          if (i === currentHoleNum) {
+            cls += " scorecard-hole-current";
+          }
+
+          html +=
+            "<button type='button' class='" + cls + "' data-hole='" + i + "'>" +
+              "<span class='scorecard-hole-num'>" + i + "</span>" +
+              "<span class='scorecard-hole-score'>" + scoreDisplay + "</span>" +
+            "</button>";
+        }
+
+        scorecardStripEl.innerHTML = html;
+      }
+
       // Load rounds from storage and set up UI BEFORE loading courses
       loadRoundsState();
       ensureAtLeastOneRound();
@@ -1991,6 +2130,19 @@
         });
       }
 
+      // Wire scorecard strip click -> jump to hole
+      if (scorecardStripEl) {
+        scorecardStripEl.addEventListener("click", function(e) {
+          const btn = e.target.closest(".scorecard-hole");
+          if (!btn) return;
+          const h = parseInt(btn.getAttribute("data-hole") || "0", 10);
+          if (!Number.isFinite(h) || h < 1 || h > maxHole) return;
+          saveCurrentHoleState();
+          currentHoleNum = h;
+          renderHoleView();
+        });
+      }
+
       // Wire round UI
       if (roundSelect) {
         roundSelect.addEventListener("change", function() {
@@ -2002,6 +2154,7 @@
           applyHoleStateForCurrentHole();
           renderRoundSummary();
           renderHoleHistory();
+          renderScorecardStrip();
         });
       }
 
@@ -2017,6 +2170,7 @@
           clearHoleControls();
           renderRoundSummary();
           renderHoleHistory();
+          renderScorecardStrip();
         });
       }
 
@@ -2035,6 +2189,7 @@
           clearHoleControls();
           renderRoundSummary();
           renderHoleHistory();
+          renderScorecardStrip();
         });
       }
 
@@ -2056,6 +2211,7 @@
           saveCurrentHoleState();
           renderRoundSummary();
           renderHoleHistory();
+          renderScorecardStrip();
         });
       });
       if (holeNotesEl) {
@@ -2063,6 +2219,7 @@
           saveCurrentHoleState();
           renderRoundSummary();
           renderHoleHistory();
+          renderScorecardStrip();
         });
       }
 
@@ -2163,6 +2320,8 @@
               yardageRowEl.innerHTML =
                 "<span class='error'>Could not load course data. Check JSON paths.</span>";
             }
+
+            renderScorecardStrip();
           });
       }
 
@@ -2326,9 +2485,10 @@
         initHoleMap(hole.gps || null);
         startGpsWatch(); // continuous GPS updates
 
-        // Update summary + history for this hole
+        // Update summary + history + scorecard for this hole
         renderRoundSummary();
         renderHoleHistory();
+        renderScorecardStrip();
       }
 
       // EVENT WIRING
