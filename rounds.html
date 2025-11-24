@@ -1,1 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Previous Rounds – Local Golf Scorebook</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <style>
+    :root {
+      --green: #244f3c;
+      --green-dark: #163023;
+      --gold: #d1a14b;
+      --cream: #f5f0e6;
+      --bg: #fcfaf6;
+      --text: #222;
+      --radius: 14px;
+      --shadow: 0 8px 20px rgba(0,0,0,0.08);
+      --muted: #6b7280;
+      --panel: #fdf7eb;
+      --line: #e7dfcd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #fdf7eb 0, #f3efe7 40%, #e7e1d3 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 10px auto 16px;
+      padding: 0 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(252,249,242,0.97);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,0.04);
+      padding: 10px 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      margin: 0 0 4px;
+      color: var(--green-dark);
+    }
+
+    h2 {
+      font-size: 0.98rem;
+      margin: 0 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--green-dark);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .detail-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin: 8px 0 4px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.18);
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      background: #fdf7ea;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #244f3c;
+      color: #fefcf5;
+      border-color: #1a3a2b;
+    }
+
+    .btn-danger {
+      background: #b91c1c;
+      color: #fef2f2;
+      border-color: #7f1d1d;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .btn:hover:not(:disabled) {
+      filter: brightness(0.98);
+    }
+
+    .top-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding-bottom: 6px;
+    }
+
+    .top-row-sub {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    /* ROUND LIST (LEFT) */
+    .round-list {
+      margin-top: 4px;
+      max-height: calc(100vh - 150px);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .round-card {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.92);
+      padding: 8px 9px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .round-card:hover {
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    }
+
+    .round-card.selected {
+      border-color: var(--green-dark);
+      box-shadow: 0 0 0 1px rgba(22,48,35,0.35);
+      background: #f5f0e6;
+    }
+
+    .round-name-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .round-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .round-badge {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.18);
+      color: var(--green-dark);
+      background: #f0f9ff;
+    }
+
+    .round-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .round-meta strong {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 1px 6px;
+      border: 1px solid rgba(0,0,0,0.12);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      background: #fefdf9;
+    }
+
+    .tag-green {
+      color: #065f46;
+      border-color: #065f46;
+      background: #ecfdf5;
+    }
+
+    .tag-gold {
+      color: #92400e;
+      border-color: #92400e;
+      background: #fffbeb;
+    }
+
+    /* DETAILS (RIGHT) */
+    .details-header {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .details-name-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .details-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .details-course-line {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .details-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .details-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 700px) {
+      .details-summary-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+    }
+
+    .summary-pill {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.95);
+      padding: 6px 7px;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .summary-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .summary-value {
+      font-size: 0.92rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .hole-table-wrapper {
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      overflow: hidden;
+    }
+
+    .hole-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .hole-table thead {
+      background: #f3ede0;
+    }
+
+    .hole-table th,
+    .hole-table td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .hole-table th {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.68rem;
+      color: #4b5563;
+    }
+
+    .hole-table tbody tr:nth-child(even) td {
+      background: #fdfaf4;
+    }
+
+    .hole-notes-snippet {
+      color: var(--muted);
+      max-width: 280px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pill-score {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 999px;
+      padding: 1px 6px;
+      border: 1px solid rgba(0,0,0,0.12);
+    }
+
+    .pill-score.par-better {
+      background: #ecfdf5;
+      border-color: #047857;
+      color: #065f46;
+    }
+
+    .pill-score.par-worse {
+      background: #fef2f2;
+      border-color: #b91c1c;
+      color: #7f1d1d;
+    }
+
+    .pill-score.par-even {
+      background: #eff6ff;
+      border-color: #2563eb;
+      color: #1d4ed8;
+    }
+
+    .empty-state {
+      padding: 12px 10px;
+      border-radius: 12px;
+      border: 1px dashed rgba(0,0,0,0.16);
+      background: rgba(255,255,255,0.92);
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .rename-input {
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.2);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      background: #fffbf4;
+      min-width: 180px;
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER INJECTION -->
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const slot = document.getElementById("header-placeholder");
+        if (slot) slot.innerHTML = html;
+      })
+      .catch(err => console.error("Failed to load header.html:", err));
+  </script>
+
+  <main>
+    <!-- LEFT: list of rounds -->
+    <section class="panel">
+      <div class="top-row">
+        <h1>Previous Rounds</h1>
+        <div class="top-row-sub">
+          <span class="muted">
+            These rounds are saved locally in your browser from the hole view.
+          </span>
+        </div>
+      </div>
+
+      <div id="roundList" class="round-list">
+        <div class="empty-state">
+          No saved rounds found yet. Play a round in the Hole View page and it will appear here.
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: details for selected round -->
+    <section class="panel">
+      <div class="details-header">
+        <div class="details-name-row">
+          <div>
+            <div id="detailsName" class="details-name">
+              Select a round on the left.
+            </div>
+            <div id="detailsCourseLine" class="details-course-line"></div>
+          </div>
+          <div class="details-actions">
+            <input
+              type="text"
+              id="renameInput"
+              class="rename-input"
+              placeholder="Rename round…"
+              style="display:none;"
+            />
+            <button type="button" class="btn" id="btnRenameRound" disabled>Rename</button>
+            <button type="button" class="btn btn-primary" id="btnSetActive" disabled>Set active</button>
+            <button type="button" class="btn btn-danger" id="btnDeleteRound" disabled>Delete</button>
+          </div>
+        </div>
+        <div id="detailsMeta" class="muted"></div>
+      </div>
+
+      <div id="detailsSummary">
+        <div class="empty-state">
+          Choose a round from the list to see total score, fairways, GIR, and putting stats.
+        </div>
+      </div>
+
+      <div id="detailsHoles"></div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "localGolfScorebook_rounds_v1";
+    const COURSES_INDEX_PATH = "data/courses.json";
+
+    function fetchJSON(path) {
+      return fetch(path).then(res => {
+        if (!res.ok) throw new Error("HTTP " + res.status + " for " + path);
+        return res.json();
+      });
+    }
+
+    function formatDateShort(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return iso;
+      return d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+    }
+
+    function formatTimeShort(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function loadRoundsState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          return { rounds: [], activeRoundId: null };
+        }
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.rounds)) {
+          return { rounds: [], activeRoundId: null };
+        }
+        return {
+          rounds: parsed.rounds,
+          activeRoundId: parsed.activeRoundId || null
+        };
+      } catch (e) {
+        console.warn("[rounds] Failed to load state", e);
+        return { rounds: [], activeRoundId: null };
+      }
+    }
+
+    function saveRoundsState(state) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn("[rounds] Failed to save state", e);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const roundListEl = document.getElementById("roundList");
+      const detailsNameEl = document.getElementById("detailsName");
+      const detailsCourseLineEl = document.getElementById("detailsCourseLine");
+      const detailsMetaEl = document.getElementById("detailsMeta");
+      const detailsSummaryEl = document.getElementById("detailsSummary");
+      const detailsHolesEl = document.getElementById("detailsHoles");
+
+      const btnRenameRound = document.getElementById("btnRenameRound");
+      const renameInput = document.getElementById("renameInput");
+      const btnSetActive = document.getElementById("btnSetActive");
+      const btnDeleteRound = document.getElementById("btnDeleteRound");
+
+      let state = loadRoundsState();
+      let selectedRoundId = null;
+
+      // course bundle cache: courseId -> { course, holes }
+      const courseBundles = {};
+      let coursesIndex = [];
+
+      function findRound(id) {
+        return state.rounds.find(r => r.id === id) || null;
+      }
+
+      function courseIdFromRound(round) {
+        if (!round) return null;
+        if (round.courseId) return round.courseId;
+
+        const keys = Object.keys(round.holes || {});
+        if (!keys.length) return null;
+        const firstKey = keys[0];
+        const idx = firstKey.indexOf(":H");
+        if (idx === -1) return null;
+        return firstKey.slice(0, idx);
+      }
+
+      function getHoleNumFromKey(key, courseId) {
+        const prefix = (courseId || "") + ":H";
+        if (!key.startsWith(prefix)) return null;
+        const n = parseInt(key.slice(prefix.length), 10);
+        return Number.isFinite(n) ? n : null;
+      }
+
+      function renderRoundList() {
+        if (!roundListEl) return;
+
+        if (!state.rounds.length) {
+          roundListEl.innerHTML = `
+            <div class="empty-state">
+              No saved rounds found yet. Play a round in the Hole View page and it will appear here.
+            </div>
+          `;
+          return;
+        }
+
+        let html = "";
+        const roundsSorted = state.rounds.slice().sort((a, b) => {
+          const da = new Date(a.createdAt || 0).getTime();
+          const db = new Date(b.createdAt || 0).getTime();
+          return db - da;
+        });
+
+        roundsSorted.forEach(round => {
+          const isActive = state.activeRoundId && state.activeRoundId === round.id;
+          const isSelected = selectedRoundId && selectedRoundId === round.id;
+
+          const createdDate = formatDateShort(round.createdAt);
+          const createdTime = formatTimeShort(round.createdAt);
+          const cid = courseIdFromRound(round) || "unknown";
+          const courseLabel = (coursesIndex.find(c => c.id === cid)?.name) || (cid === "unknown" ? "Unknown course" : cid);
+
+          html += `
+            <div class="round-card${isSelected ? " selected" : ""}" data-round-id="${round.id}">
+              <div class="round-name-row">
+                <div class="round-name">${round.name || "Unnamed round"}</div>
+                ${isActive ? `<span class="round-badge">Active</span>` : ""}
+              </div>
+              <div class="round-meta">
+                ${createdDate ? `<span><strong>${createdDate}</strong>${createdTime ? " · " + createdTime : ""}</span>` : ""}
+                <span>${courseLabel}</span>
+              </div>
+              <div class="round-meta">
+                <span class="tag">Saved holes: ${Object.keys(round.holes || {}).length}</span>
+                ${isActive ? `<span class="tag tag-gold">Current</span>` : ""}
+              </div>
+            </div>
+          `;
+        });
+
+        roundListEl.innerHTML = html;
+      }
+
+      function ensureCoursesIndexLoaded() {
+        if (coursesIndex.length) return Promise.resolve(coursesIndex);
+        return fetchJSON(COURSES_INDEX_PATH)
+          .then(courses => {
+            if (!Array.isArray(courses)) courses = [];
+            coursesIndex = courses;
+            return coursesIndex;
+          })
+          .catch(err => {
+            console.error("[courses] Failed to load index", err);
+            coursesIndex = [];
+            return coursesIndex;
+          });
+      }
+
+      function ensureCourseBundle(courseId) {
+        if (!courseId) {
+          return Promise.resolve(null);
+        }
+        if (courseBundles[courseId]) {
+          return Promise.resolve(courseBundles[courseId]);
+        }
+
+        const basePath = "data/courses/" + courseId;
+        const coursePath = basePath + "/course.json";
+        const holesPath = basePath + "/holes.json";
+
+        return Promise.all([
+          fetchJSON(coursePath).catch(() => null),
+          fetchJSON(holesPath).catch(() => [])
+        ]).then(([course, holes]) => {
+          const bundle = { course, holes: Array.isArray(holes) ? holes : [] };
+          courseBundles[courseId] = bundle;
+          return bundle;
+        });
+      }
+
+      function computeRoundStats(round, bundle) {
+        const courseId = courseIdFromRound(round) || "unknown";
+        const holesDef = (bundle && bundle.holes) || [];
+
+        let scoreTotal = 0;
+        let holesWithScore = 0;
+        let parTotal = 0;
+
+        let fairwayHit = 0;
+        let fairwayOpp = 0;
+
+        let girHit = 0;
+        let girOpp = 0;
+
+        let totalPutts = 0;
+        let puttEntries = 0;
+        let threePlusPutts = 0;
+
+        const holeRows = [];
+
+        const keys = Object.keys(round.holes || {});
+        keys.forEach(key => {
+          const hNum = getHoleNumFromKey(key, courseId);
+          if (!Number.isFinite(hNum)) return;
+
+          const data = round.holes[key];
+          if (!data) return;
+
+          const holeDef = holesDef.find((h, idx) => {
+            const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
+            return n === hNum;
+          });
+
+          const par = holeDef && typeof holeDef.par === "number" ? holeDef.par : null;
+
+          let score = null;
+          if (data.score) {
+            const s = parseInt(data.score, 10);
+            if (!Number.isNaN(s)) {
+              score = s;
+              scoreTotal += s;
+              holesWithScore++;
+              if (par != null) parTotal += par;
+            }
+          }
+
+          if (data.fairwayResult && data.fairwayResult !== "" && data.fairwayResult !== "na") {
+            fairwayOpp++;
+            if (data.fairwayResult === "hit") fairwayHit++;
+          }
+
+          if (data.girResult && data.girResult !== "" && data.girResult !== "na") {
+            girOpp++;
+            if (data.girResult === "yes") girHit++;
+          }
+
+          if (data.numPutts) {
+            const p = parseInt(data.numPutts, 10);
+            if (!Number.isNaN(p)) {
+              totalPutts += p;
+              puttEntries++;
+              if (p >= 3) threePlusPutts++;
+            }
+          }
+
+          let vsPar = null;
+          let vsParText = "";
+          let vsParClass = "";
+          if (score != null && par != null) {
+            vsPar = score - par;
+            if (vsPar > 0) {
+              vsParText = "+" + vsPar;
+              vsParClass = "par-worse";
+            } else if (vsPar < 0) {
+              vsParText = String(vsPar);
+              vsParClass = "par-better";
+            } else {
+              vsParText = "E";
+              vsParClass = "par-even";
+            }
+          }
+
+          holeRows.push({
+            hole: hNum,
+            par: par,
+            score: score,
+            vsParText,
+            vsParClass,
+            fairway: data.fairwayResult || "",
+            gir: data.girResult || "",
+            putts: data.numPutts || "",
+            notes: data.notes || ""
+          });
+        });
+
+        const fairwayPct = fairwayOpp ? (fairwayHit / fairwayOpp) * 100 : null;
+        const girPct = girOpp ? (girHit / girOpp) * 100 : null;
+        const puttsPerHole = puttEntries ? (totalPutts / puttEntries) : null;
+
+        let vsParOverall = null;
+        if (holesWithScore && parTotal) {
+          vsParOverall = scoreTotal - parTotal;
+        }
+
+        return {
+          scoreTotal,
+          holesWithScore,
+          parTotal,
+          fairwayHit,
+          fairwayOpp,
+          fairwayPct,
+          girHit,
+          girOpp,
+          girPct,
+          totalPutts,
+          puttEntries,
+          puttsPerHole,
+          threePlusPutts,
+          vsParOverall,
+          holeRows
+        };
+      }
+
+      function renderRoundDetails(round) {
+        if (!round) {
+          selectedRoundId = null;
+          if (detailsNameEl) detailsNameEl.textContent = "Select a round on the left.";
+          if (detailsCourseLineEl) detailsCourseLineEl.textContent = "";
+          if (detailsMetaEl) detailsMetaEl.textContent = "";
+          if (detailsSummaryEl) {
+            detailsSummaryEl.innerHTML = `
+              <div class="empty-state">
+                Choose a round from the list to see total score, fairways, GIR, and putting stats.
+              </div>
+            `;
+          }
+          if (detailsHolesEl) detailsHolesEl.innerHTML = "";
+          if (btnRenameRound) btnRenameRound.disabled = true;
+          if (btnSetActive) btnSetActive.disabled = true;
+          if (btnDeleteRound) btnDeleteRound.disabled = true;
+          if (renameInput) {
+            renameInput.style.display = "none";
+            renameInput.value = "";
+          }
+          return;
+        }
+
+        selectedRoundId = round.id;
+
+        // enable buttons
+        if (btnRenameRound) btnRenameRound.disabled = false;
+        if (btnSetActive) btnSetActive.disabled = false;
+        if (btnDeleteRound) btnDeleteRound.disabled = false;
+        if (renameInput) {
+          renameInput.style.display = "inline-block";
+          renameInput.value = round.name || "";
+        }
+
+        const courseId = courseIdFromRound(round) || "unknown";
+
+        ensureCourseBundle(courseId).then(bundle => {
+          const courseName =
+            (bundle && bundle.course && bundle.course.name) ||
+            (coursesIndex.find(c => c.id === courseId)?.name) ||
+            (courseId === "unknown" ? "Unknown course" : courseId);
+
+          const loc = (bundle && bundle.course && bundle.course.location) || {};
+          let locLine = "";
+          if (loc.city) locLine += loc.city;
+          if (loc.city && loc.state) locLine += ", ";
+          if (loc.state) locLine += loc.state;
+
+          if (detailsNameEl) detailsNameEl.textContent = round.name || "Unnamed round";
+          if (detailsCourseLineEl) {
+            detailsCourseLineEl.textContent = courseName + (locLine ? " · " + locLine : "");
+          }
+
+          const created = formatDateShort(round.createdAt);
+          const createdTime = formatTimeShort(round.createdAt);
+
+          const holesCount = Object.keys(round.holes || {}).length;
+          const activeTag = state.activeRoundId && state.activeRoundId === round.id ? " (active round)" : "";
+
+          if (detailsMetaEl) {
+            detailsMetaEl.textContent =
+              (created ? `Played ${created} ${createdTime ? "at " + createdTime : ""}` : "Date unknown") +
+              ` · Saved holes: ${holesCount}${activeTag}`;
+          }
+
+          const stats = computeRoundStats(round, bundle);
+
+          if (detailsSummaryEl) {
+            if (!stats.holesWithScore && !stats.fairwayOpp && !stats.girOpp && !stats.puttEntries) {
+              detailsSummaryEl.innerHTML = `
+                <div class="empty-state">
+                  This round doesn't have any stats saved yet. Open it in the Hole View page to add scores and stats.
+                </div>
+              `;
+            } else {
+              const vsParText = (() => {
+                if (stats.vsParOverall == null || !stats.parTotal || !stats.holesWithScore) {
+                  return "—";
+                }
+                if (stats.vsParOverall > 0) return "+" + stats.vsParOverall;
+                if (stats.vsParOverall < 0) return "" + stats.vsParOverall;
+                return "E";
+              })();
+
+              const totalScoreText = stats.holesWithScore
+                ? `${stats.scoreTotal} over ${stats.holesWithScore} holes`
+                : "—";
+
+              const fairwayText = stats.fairwayOpp
+                ? `${stats.fairwayHit}/${stats.fairwayOpp} (${Math.round(stats.fairwayPct)}%)`
+                : "—";
+
+              const girText = stats.girOpp
+                ? `${stats.girHit}/${stats.girOpp} (${Math.round(stats.girPct)}%)`
+                : "—";
+
+              const puttsText = stats.puttEntries
+                ? `${stats.totalPutts} total (${stats.puttsPerHole.toFixed(2)} per hole)`
+                : "—";
+
+              const threePuttText = stats.puttEntries
+                ? `${stats.threePlusPutts} holes with 3+ putts`
+                : "—";
+
+              detailsSummaryEl.innerHTML = `
+                <div class="detail-section-title">Round Summary</div>
+                <div class="details-summary-grid">
+                  <div class="summary-pill">
+                    <div class="summary-label">Total score</div>
+                    <div class="summary-value">${totalScoreText}</div>
+                    <div class="summary-sub">Vs par: ${vsParText}</div>
+                  </div>
+                  <div class="summary-pill">
+                    <div class="summary-label">Fairways hit</div>
+                    <div class="summary-value">${fairwayText}</div>
+                    <div class="summary-sub">Recorded tee shots only</div>
+                  </div>
+                  <div class="summary-pill">
+                    <div class="summary-label">GIR</div>
+                    <div class="summary-value">${girText}</div>
+                    <div class="summary-sub">Recorded approaches only</div>
+                  </div>
+                  <div class="summary-pill">
+                    <div class="summary-label">Putting</div>
+                    <div class="summary-value">${puttsText}</div>
+                    <div class="summary-sub">${threePuttText}</div>
+                  </div>
+                  <div class="summary-pill">
+                    <div class="summary-label">Saved holes</div>
+                    <div class="summary-value">${Object.keys(round.holes || {}).length}</div>
+                    <div class="summary-sub">Course: ${courseName}</div>
+                  </div>
+                  <div class="summary-pill">
+                    <div class="summary-label">Round ID</div>
+                    <div class="summary-value">${round.id}</div>
+                    <div class="summary-sub">Stored locally in this browser</div>
+                  </div>
+                </div>
+              `;
+            }
+          }
+
+          if (detailsHolesEl) {
+            if (!stats.holeRows.length) {
+              detailsHolesEl.innerHTML = `
+                <div class="detail-section-title">Hole-by-hole</div>
+                <div class="empty-state">
+                  No individual hole data saved yet. Once you enter scores and stats on the Hole View page,
+                  you'll see a breakdown here.
+                </div>
+              `;
+            } else {
+              const rowsHtml = stats.holeRows
+                .sort((a, b) => a.hole - b.hole)
+                .map(row => {
+                  const fairwayShort = row.fairway === "hit"
+                    ? "Hit"
+                    : row.fairway === "miss-left"
+                      ? "Miss L"
+                      : row.fairway === "miss-right"
+                        ? "Miss R"
+                        : row.fairway === "na"
+                          ? "N/A"
+                          : "";
+                  const girShort = row.gir === "yes"
+                    ? "Yes"
+                    : row.gir === "no"
+                      ? "No"
+                      : row.gir === "na"
+                        ? "N/A"
+                        : "";
+                  const puttsShort = row.putts || "";
+
+                  let scoreCell = "";
+                  if (row.score != null && row.par != null) {
+                    scoreCell = `
+                      <span class="pill-score ${row.vsParClass || ""}">
+                        <span>${row.score}</span>
+                        <span>${row.vsParText}</span>
+                      </span>
+                    `;
+                  } else if (row.score != null) {
+                    scoreCell = `<span class="pill-score">${row.score}</span>`;
+                  } else if (row.par != null) {
+                    scoreCell = `<span class="pill-score">Par ${row.par}</span>`;
+                  } else {
+                    scoreCell = "—";
+                  }
+
+                  const notesSnippet = row.notes
+                    ? row.notes.replace(/\s+/g, " ").trim()
+                    : "";
+
+                  return `
+                    <tr>
+                      <td>H${row.hole}</td>
+                      <td>${row.par != null ? row.par : "—"}</td>
+                      <td>${scoreCell}</td>
+                      <td>${fairwayShort || "—"}</td>
+                      <td>${girShort || "—"}</td>
+                      <td>${puttsShort || "—"}</td>
+                      <td class="hole-notes-snippet">${notesSnippet || ""}</td>
+                    </tr>
+                  `;
+                })
+                .join("");
+
+              detailsHolesEl.innerHTML = `
+                <div class="detail-section-title">Hole-by-hole</div>
+                <div class="hole-table-wrapper">
+                  <table class="hole-table">
+                    <thead>
+                      <tr>
+                        <th>Hole</th>
+                        <th>Par</th>
+                        <th>Score</th>
+                        <th>FW</th>
+                        <th>GIR</th>
+                        <th>Putts</th>
+                        <th>Notes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${rowsHtml}
+                    </tbody>
+                  </table>
+                </div>
+              `;
+            }
+          }
+
+          // update left list selection highlighting
+          renderRoundList();
+        });
+      }
+
+      // initial load of courses index then list
+      ensureCoursesIndexLoaded().then(() => {
+        renderRoundList();
+        renderRoundDetails(null);
+      });
+
+      // click handling for list
+      if (roundListEl) {
+        roundListEl.addEventListener("click", function (evt) {
+          const card = evt.target.closest(".round-card");
+          if (!card) return;
+          const id = card.getAttribute("data-round-id");
+          if (!id) return;
+          const round = findRound(id);
+          if (!round) return;
+          renderRoundDetails(round);
+        });
+      }
+
+      // rename
+      if (btnRenameRound && renameInput) {
+        btnRenameRound.addEventListener("click", function () {
+          if (!selectedRoundId) return;
+          const round = findRound(selectedRoundId);
+          if (!round) return;
+
+          const newName = (renameInput.value || "").trim();
+          if (!newName) {
+            alert("Please enter a name for the round.");
+            return;
+          }
+          round.name = newName;
+          saveRoundsState(state);
+          renderRoundDetails(round);
+        });
+      }
+
+      // set active
+      if (btnSetActive) {
+        btnSetActive.addEventListener("click", function () {
+          if (!selectedRoundId) return;
+          const round = findRound(selectedRoundId);
+          if (!round) return;
+
+          state.activeRoundId = round.id;
+          saveRoundsState(state);
+          renderRoundDetails(round);
+        });
+      }
+
+      // delete
+      if (btnDeleteRound) {
+        btnDeleteRound.addEventListener("click", function () {
+          if (!selectedRoundId) return;
+          const round = findRound(selectedRoundId);
+          if (!round) return;
+
+          if (!confirm("Delete this round and all its saved hole data from this device?")) {
+            return;
+          }
+
+          state.rounds = state.rounds.filter(r => r.id !== round.id);
+          if (state.activeRoundId === round.id) {
+            state.activeRoundId = state.rounds.length ? state.rounds[0].id : null;
+          }
+          saveRoundsState(state);
+          selectedRoundId = null;
+          renderRoundList();
+          renderRoundDetails(null);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
