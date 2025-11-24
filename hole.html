@@ -382,6 +382,23 @@
       transform: translate(-50%, -50%);
     }
 
+    /* ROUND SUMMARY HEADLINE STRIP */
+    .round-summary-headline {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 0.8rem;
+      margin-top: 2px;
+      margin-bottom: 4px;
+      color: var(--green-dark);
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .round-summary-headline span {
+      white-space: nowrap;
+    }
+
     /* FLYOVER / CADDY / SUMMARY / HISTORY / CLUBS */
     .media-card {
       border-radius: 10px;
@@ -415,118 +432,6 @@
 
     .caddy-list li {
       margin-bottom: 2px;
-    }
-
-    /* Scorecard strip */
-    .scorecard-strip {
-      margin-top: 2px;
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 4px;
-      overflow-x: auto;
-      padding: 2px 0 4px;
-    }
-
-    .scorecard-strip::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    .scorecard-strip::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.15);
-      border-radius: 999px;
-    }
-
-    .scorecard-hole {
-      border: 1px solid rgba(0,0,0,0.09);
-      background: rgba(255,255,255,0.95);
-      border-radius: 999px;
-      padding: 3px 8px;
-      font-size: 0.72rem;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1px;
-      cursor: pointer;
-      white-space: nowrap;
-      min-width: 36px;
-      flex-shrink: 0;
-    }
-
-    .scorecard-hole-num {
-      font-weight: 600;
-    }
-
-    .scorecard-hole-score {
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-
-    .scorecard-hole-current {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 1px rgba(209,161,75,0.5);
-    }
-
-    .score-better {
-      background: #dcfce7;
-      border-color: #22c55e;
-      color: #14532d;
-    }
-
-    .score-par {
-      background: #fefce8;
-      border-color: #eab308;
-      color: #854d0e;
-    }
-
-    .score-worse {
-      background: #fee2e2;
-      border-color: #ef4444;
-      color: #7f1d1d;
-    }
-
-    /* TOTAL RELATIVE-TO-PAR PILL */
-    .scorecard-total {
-      border: 1px solid rgba(0,0,0,0.09);
-      background: rgba(255,255,255,0.95);
-      border-radius: 999px;
-      padding: 3px 10px;
-      font-size: 0.72rem;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1px;
-      white-space: nowrap;
-      margin-left: 4px;
-      flex-shrink: 0;
-    }
-
-    .scorecard-total-main {
-      font-weight: 600;
-    }
-
-    .scorecard-total-sub {
-      font-size: 0.7rem;
-      color: var(--muted);
-    }
-
-    .score-total-better {
-      background: #dcfce7;
-      border-color: #22c55e;
-      color: #14532d;
-    }
-
-    .score-total-par {
-      background: #fefce8;
-      border-color: #eab308;
-      color: #854d0e;
-    }
-
-    .score-total-worse {
-      background: #fee2e2;
-      border-color: #ef4444;
-      color: #7f1d1d;
     }
 
     /* Club recommender / bag */
@@ -656,18 +561,12 @@
         </div>
       </div>
 
-      <!-- Round scorecard strip -->
-      <div class="detail-section-title">Round Scorecard</div>
-      <div id="scorecardStrip" class="scorecard-strip">
-        <span class="muted">Scorecard will appear here once you load a course.</span>
-      </div>
-
       <div class="detail-section-title">Yardages</div>
       <div id="yardageRow" class="yardage-row">
         <span class="muted">No course selected.</span>
       </div>
 
-      <!-- HOLE IMAGE + GPS -->
+      <!-- HOLE IMAGE + GPS OVERLAY -->
       <div class="detail-section-title">Hole Image & GPS</div>
       <div class="hole-image-card">
         <div class="hole-image-wrapper">
@@ -869,6 +768,10 @@
 
       <div class="media-card" id="roundSummaryCard">
         <h3>Round Summary</h3>
+        <div id="roundSummaryHeadline" class="round-summary-headline">
+          <span>No stats yet for this round.</span>
+          <span></span>
+        </div>
         <div id="roundSummaryBody" class="media-note">
           Start saving stats to see a summary for this round.
         </div>
@@ -881,7 +784,7 @@
         </div>
       </div>
 
-      <!-- Club recommendation + bag distances -->
+      <!-- NEW: Club recommendation + bag distances -->
       <div class="media-card" id="clubRecommenderCard">
         <h3>Club Recommendation</h3>
         <div class="club-rec-section">
@@ -1547,6 +1450,7 @@
       const holeNotesEl = document.getElementById("holeNotes");
 
       // Summary / history elements
+      const roundSummaryHeadline = document.getElementById("roundSummaryHeadline");
       const roundSummaryBody = document.getElementById("roundSummaryBody");
       const holeHistoryBody = document.getElementById("holeHistoryBody");
 
@@ -1556,9 +1460,6 @@
       const btnRecommendClub = document.getElementById("btnRecommendClub");
       const clubRecResultEl = document.getElementById("clubRecResult");
       const bagInputs = document.querySelectorAll(".club-distance-input");
-
-      // Scorecard strip element
-      const scorecardStripEl = document.getElementById("scorecardStrip");
 
       let loadedCourse = null;
       let loadedHoles = [];
@@ -1767,10 +1668,23 @@
       function renderRoundSummary() {
         if (!roundSummaryBody) return;
 
+        const headlineEl = roundSummaryHeadline;
+
+        function setHeadline(textLeft, textRight) {
+          if (!headlineEl) return;
+          if (textRight === undefined || textRight === null) {
+            headlineEl.innerHTML = "<span>" + textLeft + "</span><span></span>";
+          } else {
+            headlineEl.innerHTML =
+              "<span>" + textLeft + "</span><span>" + textRight + "</span>";
+          }
+        }
+
         const round = findActiveRound();
         if (!round || !round.holes) {
           roundSummaryBody.textContent =
             "Start saving stats to see a summary for this round.";
+          setHeadline("No stats yet for this round.", "");
           return;
         }
 
@@ -1784,6 +1698,14 @@
         let holesWithScore = 0;
         let parTotal = 0;
 
+        let frontScore = 0;
+        let frontPar = 0;
+        let frontHoles = 0;
+
+        let backScore = 0;
+        let backPar = 0;
+        let backHoles = 0;
+
         let fairwayHit = 0;
         let fairwayOpp = 0;
 
@@ -1793,6 +1715,18 @@
         let totalPutts = 0;
         let puttEntries = 0;
         let threePlusPutts = 0;
+
+        // Scoring distribution
+        let birdies = 0;
+        let pars = 0;
+        let bogeys = 0;
+        let worse = 0;
+
+        // Simple "highlight" tracking (best/worst vs par)
+        let bestDiff = null;   // most negative (best)
+        let bestHole = null;
+        let worstDiff = null;  // most positive (worst)
+        let worstHole = null;
 
         const keys = Object.keys(round.holes);
         keys.forEach(function(key) {
@@ -1812,13 +1746,50 @@
           });
           const par = holeDef && typeof holeDef.par === "number" ? holeDef.par : null;
 
-          // Score
+          // Score & vs-par
           if (data.score) {
             const s = parseInt(data.score, 10);
             if (!Number.isNaN(s)) {
               scoreTotal += s;
               holesWithScore++;
               if (par != null) parTotal += par;
+
+              // Front/back splits
+              if (par != null) {
+                if (holeNum >= 1 && holeNum <= 9) {
+                  frontScore += s;
+                  frontPar += par;
+                  frontHoles++;
+                } else if (holeNum >= 10 && holeNum <= 18) {
+                  backScore += s;
+                  backPar += par;
+                  backHoles++;
+                }
+              }
+
+              // Scoring distribution vs par
+              if (par != null) {
+                const diff = s - par;
+                if (diff <= -1) {
+                  birdies++;
+                } else if (diff === 0) {
+                  pars++;
+                } else if (diff === 1) {
+                  bogeys++;
+                } else if (diff >= 2) {
+                  worse++;
+                }
+
+                // Highlight tracking
+                if (bestDiff === null || diff < bestDiff) {
+                  bestDiff = diff;
+                  bestHole = holeNum;
+                }
+                if (worstDiff === null || diff > worstDiff) {
+                  worstDiff = diff;
+                  worstHole = holeNum;
+                }
+              }
             }
           }
 
@@ -1848,11 +1819,33 @@
         if (!holesWithScore && !fairwayOpp && !girOpp && !puttEntries) {
           roundSummaryBody.textContent =
             "No stats saved yet for this round on this course.";
+          setHeadline("No stats yet for this course.", "");
           return;
+        }
+
+        // Headline strip: Thru N: +/- vs par  |  Total vs par: +/- 
+        if (!holesWithScore) {
+          setHeadline("No scoring data yet for this course.", "");
+        } else {
+          if (parTotal) {
+            const diff = scoreTotal - parTotal;
+            let labelDiff;
+            if (diff > 0) labelDiff = "+" + diff;
+            else if (diff < 0) labelDiff = "" + diff;
+            else labelDiff = "E";
+
+            const left = "Thru " + holesWithScore + ": " + labelDiff;
+            const right = "Total vs par: " + labelDiff;
+            setHeadline(left, right);
+          } else {
+            const left = "Thru " + holesWithScore + ": " + scoreTotal;
+            setHeadline(left, "");
+          }
         }
 
         let html = "<ul class='caddy-list'>";
 
+        // Overall scoring
         if (holesWithScore) {
           const avgScore = (scoreTotal / holesWithScore).toFixed(1);
           let vsParText = "";
@@ -1874,6 +1867,26 @@
             "<li><strong>Avg score per hole:</strong> " + avgScore + "</li>";
         }
 
+        // Front / back splits
+        if (frontHoles || backHoles) {
+          html += "<li><strong>Front / Back:</strong> ";
+          const parts = [];
+          if (frontHoles && frontPar) {
+            const diffF = frontScore - frontPar;
+            const labelF =
+              diffF > 0 ? "+" + diffF : (diffF < 0 ? diffF : "E");
+            parts.push("Front 9: " + labelF + " (" + frontScore + ")");
+          }
+          if (backHoles && backPar) {
+            const diffB = backScore - backPar;
+            const labelB =
+              diffB > 0 ? "+" + diffB : (diffB < 0 ? diffB : "E");
+            parts.push("Back 9: " + labelB + " (" + backScore + ")");
+          }
+          html += parts.join(" · ") + "</li>";
+        }
+
+        // Fairways
         if (fairwayOpp) {
           const pct = Math.round((fairwayHit / fairwayOpp) * 100);
           html +=
@@ -1886,6 +1899,7 @@
             "%)</li>";
         }
 
+        // GIR
         if (girOpp) {
           const pct = Math.round((girHit / girOpp) * 100);
           html +=
@@ -1898,6 +1912,7 @@
             "%)</li>";
         }
 
+        // Putts
         if (puttEntries) {
           const avgPutts = (totalPutts / puttEntries).toFixed(2);
           html +=
@@ -1906,6 +1921,34 @@
             " (3+ putts on " +
             threePlusPutts +
             " holes)</li>";
+        }
+
+        // Scoring distribution
+        if (holesWithScore) {
+          html +=
+            "<li><strong>Scoring breakdown:</strong> " +
+            "Birdies: " + birdies +
+            " · Pars: " + pars +
+            " · Bogeys: " + bogeys +
+            " · Worse: " + worse +
+            "</li>";
+        }
+
+        // Simple numeric “Highlights”
+        if (bestHole !== null || worstHole !== null) {
+          html += "<li><strong>Highlights:</strong> ";
+          const parts = [];
+          if (bestHole !== null && bestDiff !== null) {
+            const labelBest =
+              bestDiff > 0 ? "+" + bestDiff : (bestDiff < 0 ? bestDiff : "E");
+            parts.push("Best hole: " + bestHole + " (" + labelBest + " vs par)");
+          }
+          if (worstHole !== null && worstDiff !== null) {
+            const labelWorst =
+              worstDiff > 0 ? "+" + worstDiff : (worstDiff < 0 ? worstDiff : "E");
+            parts.push("Toughest hole: " + worstHole + " (" + labelWorst + " vs par)");
+          }
+          html += parts.join(" · ") + "</li>";
         }
 
         html += "</ul>";
@@ -2026,112 +2069,6 @@
         holeHistoryBody.innerHTML = html;
       }
 
-      // Round scorecard strip — per-hole + total relative to par
-      function renderScorecardStrip() {
-        if (!scorecardStripEl) return;
-
-        const round = findActiveRound();
-        if (!round || !loadedCourse || !loadedHoles.length || !maxHole) {
-          scorecardStripEl.innerHTML =
-            "<span class='muted'>Scorecard will appear here once you start a round on this course.</span>";
-          return;
-        }
-
-        const courseId =
-          (courseSelect && courseSelect.value) ||
-          round.courseId ||
-          (loadedCourse && loadedCourse.id) ||
-          "unknown";
-
-        let html = "";
-
-        // Totals
-        let sumScore = 0;
-        let sumPar = 0;
-        let holesCount = 0;
-
-        for (let i = 1; i <= maxHole; i++) {
-          const key = makeHoleKey(courseId, i);
-          const data = round.holes && round.holes[key];
-
-          let scoreDisplay = "–";
-          let diff = null;
-
-          const holeDef = loadedHoles.find(function(h, idx) {
-            const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
-            return n === i;
-          });
-          const par = holeDef && typeof holeDef.par === "number" ? holeDef.par : null;
-
-          if (data && data.score) {
-            const s = parseInt(data.score, 10);
-            if (!Number.isNaN(s)) {
-              if (par != null) {
-                diff = s - par;
-                if (diff === 0) {
-                  scoreDisplay = "E";
-                } else if (diff > 0) {
-                  scoreDisplay = "+" + diff;
-                } else {
-                  scoreDisplay = String(diff);
-                }
-
-                // contribute to totals
-                sumScore += s;
-                sumPar += par;
-                holesCount++;
-              } else {
-                // no par defined, fall back to raw score
-                scoreDisplay = s;
-              }
-            }
-          }
-
-          let cls = "scorecard-hole";
-
-          if (diff != null) {
-            if (diff < 0) cls += " score-better";
-            else if (diff === 0) cls += " score-par";
-            else cls += " score-worse";
-          }
-
-          if (i === currentHoleNum) {
-            cls += " scorecard-hole-current";
-          }
-
-          html +=
-            "<button type='button' class='" + cls + "' data-hole='" + i + "'>" +
-              "<span class='scorecard-hole-num'>" + i + "</span>" +
-              "<span class='scorecard-hole-score'>" + scoreDisplay + "</span>" +
-            "</button>";
-        }
-
-        // TOTAL pill on the right
-        let totalHtml = "";
-        if (holesCount > 0 && sumPar > 0) {
-          const totalDiff = sumScore - sumPar;
-          let mainText;
-          if (totalDiff === 0) mainText = "E";
-          else if (totalDiff > 0) mainText = "+" + totalDiff;
-          else mainText = String(totalDiff);
-
-          const subText = "thru " + holesCount;
-
-          let totalCls = "scorecard-total";
-          if (totalDiff < 0) totalCls += " score-total-better";
-          else if (totalDiff === 0) totalCls += " score-total-par";
-          else totalCls += " score-total-worse";
-
-          totalHtml =
-            "<div class='" + totalCls + "'>" +
-              "<span class='scorecard-total-main'>" + mainText + "</span>" +
-              "<span class='scorecard-total-sub'>" + subText + "</span>" +
-            "</div>";
-        }
-
-        scorecardStripEl.innerHTML = html + totalHtml;
-      }
-
       // Load rounds from storage and set up UI BEFORE loading courses
       loadRoundsState();
       ensureAtLeastOneRound();
@@ -2218,19 +2155,6 @@
         });
       }
 
-      // Wire scorecard strip click -> jump to hole
-      if (scorecardStripEl) {
-        scorecardStripEl.addEventListener("click", function(e) {
-          const btn = e.target.closest(".scorecard-hole");
-          if (!btn) return;
-          const h = parseInt(btn.getAttribute("data-hole") || "0", 10);
-          if (!Number.isFinite(h) || h < 1 || h > maxHole) return;
-          saveCurrentHoleState();
-          currentHoleNum = h;
-          renderHoleView();
-        });
-      }
-
       // Wire round UI
       if (roundSelect) {
         roundSelect.addEventListener("change", function() {
@@ -2242,7 +2166,6 @@
           applyHoleStateForCurrentHole();
           renderRoundSummary();
           renderHoleHistory();
-          renderScorecardStrip();
         });
       }
 
@@ -2258,7 +2181,6 @@
           clearHoleControls();
           renderRoundSummary();
           renderHoleHistory();
-          renderScorecardStrip();
         });
       }
 
@@ -2277,7 +2199,6 @@
           clearHoleControls();
           renderRoundSummary();
           renderHoleHistory();
-          renderScorecardStrip();
         });
       }
 
@@ -2299,7 +2220,6 @@
           saveCurrentHoleState();
           renderRoundSummary();
           renderHoleHistory();
-          renderScorecardStrip();
         });
       });
       if (holeNotesEl) {
@@ -2307,7 +2227,6 @@
           saveCurrentHoleState();
           renderRoundSummary();
           renderHoleHistory();
-          renderScorecardStrip();
         });
       }
 
@@ -2408,8 +2327,6 @@
               yardageRowEl.innerHTML =
                 "<span class='error'>Could not load course data. Check JSON paths.</span>";
             }
-
-            renderScorecardStrip();
           });
       }
 
@@ -2573,10 +2490,9 @@
         initHoleMap(hole.gps || null);
         startGpsWatch(); // continuous GPS updates
 
-        // Update summary + history + scorecard for this hole
+        // Update summary + history for this hole
         renderRoundSummary();
         renderHoleHistory();
-        renderScorecardStrip();
       }
 
       // EVENT WIRING
@@ -2600,10 +2516,9 @@
           // save current before switching hole
           saveCurrentHoleState();
           const val = parseInt(holeSelect.value || "1", 10);
-          if (!Number.isNaN(val)) {
-            currentHoleNum = val;
-            renderHoleView();
-          }
+          if (!Number.isFinite(val)) return;
+          currentHoleNum = val;
+          renderHoleView();
         });
       }
 
