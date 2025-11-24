@@ -473,96 +473,49 @@
       font-size: 0.78rem;
     }
 
-    /* Score summary bubbles */
+    /* SCORE STRIP – ALL HOLES */
     .score-bubbles {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin-top: 4px;
+      margin-top: 6px;
     }
 
     .score-bubble {
-      min-width: 72px;
+      min-width: 70px;
       padding: 4px 8px;
       border-radius: 999px;
       background: #111827;
       color: #f9fafb;
-      font-size: 0.75rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      font-size: 0.72rem;
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
     }
 
     .score-bubble-label {
       opacity: 0.7;
+      font-size: 0.7rem;
     }
 
     .score-bubble-value {
       font-weight: 600;
+      line-height: 1.2;
     }
 
-    /* Goals / progress bars */
-    .goals-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 6px;
+    .score-bubble-active {
+      background: var(--gold);
+      color: #111827;
+      border-color: rgba(0,0,0,0.3);
     }
 
-    .goal-row {
-      font-size: 0.8rem;
-    }
-
-    .goal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.78rem;
-    }
-
-    .goal-header label {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
-
-    .goal-header input {
-      width: 56px;
-      padding: 2px 4px;
-      border-radius: 8px;
-      border: 1px solid rgba(0,0,0,0.2);
-      background: #fffbf4;
-      font-size: 0.78rem;
-      text-align: right;
-    }
-
-    .goal-bar {
-      position: relative;
-      height: 8px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      overflow: hidden;
-      margin-top: 3px;
-    }
-
-    .goal-bar-fill {
-      height: 100%;
-      width: 0%;
-      background: var(--green);
-      transition: width 0.25s ease;
-    }
-
-    .goal-bar-fill.goal-behind {
-      background: #b91c1c;
-    }
-
-    .goal-bar-text {
-      font-size: 0.72rem;
-      color: var(--muted);
-      margin-top: 2px;
+    .score-bubble-total {
+      background: var(--green-dark);
+      color: #f9fafb;
+      border-color: rgba(0,0,0,0.4);
     }
   </style>
 
@@ -634,27 +587,17 @@
             <button type="button" class="btn" id="btnNextHole">Next ▶</button>
           </div>
         </div>
-
-        <!-- ALWAYS-VISIBLE ROUND SCORE BUBBLES -->
-        <div class="score-bubbles">
-          <div class="score-bubble">
-            <span class="score-bubble-label">Front</span>
-            <span class="score-bubble-value" id="scoreBubbleFront">--</span>
-          </div>
-          <div class="score-bubble">
-            <span class="score-bubble-label">Back</span>
-            <span class="score-bubble-value" id="scoreBubbleBack">--</span>
-          </div>
-          <div class="score-bubble">
-            <span class="score-bubble-label">Total</span>
-            <span class="score-bubble-value" id="scoreBubbleTotal">--</span>
-          </div>
-        </div>
       </div>
 
       <div class="detail-section-title">Yardages</div>
       <div id="yardageRow" class="yardage-row">
         <span class="muted">No course selected.</span>
+      </div>
+
+      <!-- ROUND SCORE STRIP -->
+      <div class="detail-section-title">Round Scorecard</div>
+      <div id="scoreBubbles" class="score-bubbles">
+        <span class="muted">Select a course to show the scorecard.</span>
       </div>
 
       <!-- HOLE IMAGE + GPS OVERLAY -->
@@ -864,60 +807,6 @@
         </div>
       </div>
 
-      <!-- GOALS CARD WITH PROGRESS BARS -->
-      <div class="media-card" id="goalsCard">
-        <h3>Today's Goals</h3>
-        <div class="media-note">
-          Track how you're doing vs your targets this round. Goals are saved locally.
-        </div>
-        <div class="goals-grid">
-          <!-- Fairways -->
-          <div class="goal-row">
-            <div class="goal-header">
-              <label>
-                Fairways goal (%)
-                <input type="number" id="goalFairways" min="1" max="100" step="1" />
-              </label>
-              <span id="goalFairwaysValue">– / –</span>
-            </div>
-            <div class="goal-bar">
-              <div class="goal-bar-fill" id="goalFairwaysBar"></div>
-            </div>
-            <div class="goal-bar-text" id="goalFairwaysText">No data yet.</div>
-          </div>
-
-          <!-- GIR -->
-          <div class="goal-row">
-            <div class="goal-header">
-              <label>
-                GIR goal (%)
-                <input type="number" id="goalGIR" min="1" max="100" step="1" />
-              </label>
-              <span id="goalGIRValue">– / –</span>
-            </div>
-            <div class="goal-bar">
-              <div class="goal-bar-fill" id="goalGIRBar"></div>
-            </div>
-            <div class="goal-bar-text" id="goalGIRText">No data yet.</div>
-          </div>
-
-          <!-- Putts -->
-          <div class="goal-row">
-            <div class="goal-header">
-              <label>
-                Putts / hole goal
-                <input type="number" id="goalPutts" min="1" max="5" step="0.1" />
-              </label>
-              <span id="goalPuttsValue">– / –</span>
-            </div>
-            <div class="goal-bar">
-              <div class="goal-bar-fill" id="goalPuttsBar"></div>
-            </div>
-            <div class="goal-bar-text" id="goalPuttsText">No data yet.</div>
-          </div>
-        </div>
-      </div>
-
       <div class="media-card" id="holeHistoryCard">
         <h3>Hole History</h3>
         <div id="holeHistoryBody" class="media-note">
@@ -1036,13 +925,11 @@
     function distanceInYards(lat1, lng1, lat2, lng2) {
       const R = 6371000; // meters
       const toRad = x => x * Math.PI / 180;
-      const φ1 = toRad(lat1);
-      const φ2 = toRad(lat2);
       const dLat = toRad(lat2 - lat1);
       const dLng = toRad(lng2 - lng1);
       const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(φ1) * Math.cos(φ2) *
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
         Math.sin(dLng / 2) * Math.sin(dLng / 2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       const meters = R * c;
@@ -1566,6 +1453,7 @@
       const courseLocEl = document.getElementById("courseLocation");
       const holeLabelEl = document.getElementById("holeLabel");
       const yardageRowEl = document.getElementById("yardageRow");
+      const scoreBubblesEl = document.getElementById("scoreBubbles");
       const flyoverBody = document.getElementById("flyoverBody");
       const caddyBody = document.getElementById("caddyBody");
       const prevBtn = document.getElementById("btnPrevHole");
@@ -1603,200 +1491,10 @@
       const clubRecResultEl = document.getElementById("clubRecResult");
       const bagInputs = document.querySelectorAll(".club-distance-input");
 
-      // Score bubbles
-      const scoreBubbleFrontEl = document.getElementById("scoreBubbleFront");
-      const scoreBubbleBackEl = document.getElementById("scoreBubbleBack");
-      const scoreBubbleTotalEl = document.getElementById("scoreBubbleTotal");
-
-      // Goals DOM
-      const goalFairwaysInput = document.getElementById("goalFairways");
-      const goalGIRInput = document.getElementById("goalGIR");
-      const goalPuttsInput = document.getElementById("goalPutts");
-      const goalFairwaysBar = document.getElementById("goalFairwaysBar");
-      const goalGIRBar = document.getElementById("goalGIRBar");
-      const goalPuttsBar = document.getElementById("goalPuttsBar");
-      const goalFairwaysValue = document.getElementById("goalFairwaysValue");
-      const goalGIRValue = document.getElementById("goalGIRValue");
-      const goalPuttsValue = document.getElementById("goalPuttsValue");
-      const goalFairwaysText = document.getElementById("goalFairwaysText");
-      const goalGIRText = document.getElementById("goalGIRText");
-      const goalPuttsText = document.getElementById("goalPuttsText");
-
       let loadedCourse = null;
       let loadedHoles = [];
       let currentHoleNum = Number.isFinite(urlHole) && urlHole > 0 ? urlHole : 1;
       let maxHole = 0;
-
-      // ===== GOALS STATE (localStorage) =====
-      const GOALS_STORAGE_KEY = "localGolfScorebook_goals_v1";
-      let goalsState = {
-        fairwaysPct: 60,
-        girPct: 50,
-        puttsPerHole: 2.0
-      };
-
-      function loadGoalsState() {
-        try {
-          const raw = localStorage.getItem(GOALS_STORAGE_KEY);
-          if (!raw) return;
-          const parsed = JSON.parse(raw);
-          if (!parsed || typeof parsed !== "object") return;
-          if (typeof parsed.fairwaysPct === "number") goalsState.fairwaysPct = parsed.fairwaysPct;
-          if (typeof parsed.girPct === "number") goalsState.girPct = parsed.girPct;
-          if (typeof parsed.puttsPerHole === "number") goalsState.puttsPerHole = parsed.puttsPerHole;
-        } catch (e) {
-          console.warn("[goals] Failed to load goals", e);
-        }
-      }
-
-      function saveGoalsState() {
-        try {
-          localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goalsState));
-        } catch (e) {
-          console.warn("[goals] Failed to save goals", e);
-        }
-      }
-
-      function applyGoalsToInputs() {
-        if (goalFairwaysInput) goalFairwaysInput.value = goalsState.fairwaysPct;
-        if (goalGIRInput) goalGIRInput.value = goalsState.girPct;
-        if (goalPuttsInput) goalPuttsInput.value = goalsState.puttsPerHole.toFixed(1);
-      }
-
-      function formatVsPar(diff) {
-        if (!Number.isFinite(diff)) return "--";
-        if (diff === 0) return "E";
-        if (diff > 0) return "+" + diff;
-        return String(diff); // negative
-      }
-
-      function updateScoreBubbles(stats) {
-        if (!scoreBubbleFrontEl || !scoreBubbleBackEl || !scoreBubbleTotalEl) return;
-
-        function setAll(text) {
-          scoreBubbleFrontEl.textContent = text;
-          scoreBubbleBackEl.textContent = text;
-          scoreBubbleTotalEl.textContent = text;
-        }
-
-        if (!stats || !stats.holesWithScore || !stats.parTotal) {
-          setAll("--");
-          return;
-        }
-
-        let frontText = "--";
-        let backText = "--";
-        let totalText = "--";
-
-        if (stats.frontParTotal && stats.frontScore > 0) {
-          frontText = formatVsPar(stats.frontScore - stats.frontParTotal);
-        }
-
-        if (stats.backParTotal && stats.backScore > 0) {
-          backText = formatVsPar(stats.backScore - stats.backParTotal);
-        }
-
-        totalText = formatVsPar(stats.scoreTotal - stats.parTotal);
-
-        scoreBubbleFrontEl.textContent = frontText;
-        scoreBubbleBackEl.textContent = backText;
-        scoreBubbleTotalEl.textContent = totalText;
-      }
-
-      function updateGoalsUI(stats) {
-        // Fairways % vs goal
-        if (goalFairwaysBar && goalFairwaysValue && goalFairwaysText) {
-          let pct = null;
-          if (stats && stats.fairwayOpp > 0) {
-            pct = Math.round((stats.fairwayHit / stats.fairwayOpp) * 100);
-          }
-          const goal = goalsState.fairwaysPct;
-
-          if (pct === null) {
-            goalFairwaysBar.style.width = "0%";
-            goalFairwaysBar.classList.remove("goal-behind");
-            goalFairwaysValue.textContent = "– / " + goal + "%";
-            goalFairwaysText.textContent = "No data yet.";
-          } else {
-            const ratio = Math.max(0, Math.min(1, pct / goal));
-            const fillPct = Math.round(ratio * 100);
-            goalFairwaysBar.style.width = fillPct + "%";
-            if (pct >= goal) {
-              goalFairwaysBar.classList.remove("goal-behind");
-            } else {
-              goalFairwaysBar.classList.add("goal-behind");
-            }
-            goalFairwaysValue.textContent = pct + "% / " + goal + "%";
-            goalFairwaysText.textContent =
-              pct >= goal
-                ? "Goal met or exceeded."
-                : "Keep going – not at goal yet.";
-          }
-        }
-
-        // GIR % vs goal
-        if (goalGIRBar && goalGIRValue && goalGIRText) {
-          let pct = null;
-          if (stats && stats.girOpp > 0) {
-            pct = Math.round((stats.girHit / stats.girOpp) * 100);
-          }
-          const goal = goalsState.girPct;
-
-          if (pct === null) {
-            goalGIRBar.style.width = "0%";
-            goalGIRBar.classList.remove("goal-behind");
-            goalGIRValue.textContent = "– / " + goal + "%";
-            goalGIRText.textContent = "No data yet.";
-          } else {
-            const ratio = Math.max(0, Math.min(1, pct / goal));
-            const fillPct = Math.round(ratio * 100);
-            goalGIRBar.style.width = fillPct + "%";
-            if (pct >= goal) {
-              goalGIRBar.classList.remove("goal-behind");
-            } else {
-              goalGIRBar.classList.add("goal-behind");
-            }
-            goalGIRValue.textContent = pct + "% / " + goal + "%";
-            goalGIRText.textContent =
-              pct >= goal
-                ? "Goal met or exceeded."
-                : "Keep going – not at goal yet.";
-          }
-        }
-
-        // Putts / hole vs goal (lower is better)
-        if (goalPuttsBar && goalPuttsValue && goalPuttsText) {
-          let avgPutts = null;
-          if (stats && stats.puttEntries > 0) {
-            avgPutts = stats.totalPutts / stats.puttEntries;
-          }
-          const goal = goalsState.puttsPerHole;
-
-          if (avgPutts === null) {
-            goalPuttsBar.style.width = "0%";
-            goalPuttsBar.classList.remove("goal-behind");
-            goalPuttsValue.textContent = "– / " + goal.toFixed(1);
-            goalPuttsText.textContent = "No data yet.";
-          } else {
-            let ratio;
-            if (avgPutts <= goal) {
-              ratio = 1;
-              goalPuttsBar.classList.remove("goal-behind");
-            } else {
-              ratio = Math.max(0.1, Math.min(1, goal / avgPutts));
-              goalPuttsBar.classList.add("goal-behind");
-            }
-            const fillPct = Math.round(ratio * 100);
-            goalPuttsBar.style.width = fillPct + "%";
-            goalPuttsValue.textContent =
-              avgPutts.toFixed(2) + " / " + goal.toFixed(1);
-            goalPuttsText.textContent =
-              avgPutts <= goal
-                ? "Goal met or better."
-                : "Above your target putts per hole.";
-          }
-        }
-      }
 
       // ===== ROUND STORAGE (localStorage) =====
       const STORAGE_KEY = "localGolfScorebook_rounds_v1";
@@ -1805,8 +1503,6 @@
         rounds: [],
         activeRoundId: null
       };
-
-      let lastSummaryStats = null;
 
       function loadRoundsState() {
         try {
@@ -2002,22 +1698,10 @@
       function renderRoundSummary() {
         if (!roundSummaryBody) return;
 
-        if (!loadedCourse || !loadedHoles.length) {
-          roundSummaryBody.textContent =
-            "Select a course to see a summary for this round.";
-          lastSummaryStats = null;
-          updateScoreBubbles(null);
-          updateGoalsUI(null);
-          return;
-        }
-
         const round = findActiveRound();
         if (!round || !round.holes) {
           roundSummaryBody.textContent =
             "Start saving stats to see a summary for this round.";
-          lastSummaryStats = null;
-          updateScoreBubbles(null);
-          updateGoalsUI(null);
           return;
         }
 
@@ -2040,11 +1724,6 @@
         let totalPutts = 0;
         let puttEntries = 0;
         let threePlusPutts = 0;
-
-        let frontScore = 0;
-        let backScore = 0;
-        let frontParTotal = 0;
-        let backParTotal = 0;
 
         const keys = Object.keys(round.holes);
         keys.forEach(function(key) {
@@ -2070,16 +1749,7 @@
             if (!Number.isNaN(s)) {
               scoreTotal += s;
               holesWithScore++;
-              if (par != null) {
-                parTotal += par;
-                if (holeNum >= 1 && holeNum <= 9) {
-                  frontScore += s;
-                  frontParTotal += par;
-                } else if (holeNum >= 10 && holeNum <= 18) {
-                  backScore += s;
-                  backParTotal += par;
-                }
-              }
+              if (par != null) parTotal += par;
             }
           }
 
@@ -2106,29 +1776,9 @@
           }
         });
 
-        const stats = {
-          scoreTotal,
-          holesWithScore,
-          parTotal,
-          fairwayHit,
-          fairwayOpp,
-          girHit,
-          girOpp,
-          totalPutts,
-          puttEntries,
-          threePlusPutts,
-          frontScore,
-          backScore,
-          frontParTotal,
-          backParTotal
-        };
-        lastSummaryStats = stats;
-
         if (!holesWithScore && !fairwayOpp && !girOpp && !puttEntries) {
           roundSummaryBody.textContent =
             "No stats saved yet for this round on this course.";
-          updateScoreBubbles(stats);
-          updateGoalsUI(stats);
           return;
         }
 
@@ -2192,8 +1842,6 @@
         html += "</ul>";
 
         roundSummaryBody.innerHTML = html;
-        updateScoreBubbles(stats);
-        updateGoalsUI(stats);
       }
 
       function renderHoleHistory() {
@@ -2309,6 +1957,103 @@
         holeHistoryBody.innerHTML = html;
       }
 
+      // === SCORE STRIP (ALL HOLES) ===
+      function renderScoreBubbles() {
+        if (!scoreBubblesEl) return;
+
+        if (!loadedCourse || !loadedHoles.length) {
+          scoreBubblesEl.innerHTML =
+            "<span class='muted'>Select a course to see the scorecard.</span>";
+          return;
+        }
+
+        const round = findActiveRound();
+        const courseId =
+          (courseSelect && courseSelect.value) ||
+          (loadedCourse && loadedCourse.id) ||
+          "unknown";
+
+        const holesCount = maxHole || loadedHoles.length || 18;
+
+        let html = "";
+        let totalPar = 0;
+        let totalScore = 0;
+        let haveAnyScores = false;
+
+        for (let n = 1; n <= holesCount; n++) {
+          const holeDef = loadedHoles.find(function(h, idx) {
+            const num = (typeof h.hole === "number") ? h.hole : (idx + 1);
+            return num === n;
+          });
+
+          const par = (holeDef && typeof holeDef.par === "number")
+            ? holeDef.par
+            : null;
+
+          if (par != null) totalPar += par;
+
+          let score = null;
+          if (round && round.holes) {
+            const key = makeHoleKey(courseId, n);
+            const data = round.holes[key];
+            if (data && data.score) {
+              const s = parseInt(data.score, 10);
+              if (!Number.isNaN(s)) {
+                score = s;
+                totalScore += s;
+                haveAnyScores = true;
+              }
+            }
+          }
+
+          let valueText = "—";
+          if (score != null && par != null) {
+            const diff = score - par;
+            let diffText = "E";
+            if (diff > 0) diffText = "+" + diff;
+            else if (diff < 0) diffText = String(diff);
+            valueText = score + " (" + diffText + ")";
+          } else if (score != null) {
+            valueText = String(score);
+          } else if (par != null) {
+            valueText = "Par " + par;
+          }
+
+          const isActive = (n === currentHoleNum);
+          html +=
+            "<div class='score-bubble" +
+            (isActive ? " score-bubble-active" : "") +
+            "' data-hole-num='" + n + "'>" +
+              "<div class='score-bubble-label'>H" + n + "</div>" +
+              "<div class='score-bubble-value'>" + valueText + "</div>" +
+            "</div>";
+        }
+
+        // Total bubble
+        if (holesCount > 0) {
+          let totalText = "—";
+          if (haveAnyScores && totalPar > 0) {
+            const diff = totalScore - totalPar;
+            let diffText = "E";
+            if (diff > 0) diffText = "+" + diff;
+            else if (diff < 0) diffText = String(diff);
+            totalText = totalScore + " (" + diffText + ")";
+          } else if (haveAnyScores) {
+            totalText = String(totalScore);
+          } else if (totalPar > 0) {
+            totalText = "Par " + totalPar;
+          }
+
+          html +=
+            "<div class='score-bubble score-bubble-total' data-hole-num='total'>" +
+              "<div class='score-bubble-label'>Total</div>" +
+              "<div class='score-bubble-value'>" + totalText + "</div>" +
+            "</div>";
+        }
+
+        scoreBubblesEl.innerHTML = html;
+      }
+
       // Load rounds from storage and set up UI BEFORE loading courses
       loadRoundsState();
       ensureAtLeastOneRound();
@@ -2316,10 +2061,6 @@
       // Load bag distances + apply to UI
       loadBagDistances();
       applyBagDistancesToInputs();
-
-      // Load goals + apply to UI
-      loadGoalsState();
-      applyGoalsToInputs();
 
       // Wire bag inputs
       bagInputs.forEach(function(input) {
@@ -2399,38 +2140,6 @@
         });
       }
 
-      // Wire goals inputs
-      if (goalFairwaysInput) {
-        goalFairwaysInput.addEventListener("change", function() {
-          const v = parseInt(goalFairwaysInput.value || "", 10);
-          if (!Number.isNaN(v) && v > 0) {
-            goalsState.fairwaysPct = v;
-            saveGoalsState();
-            updateGoalsUI(lastSummaryStats);
-          }
-        });
-      }
-      if (goalGIRInput) {
-        goalGIRInput.addEventListener("change", function() {
-          const v = parseInt(goalGIRInput.value || "", 10);
-          if (!Number.isNaN(v) && v > 0) {
-            goalsState.girPct = v;
-            saveGoalsState();
-            updateGoalsUI(lastSummaryStats);
-          }
-        });
-      }
-      if (goalPuttsInput) {
-        goalPuttsInput.addEventListener("change", function() {
-          const v = parseFloat(goalPuttsInput.value || "");
-          if (!Number.isNaN(v) && v > 0) {
-            goalsState.puttsPerHole = v;
-            saveGoalsState();
-            updateGoalsUI(lastSummaryStats);
-          }
-        });
-      }
-
       // Wire round UI
       if (roundSelect) {
         roundSelect.addEventListener("change", function() {
@@ -2442,6 +2151,7 @@
           applyHoleStateForCurrentHole();
           renderRoundSummary();
           renderHoleHistory();
+          renderScoreBubbles();
         });
       }
 
@@ -2457,6 +2167,7 @@
           clearHoleControls();
           renderRoundSummary();
           renderHoleHistory();
+          renderScoreBubbles();
         });
       }
 
@@ -2475,6 +2186,7 @@
           clearHoleControls();
           renderRoundSummary();
           renderHoleHistory();
+          renderScoreBubbles();
         });
       }
 
@@ -2496,6 +2208,7 @@
           saveCurrentHoleState();
           renderRoundSummary();
           renderHoleHistory();
+          renderScoreBubbles();
         });
       });
       if (holeNotesEl) {
@@ -2503,6 +2216,23 @@
           saveCurrentHoleState();
           renderRoundSummary();
           renderHoleHistory();
+          renderScoreBubbles();
+        });
+      }
+
+      // Clicking score bubbles to jump holes
+      if (scoreBubblesEl) {
+        scoreBubblesEl.addEventListener("click", function(evt) {
+          const bubble = evt.target.closest(".score-bubble");
+          if (!bubble) return;
+          const holeAttr = bubble.getAttribute("data-hole-num");
+          if (!holeAttr || holeAttr === "total") return;
+          const num = parseInt(holeAttr, 10);
+          if (!Number.isFinite(num) || !loadedHoles.length) return;
+          if (num === currentHoleNum) return;
+          saveCurrentHoleState();
+          currentHoleNum = num;
+          renderHoleView();
         });
       }
 
@@ -2603,6 +2333,11 @@
               yardageRowEl.innerHTML =
                 "<span class='error'>Could not load course data. Check JSON paths.</span>";
             }
+
+            if (scoreBubblesEl) {
+              scoreBubblesEl.innerHTML =
+                "<span class='muted'>Unable to load holes for this course.</span>";
+            }
           });
       }
 
@@ -2627,7 +2362,13 @@
       }
 
       function renderHoleView() {
-        if (!loadedCourse || !loadedHoles.length) return;
+        if (!loadedCourse || !loadedHoles.length) {
+          if (scoreBubblesEl) {
+            scoreBubblesEl.innerHTML =
+              "<span class='muted'>Select a course to see the scorecard.</span>";
+          }
+          return;
+        }
 
         if (!Number.isFinite(currentHoleNum) || currentHoleNum < 1) currentHoleNum = 1;
         if (currentHoleNum > maxHole) currentHoleNum = maxHole;
@@ -2766,9 +2507,10 @@
         initHoleMap(hole.gps || null);
         startGpsWatch(); // continuous GPS updates
 
-        // Update summary + history for this hole
+        // Update summary + history + score strip for this hole
         renderRoundSummary();
         renderHoleHistory();
+        renderScoreBubbles();
       }
 
       // EVENT WIRING
@@ -2827,9 +2569,6 @@
 
       // INITIAL LOAD
       loadCoursesIndex();
-      // Also make sure bubbles/goals show sensible defaults on first load
-      updateScoreBubbles(null);
-      updateGoalsUI(null);
     })();
   </script>
 </body>
