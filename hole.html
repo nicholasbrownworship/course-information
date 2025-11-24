@@ -614,7 +614,7 @@
           <div class="detail-section-title" style="margin:4px 0 2px;">Round Card</div>
           <div id="roundScoreStrip" class="round-bubbles-row">
             <span class="muted" style="font-size:0.75rem;">
-              Scores vs par will appear here as you play.
+              Scores vs par will appear here once a course is loaded.
             </span>
           </div>
         </div>
@@ -625,7 +625,7 @@
         <span class="muted">No course selected.</span>
       </div>
 
-      <!-- HOLE IMAGE + GPS OVERLAY -->
+      <!-- HOLE IMAGE + GPS -->
       <div class="detail-section-title">Hole Image & GPS</div>
       <div class="hole-image-card">
         <div class="hole-image-wrapper">
@@ -1703,19 +1703,19 @@
         return idx >= 0 ? (idx + 1) : null;
       }
 
-      /* ===== ROUND SUMMARY + HISTORY + ROUND STRIP ===== */
-      function renderRoundScoreStrip(holeDiffMap, holesWithScore) {
+      /* ===== ROUND STRIP RENDERING ===== */
+      function renderRoundScoreStrip(holeDiffMap) {
         if (!roundScoreStrip) return;
 
-        if (!holesWithScore || !maxHole) {
+        if (!maxHole) {
           roundScoreStrip.innerHTML =
-            "<span class='muted' style='font-size:0.75rem;'>Scores vs par will appear here as you play.</span>";
+            "<span class='muted' style='font-size:0.75rem;'>Scores vs par will appear here once a course is loaded.</span>";
           return;
         }
 
         let html = "";
         for (let i = 1; i <= maxHole; i++) {
-          const hasKey = Object.prototype.hasOwnProperty.call(holeDiffMap, i);
+          const hasKey = Object.prototype.hasOwnProperty.call(holeDiffMap || {}, i);
           const diff = hasKey ? holeDiffMap[i] : null;
 
           let cls = "round-bubble round-bubble-empty";
@@ -1752,6 +1752,7 @@
         roundScoreStrip.innerHTML = html;
       }
 
+      /* ===== ROUND SUMMARY + HISTORY ===== */
       function renderRoundSummary() {
         if (!roundSummaryBody) return;
 
@@ -1772,10 +1773,7 @@
           roundSummaryBody.textContent =
             "Start saving stats to see a summary for this round.";
           setHeadline("No stats yet for this round.", "");
-          if (roundScoreStrip) {
-            roundScoreStrip.innerHTML =
-              "<span class='muted' style='font-size:0.75rem;'>Scores vs par will appear here as you play.</span>";
-          }
+          renderRoundScoreStrip({});
           return;
         }
 
@@ -1906,15 +1904,12 @@
           roundSummaryBody.textContent =
             "No stats saved yet for this round on this course.";
           setHeadline("No stats yet for this course.", "");
-          if (roundScoreStrip) {
-            roundScoreStrip.innerHTML =
-              "<span class='muted' style='font-size:0.75rem;'>Scores vs par will appear here as you play.</span>";
-          }
+          renderRoundScoreStrip({});
           return;
         }
 
-        // update the always-visible round strip
-        renderRoundScoreStrip(holeDiffMap, holesWithScore);
+        // Always ensure the strip is drawn, even if there are zero scoring holes
+        renderRoundScoreStrip(holeDiffMap);
 
         if (!holesWithScore) {
           setHeadline("No scoring data yet for this course.", "");
@@ -2398,10 +2393,7 @@
               yardageRowEl.innerHTML =
                 "<span class='error'>Could not load course data. Check JSON paths.</span>";
             }
-            if (roundScoreStrip) {
-              roundScoreStrip.innerHTML =
-                "<span class='muted' style='font-size:0.75rem;'>Scores vs par will appear here as you play.</span>";
-            }
+            renderRoundScoreStrip({});
           });
       }
 
@@ -2557,6 +2549,7 @@
         initHoleMap(hole.gps || null);
         startGpsWatch();
 
+        // This now always draws the strip (even with no scores)
         renderRoundSummary();
         renderHoleHistory();
       }
