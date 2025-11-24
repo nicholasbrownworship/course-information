@@ -1,1 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stats & Trends – Local Golf Scorebook</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <style>
+    :root {
+      --green: #244f3c;
+      --green-dark: #163023;
+      --gold: #d1a14b;
+      --cream: #f5f0e6;
+      --bg: #fcfaf6;
+      --text: #222;
+      --radius: 14px;
+      --shadow: 0 8px 20px rgba(0,0,0,0.08);
+      --muted: #6b7280;
+      --panel: #fdf7eb;
+      --line: #e7dfcd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #fdf7eb 0, #f3efe7 40%, #e7e1d3 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 10px auto 16px;
+      padding: 0 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(252,249,242,0.97);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,0.04);
+      padding: 10px 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      margin: 0 0 4px;
+      color: var(--green-dark);
+    }
+
+    h2 {
+      font-size: 0.98rem;
+      margin: 0 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--green-dark);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .detail-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin: 8px 0 4px;
+    }
+
+    .top-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding-bottom: 6px;
+    }
+
+    .top-row-sub {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 800px) {
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0,1fr));
+      }
+    }
+
+    .summary-card {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 6px 7px;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .summary-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .summary-value {
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 1px 6px;
+      border: 1px solid rgba(0,0,0,0.12);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      background: #fefdf9;
+    }
+
+    .tag-green {
+      color: #065f46;
+      border-color: #065f46;
+      background: #ecfdf5;
+    }
+
+    .tag-gold {
+      color: #92400e;
+      border-color: #92400e;
+      background: #fffbeb;
+    }
+
+    .empty-state {
+      padding: 12px 10px;
+      border-radius: 12px;
+      border: 1px dashed rgba(0,0,0,0.16);
+      background: rgba(255,255,255,0.92);
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* COURSE TABLE */
+    .course-table-wrapper {
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      overflow: hidden;
+    }
+
+    .course-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .course-table thead {
+      background: #f3ede0;
+    }
+
+    .course-table th,
+    .course-table td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .course-table th {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.68rem;
+      color: #4b5563;
+    }
+
+    .course-table tbody tr:nth-child(even) td {
+      background: #fdfaf4;
+    }
+
+    /* STREAKS */
+    .streaks-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 800px) {
+      .streaks-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .streak-card {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 6px 7px;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .streak-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .streak-value {
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .streak-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER INJECTION -->
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const slot = document.getElementById("header-placeholder");
+        if (slot) slot.innerHTML = html;
+      })
+      .catch(err => console.error("Failed to load header.html:", err));
+  </script>
+
+  <main>
+    <!-- LEFT: overall stats -->
+    <section class="panel">
+      <div class="top-row">
+        <h1>Stats & Trends</h1>
+        <div class="top-row-sub">
+          <span class="muted">
+            Aggregated scoring, fairways, GIR, and putting across all saved rounds on this device.
+          </span>
+        </div>
+      </div>
+
+      <div id="overallStats">
+        <div class="empty-state">
+          No stats yet. Play and save a round in the Hole View page to start building your numbers.
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: course breakdown + streaks -->
+    <section class="panel">
+      <h2>Courses & Streaks</h2>
+      <div class="muted" id="courseIntro">
+        Breakdown by course and longest streaks across all your saved rounds.
+      </div>
+
+      <div id="courseStatsBlock" class="course-stats-block"></div>
+
+      <div class="detail-section-title">Streaks & Highlights</div>
+      <div id="streaksBlock"></div>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "localGolfScorebook_rounds_v1";
+    const COURSES_INDEX_PATH = "data/courses.json";
+
+    function fetchJSON(path) {
+      return fetch(path).then(res => {
+        if (!res.ok) throw new Error("HTTP " + res.status + " for " + path);
+        return res.json();
+      });
+    }
+
+    function loadRoundsState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { rounds: [], activeRoundId: null };
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.rounds)) {
+          return { rounds: [], activeRoundId: null };
+        }
+        return {
+          rounds: parsed.rounds,
+          activeRoundId: parsed.activeRoundId || null
+        };
+      } catch (e) {
+        console.warn("[stats] Failed to load rounds state", e);
+        return { rounds: [], activeRoundId: null };
+      }
+    }
+
+    function courseIdFromRound(round) {
+      if (!round) return null;
+      if (round.courseId) return round.courseId;
+
+      const keys = Object.keys(round.holes || {});
+      if (!keys.length) return null;
+      const firstKey = keys[0];
+      const idx = firstKey.indexOf(":H");
+      if (idx === -1) return null;
+      return firstKey.slice(0, idx);
+    }
+
+    function getHoleNumFromKey(key, courseId) {
+      const prefix = (courseId || "") + ":H";
+      if (!key.startsWith(prefix)) return null;
+      const n = parseInt(key.slice(prefix.length), 10);
+      return Number.isFinite(n) ? n : null;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const overallStatsEl = document.getElementById("overallStats");
+      const courseStatsBlockEl = document.getElementById("courseStatsBlock");
+      const streaksBlockEl = document.getElementById("streaksBlock");
+
+      const state = loadRoundsState();
+      if (!state.rounds.length) {
+        // leave the default empty-state text
+        if (courseStatsBlockEl) {
+          courseStatsBlockEl.innerHTML = `
+            <div class="empty-state">
+              No course data yet. Once you save a round, you’ll see course-by-course stats here.
+            </div>
+          `;
+        }
+        if (streaksBlockEl) {
+          streaksBlockEl.innerHTML = `
+            <div class="empty-state">
+              Streaks will appear here after you’ve recorded some hole scores.
+            </div>
+          `;
+        }
+        return;
+      }
+
+      let coursesIndex = [];
+      const courseBundles = {}; // courseId -> {course, holes}
+
+      function ensureCoursesIndexLoaded() {
+        if (coursesIndex.length) return Promise.resolve(coursesIndex);
+        return fetchJSON(COURSES_INDEX_PATH)
+          .then(courses => {
+            if (!Array.isArray(courses)) courses = [];
+            coursesIndex = courses;
+            return coursesIndex;
+          })
+          .catch(err => {
+            console.error("[stats] Failed to load courses index", err);
+            coursesIndex = [];
+            return coursesIndex;
+          });
+      }
+
+      function ensureCourseBundle(courseId) {
+        if (!courseId) return Promise.resolve(null);
+        if (courseBundles[courseId]) return Promise.resolve(courseBundles[courseId]);
+
+        const basePath = "data/courses/" + courseId;
+        const coursePath = basePath + "/course.json";
+        const holesPath = basePath + "/holes.json";
+
+        return Promise.all([
+          fetchJSON(coursePath).catch(() => null),
+          fetchJSON(holesPath).catch(() => [])
+        ]).then(([course, holes]) => {
+          const bundle = { course, holes: Array.isArray(holes) ? holes : [] };
+          courseBundles[courseId] = bundle;
+          return bundle;
+        });
+      }
+
+      function computeRoundStatsForCourse(round, courseId, bundle) {
+        const holesDef = (bundle && bundle.holes) || [];
+        const out = {
+          scoreTotal: 0,
+          parTotal: 0,
+          fairwayHit: 0,
+          fairwayOpp: 0,
+          girHit: 0,
+          girOpp: 0,
+          totalPutts: 0,
+          puttEntries: 0,
+          threePlusPutts: 0,
+          holeRows: [] // {courseId, hole, score, par, putts}
+        };
+
+        const keys = Object.keys(round.holes || {});
+        keys.forEach(key => {
+          const hNum = getHoleNumFromKey(key, courseId);
+          if (!Number.isFinite(hNum)) return;
+
+          const data = round.holes[key];
+          if (!data) return;
+
+          const holeDef = holesDef.find((h, idx) => {
+            const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
+            return n === hNum;
+          });
+
+          const par = holeDef && typeof holeDef.par === "number" ? holeDef.par : null;
+
+          let score = null;
+          if (data.score) {
+            const s = parseInt(data.score, 10);
+            if (!Number.isNaN(s)) {
+              score = s;
+              out.scoreTotal += s;
+              if (par != null) out.parTotal += par;
+            }
+          }
+
+          if (data.fairwayResult && data.fairwayResult !== "" && data.fairwayResult !== "na") {
+            out.fairwayOpp++;
+            if (data.fairwayResult === "hit") out.fairwayHit++;
+          }
+
+          if (data.girResult && data.girResult !== "" && data.girResult !== "na") {
+            out.girOpp++;
+            if (data.girResult === "yes") out.girHit++;
+          }
+
+          if (data.numPutts) {
+            const p = parseInt(data.numPutts, 10);
+            if (!Number.isNaN(p)) {
+              out.totalPutts += p;
+              out.puttEntries++;
+              if (p >= 3) out.threePlusPutts++;
+            }
+          }
+
+          out.holeRows.push({
+            courseId,
+            hole: hNum,
+            score,
+            par,
+            putts: data.numPutts ? parseInt(data.numPutts, 10) : null
+          });
+        });
+
+        return out;
+      }
+
+      function computeStreaks(holesTimeline) {
+        if (!holesTimeline.length) {
+          return {
+            parOrBetter: { length: 0 },
+            birdieOrBetter: { length: 0 },
+            noThreePutt: { length: 0 }
+          };
+        }
+
+        const sorted = holesTimeline.slice().sort((a, b) => {
+          const da = new Date(a.createdAt || 0).getTime();
+          const db = new Date(b.createdAt || 0).getTime();
+          if (da !== db) return da - db;
+          if (a.courseId !== b.courseId) return (a.courseId || "").localeCompare(b.courseId || "");
+          return (a.hole || 0) - (b.hole || 0);
+        });
+
+        let parCurr = 0, birdCurr = 0, no3Curr = 0;
+        const parBest = { length: 0 };
+        const birdBest = { length: 0 };
+        const no3Best = { length: 0 };
+
+        sorted.forEach(h => {
+          const par = h.par;
+          const score = h.score;
+          const putts = h.putts;
+
+          let vsPar = null;
+          if (par != null && score != null) {
+            vsPar = score - par;
+          }
+
+          // Par-or-better streak
+          if (vsPar != null && vsPar <= 0) {
+            parCurr++;
+            if (parCurr > parBest.length) {
+              parBest.length = parCurr;
+            }
+          } else {
+            parCurr = 0;
+          }
+
+          // Birdie-or-better streak
+          if (vsPar != null && vsPar <= -1) {
+            birdCurr++;
+            if (birdCurr > birdBest.length) {
+              birdBest.length = birdCurr;
+            }
+          } else {
+            birdCurr = 0;
+          }
+
+          // No 3-putt streak (requires putt data)
+          if (putts != null) {
+            if (putts <= 2) {
+              no3Curr++;
+              if (no3Curr > no3Best.length) {
+                no3Best.length = no3Curr;
+              }
+            } else {
+              no3Curr = 0;
+            }
+          } else {
+            // break the streak if we don't know
+            no3Curr = 0;
+          }
+        });
+
+        return {
+          parOrBetter: parBest,
+          birdieOrBetter: birdBest,
+          noThreePutt: no3Best
+        };
+      }
+
+      function renderEverything() {
+        const global = {
+          roundsWithData: 0,
+          totalHoles: 0,
+          scoreTotal: 0,
+          parTotal: 0,
+          fairwayHit: 0,
+          fairwayOpp: 0,
+          girHit: 0,
+          girOpp: 0,
+          totalPutts: 0,
+          puttEntries: 0,
+          threePlusPutts: 0
+        };
+
+        const courseStats = {}; // courseId -> aggregate stats
+        const holesTimeline = []; // for streaks
+
+        state.rounds.forEach(round => {
+          const courseId = courseIdFromRound(round) || "unknown";
+          const bundle = courseBundles[courseId] || null;
+          if (!round.holes || !Object.keys(round.holes).length) return;
+
+          const perCourse = computeRoundStatsForCourse(round, courseId, bundle);
+          if (!perCourse.holeRows.length) return;
+
+          global.roundsWithData++;
+          global.totalHoles += perCourse.holeRows.length;
+          global.scoreTotal += perCourse.scoreTotal;
+          global.parTotal += perCourse.parTotal;
+          global.fairwayHit += perCourse.fairwayHit;
+          global.fairwayOpp += perCourse.fairwayOpp;
+          global.girHit += perCourse.girHit;
+          global.girOpp += perCourse.girOpp;
+          global.totalPutts += perCourse.totalPutts;
+          global.puttEntries += perCourse.puttEntries;
+          global.threePlusPutts += perCourse.threePlusPutts;
+
+          if (!courseStats[courseId]) {
+            courseStats[courseId] = {
+              courseId,
+              rounds: 0,
+              holes: 0,
+              scoreTotal: 0,
+              parTotal: 0,
+              fairwayHit: 0,
+              fairwayOpp: 0,
+              girHit: 0,
+              girOpp: 0,
+              totalPutts: 0,
+              puttEntries: 0
+            };
+          }
+          const cAgg = courseStats[courseId];
+          cAgg.rounds++;
+          cAgg.holes += perCourse.holeRows.length;
+          cAgg.scoreTotal += perCourse.scoreTotal;
+          cAgg.parTotal += perCourse.parTotal;
+          cAgg.fairwayHit += perCourse.fairwayHit;
+          cAgg.fairwayOpp += perCourse.fairwayOpp;
+          cAgg.girHit += perCourse.girHit;
+          cAgg.girOpp += perCourse.girOpp;
+          cAgg.totalPutts += perCourse.totalPutts;
+          cAgg.puttEntries += perCourse.puttEntries;
+
+          perCourse.holeRows.forEach(hr => {
+            holesTimeline.push({
+              courseId,
+              hole: hr.hole,
+              score: hr.score,
+              par: hr.par,
+              putts: hr.putts,
+              createdAt: round.createdAt || null
+            });
+          });
+        });
+
+        // OVERALL STATS
+        if (overallStatsEl) {
+          if (!global.roundsWithData) {
+            overallStatsEl.innerHTML = `
+              <div class="empty-state">
+                You have saved rounds, but no hole scores or stats yet. Use the Hole View page to record
+                scores, fairways, GIR, and putts, then come back here.
+              </div>
+            `;
+          } else {
+            const avgScorePerHole = global.totalHoles
+              ? (global.scoreTotal / global.totalHoles)
+              : null;
+
+            const avgParPerHole = (global.totalHoles && global.parTotal)
+              ? (global.parTotal / global.totalHoles)
+              : null;
+
+            const est18Score = avgScorePerHole
+              ? (avgScorePerHole * 18)
+              : null;
+
+            let est18VsParText = "—";
+            if (avgScorePerHole && avgParPerHole) {
+              const est18Par = avgParPerHole * 18;
+              const diff = est18Score - est18Par;
+              if (diff > 0) est18VsParText = "+" + diff.toFixed(1);
+              else if (diff < 0) est18VsParText = diff.toFixed(1);
+              else est18VsParText = "E";
+            }
+
+            const globalVsParTotal = (global.parTotal && global.totalHoles)
+              ? (global.scoreTotal - global.parTotal)
+              : null;
+
+            let globalVsParText = "—";
+            if (globalVsParTotal != null) {
+              if (globalVsParTotal > 0) globalVsParText = "+" + globalVsParTotal;
+              else if (globalVsParTotal < 0) globalVsParText = "" + globalVsParTotal;
+              else globalVsParText = "E";
+            }
+
+            const fairwayPct = global.fairwayOpp
+              ? Math.round((global.fairwayHit / global.fairwayOpp) * 100)
+              : null;
+
+            const girPct = global.girOpp
+              ? Math.round((global.girHit / global.girOpp) * 100)
+              : null;
+
+            const puttsPerHole = global.puttEntries
+              ? (global.totalPutts / global.puttEntries)
+              : null;
+
+            const threePuttsPct = (global.puttEntries && global.threePlusPutts)
+              ? Math.round((global.threePlusPutts / global.puttEntries) * 100)
+              : null;
+
+            overallStatsEl.innerHTML = `
+              <div class="detail-section-title">Overall</div>
+              <div class="summary-grid">
+                <div class="summary-card">
+                  <div class="summary-label">Rounds with data</div>
+                  <div class="summary-value">${global.roundsWithData}</div>
+                  <div class="summary-sub">Total saved rounds: ${state.rounds.length}</div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="summary-label">Holes recorded</div>
+                  <div class="summary-value">${global.totalHoles}</div>
+                  <div class="summary-sub">
+                    Scores or stats saved on these holes.
+                  </div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="summary-label">Scoring</div>
+                  <div class="summary-value">
+                    ${avgScorePerHole ? avgScorePerHole.toFixed(2) + " / hole" : "—"}
+                  </div>
+                  <div class="summary-sub">
+                    Est. 18-hole: ${
+                      est18Score ? est18Score.toFixed(1) : "—"
+                    } (${est18VsParText} vs par)
+                  </div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="summary-label">Vs par (all holes)</div>
+                  <div class="summary-value">${globalVsParText}</div>
+                  <div class="summary-sub">
+                    Over all recorded holes with par info.
+                  </div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="summary-label">Fairways</div>
+                  <div class="summary-value">
+                    ${
+                      global.fairwayOpp
+                        ? `${global.fairwayHit}/${global.fairwayOpp} (${
+                            fairwayPct
+                          }%)`
+                        : "—"
+                    }
+                  </div>
+                  <div class="summary-sub">
+                    Recorded tee shots only.
+                  </div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="summary-label">GIR</div>
+                  <div class="summary-value">
+                    ${
+                      global.girOpp
+                        ? `${global.girHit}/${global.girOpp} (${girPct}%)`
+                        : "—"
+                    }
+                  </div>
+                  <div class="summary-sub">
+                    Recorded approach shots only.
+                  </div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="summary-label">Putting</div>
+                  <div class="summary-value">
+                    ${
+                      puttsPerHole
+                        ? puttsPerHole.toFixed(2) + " putts / hole"
+                        : "—"
+                    }
+                  </div>
+                  <div class="summary-sub">
+                    ${
+                      threePuttsPct != null
+                        ? `${global.threePlusPutts} three-putt holes (${threePuttsPct}% of tracked holes)`
+                        : "No putting data yet."
+                    }
+                  </div>
+                </div>
+
+                <div class="summary-card">
+                  <div class="summary-label">Local storage</div>
+                  <div class="summary-value">This browser</div>
+                  <div class="summary-sub">
+                    Stats are stored only on this device’s local storage.
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        }
+
+        // COURSE BREAKDOWN
+        if (courseStatsBlockEl) {
+          const courseIds = Object.keys(courseStats);
+          if (!courseIds.length) {
+            courseStatsBlockEl.innerHTML = `
+              <div class="detail-section-title">Course Breakdown</div>
+              <div class="empty-state">
+                No course-specific data yet. Once you’ve saved rounds with par and hole info, you’ll see
+                a per-course breakdown here.
+              </div>
+            `;
+          } else {
+            const rowsHtml = courseIds
+              .sort((a, b) => {
+                const ca = courseStats[a];
+                const cb = courseStats[b];
+                return cb.rounds - ca.rounds;
+              })
+              .map(courseId => {
+                const c = courseStats[courseId];
+                const bundle = courseBundles[courseId] || null;
+                const courseName =
+                  (bundle && bundle.course && bundle.course.name) ||
+                  (coursesIndex.find(x => x.id === courseId)?.name) ||
+                  (courseId === "unknown" ? "Unknown course" : courseId);
+
+                const avgScorePerHole = c.holes
+                  ? (c.scoreTotal / c.holes)
+                  : null;
+
+                const avgParPerHole = (c.holes && c.parTotal)
+                  ? (c.parTotal / c.holes)
+                  : null;
+
+                const avgVsParPerHole = (avgScorePerHole != null && avgParPerHole != null)
+                  ? (avgScorePerHole - avgParPerHole)
+                  : null;
+
+                let avgVsParPerHoleText = "—";
+                if (avgVsParPerHole != null) {
+                  if (avgVsParPerHole > 0) {
+                    avgVsParPerHoleText = "+" + avgVsParPerHole.toFixed(2);
+                  } else if (avgVsParPerHole < 0) {
+                    avgVsParPerHoleText = avgVsParPerHole.toFixed(2);
+                  } else {
+                    avgVsParPerHoleText = "E";
+                  }
+                }
+
+                const fairwayPct = c.fairwayOpp
+                  ? Math.round((c.fairwayHit / c.fairwayOpp) * 100)
+                  : null;
+
+                const girPct = c.girOpp
+                  ? Math.round((c.girHit / c.girOpp) * 100)
+                  : null;
+
+                const puttsPerHole = c.puttEntries
+                  ? (c.totalPutts / c.puttEntries)
+                  : null;
+
+                return `
+                  <tr>
+                    <td>${courseName}</td>
+                    <td>${c.rounds}</td>
+                    <td>${c.holes}</td>
+                    <td>${
+                      avgScorePerHole
+                        ? avgScorePerHole.toFixed(2)
+                        : "—"
+                    }</td>
+                    <td>${avgVsParPerHoleText}</td>
+                    <td>${
+                      fairwayPct != null
+                        ? fairwayPct + "%"
+                        : "—"
+                    }</td>
+                    <td>${
+                      girPct != null
+                        ? girPct + "%"
+                        : "—"
+                    }</td>
+                    <td>${
+                      puttsPerHole != null
+                        ? puttsPerHole.toFixed(2)
+                        : "—"
+                    }</td>
+                  </tr>
+                `;
+              })
+              .join("");
+
+            courseStatsBlockEl.innerHTML = `
+              <div class="detail-section-title">Course Breakdown</div>
+              <div class="course-table-wrapper">
+                <table class="course-table">
+                  <thead>
+                    <tr>
+                      <th>Course</th>
+                      <th>Rounds</th>
+                      <th>Holes</th>
+                      <th>Avg score / hole</th>
+                      <th>Avg vs par / hole</th>
+                      <th>FW%</th>
+                      <th>GIR%</th>
+                      <th>Putts / hole</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${rowsHtml}
+                  </tbody>
+                </table>
+              </div>
+            `;
+          }
+        }
+
+        // STREAKS
+        if (streaksBlockEl) {
+          const streaks = computeStreaks(holesTimeline);
+          const parLen = streaks.parOrBetter.length || 0;
+          const birdLen = streaks.birdieOrBetter.length || 0;
+          const no3Len = streaks.noThreePutt.length || 0;
+
+          if (!holesTimeline.length) {
+            streaksBlockEl.innerHTML = `
+              <div class="empty-state">
+                No streak data yet. Once you’ve recorded some scores and putts, your longest streaks
+                will appear here.
+              </div>
+            `;
+          } else {
+            streaksBlockEl.innerHTML = `
+              <div class="streaks-grid">
+                <div class="streak-card">
+                  <div class="streak-title">Par-or-better streak</div>
+                  <div class="streak-value">${parLen || 0} holes</div>
+                  <div class="streak-sub">
+                    Longest stretch of holes played at par or better.
+                  </div>
+                </div>
+                <div class="streak-card">
+                  <div class="streak-title">Birdie-or-better streak</div>
+                  <div class="streak-value">${birdLen || 0} holes</div>
+                  <div class="streak-sub">
+                    Longest run of birdies (or better) without a par or worse breaking the chain.
+                  </div>
+                </div>
+                <div class="streak-card">
+                  <div class="streak-title">No 3-putt streak</div>
+                  <div class="streak-value">${no3Len || 0} holes</div>
+                  <div class="streak-sub">
+                    Longest stretch of holes with 2 putts or fewer on each tracked green.
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        }
+      }
+
+      // Kick everything off: load courses index + bundles for each course we’ve seen
+      ensureCoursesIndexLoaded().then(() => {
+        const courseIds = new Set();
+        state.rounds.forEach(r => {
+          const cid = courseIdFromRound(r);
+          if (cid) courseIds.add(cid);
+        });
+
+        const promises = Array.from(courseIds).map(cid =>
+          ensureCourseBundle(cid)
+        );
+
+        Promise.all(promises)
+          .then(() => {
+            renderEverything();
+          })
+          .catch(err => {
+            console.error("[stats] Failed to load course bundles", err);
+            // still try to render with whatever we have
+            renderEverything();
+          });
+      });
+    });
+  </script>
+</body>
+</html>
