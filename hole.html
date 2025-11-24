@@ -223,6 +223,55 @@
       min-width: 140px;
     }
 
+    /* ROUND STRIP (BUBBLES) */
+    .round-strip {
+      margin-top: 2px;
+    }
+
+    .round-bubbles-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 4px;
+      margin-top: 2px;
+    }
+
+    .round-bubble {
+      min-width: 42px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-align: center;
+      background: #e5e7eb;
+      color: #111827;
+      border: 1px solid rgba(0,0,0,0.08);
+      white-space: nowrap;
+    }
+
+    .round-bubble-even {
+      background: #d1fae5;
+      color: #065f46;
+      border-color: #6ee7b7;
+    }
+
+    .round-bubble-under {
+      background: #bfdbfe;
+      color: #1d4ed8;
+      border-color: #93c5fd;
+    }
+
+    .round-bubble-over {
+      background: #fee2e2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+
+    .round-bubble-empty {
+      background: #f3f4f6;
+      color: #6b7280;
+      border-style: dashed;
+    }
+
     /* YARDAGES */
     .yardage-row {
       display: flex;
@@ -399,51 +448,6 @@
       white-space: nowrap;
     }
 
-    /* SCORE BUBBLES */
-    .round-bubbles-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-bottom: 4px;
-      margin-top: 2px;
-    }
-
-    .round-bubble {
-      min-width: 42px;
-      padding: 2px 6px;
-      border-radius: 999px;
-      font-size: 0.7rem;
-      text-align: center;
-      background: #e5e7eb;
-      color: #111827;
-      border: 1px solid rgba(0,0,0,0.08);
-      white-space: nowrap;
-    }
-
-    .round-bubble-even {
-      background: #d1fae5;
-      color: #065f46;
-      border-color: #6ee7b7;
-    }
-
-    .round-bubble-under {
-      background: #bfdbfe;
-      color: #1d4ed8;
-      border-color: #93c5fd;
-    }
-
-    .round-bubble-over {
-      background: #fee2e2;
-      color: #b91c1c;
-      border-color: #fecaca;
-    }
-
-    .round-bubble-empty {
-      background: #f3f4f6;
-      color: #6b7280;
-      border-style: dashed;
-    }
-
     /* FLYOVER / CADDY / SUMMARY / HISTORY / CLUBS */
     .media-card {
       border-radius: 10px;
@@ -602,6 +606,16 @@
           <div class="nav-buttons">
             <button type="button" class="btn" id="btnPrevHole">◀ Prev</button>
             <button type="button" class="btn" id="btnNextHole">Next ▶</button>
+          </div>
+        </div>
+
+        <!-- ROUND CARD STRIP (BUBBLES) -->
+        <div class="round-strip">
+          <div class="detail-section-title" style="margin:4px 0 2px;">Round Card</div>
+          <div id="roundScoreStrip" class="round-bubbles-row">
+            <span class="muted" style="font-size:0.75rem;">
+              Scores vs par will appear here as you play.
+            </span>
           </div>
         </div>
       </div>
@@ -1485,6 +1499,8 @@
       const clubRecResultEl = document.getElementById("clubRecResult");
       const bagInputs = document.querySelectorAll(".club-distance-input");
 
+      const roundScoreStrip = document.getElementById("roundScoreStrip");
+
       let loadedCourse = null;
       let loadedHoles = [];
       let currentHoleNum = Number.isFinite(urlHole) && urlHole > 0 ? urlHole : 1;
@@ -1687,7 +1703,55 @@
         return idx >= 0 ? (idx + 1) : null;
       }
 
-      /* ===== ROUND SUMMARY + HISTORY ===== */
+      /* ===== ROUND SUMMARY + HISTORY + ROUND STRIP ===== */
+      function renderRoundScoreStrip(holeDiffMap, holesWithScore) {
+        if (!roundScoreStrip) return;
+
+        if (!holesWithScore || !maxHole) {
+          roundScoreStrip.innerHTML =
+            "<span class='muted' style='font-size:0.75rem;'>Scores vs par will appear here as you play.</span>";
+          return;
+        }
+
+        let html = "";
+        for (let i = 1; i <= maxHole; i++) {
+          const hasKey = Object.prototype.hasOwnProperty.call(holeDiffMap, i);
+          const diff = hasKey ? holeDiffMap[i] : null;
+
+          let cls = "round-bubble round-bubble-empty";
+          let labelDiff = "–";
+
+          if (typeof diff === "number") {
+            if (diff > 0) {
+              labelDiff = "+" + diff;
+              cls = "round-bubble round-bubble-over";
+            } else if (diff < 0) {
+              labelDiff = "" + diff;
+              cls = "round-bubble round-bubble-under";
+            } else {
+              labelDiff = "E";
+              cls = "round-bubble round-bubble-even";
+            }
+          }
+
+          const label = "H" + i + " (" + labelDiff + ")";
+          let titleText = "Hole " + i + ": ";
+          if (typeof diff === "number") {
+            if (diff > 0) titleText += "+" + diff + " vs par";
+            else if (diff < 0) titleText += diff + " vs par";
+            else titleText += "even par";
+          } else {
+            titleText += "no score recorded";
+          }
+
+          html +=
+            "<div class='" + cls + "' title='" + titleText + "'>" +
+            label +
+            "</div>";
+        }
+        roundScoreStrip.innerHTML = html;
+      }
+
       function renderRoundSummary() {
         if (!roundSummaryBody) return;
 
@@ -1708,6 +1772,10 @@
           roundSummaryBody.textContent =
             "Start saving stats to see a summary for this round.";
           setHeadline("No stats yet for this round.", "");
+          if (roundScoreStrip) {
+            roundScoreStrip.innerHTML =
+              "<span class='muted' style='font-size:0.75rem;'>Scores vs par will appear here as you play.</span>";
+          }
           return;
         }
 
@@ -1838,8 +1906,15 @@
           roundSummaryBody.textContent =
             "No stats saved yet for this round on this course.";
           setHeadline("No stats yet for this course.", "");
+          if (roundScoreStrip) {
+            roundScoreStrip.innerHTML =
+              "<span class='muted' style='font-size:0.75rem;'>Scores vs par will appear here as you play.</span>";
+          }
           return;
         }
+
+        // update the always-visible round strip
+        renderRoundScoreStrip(holeDiffMap, holesWithScore);
 
         if (!holesWithScore) {
           setHeadline("No scoring data yet for this course.", "");
@@ -1858,48 +1933,6 @@
             const left = "Thru " + holesWithScore + ": " + scoreTotal;
             setHeadline(left, "");
           }
-        }
-
-        let bubbleRowHtml = "";
-        if (maxHole > 0) {
-          bubbleRowHtml += "<div class='round-bubbles-row'>";
-          for (let i = 1; i <= maxHole; i++) {
-            const diff = Object.prototype.hasOwnProperty.call(holeDiffMap, i)
-              ? holeDiffMap[i]
-              : null;
-
-            let cls = "round-bubble round-bubble-empty";
-            let labelDiff = "–";
-
-            if (typeof diff === "number") {
-              if (diff > 0) {
-                labelDiff = "+" + diff;
-                cls = "round-bubble round-bubble-over";
-              } else if (diff < 0) {
-                labelDiff = "" + diff;
-                cls = "round-bubble round-bubble-under";
-              } else {
-                labelDiff = "E";
-                cls = "round-bubble round-bubble-even";
-              }
-            }
-
-            const label = "H" + i + " (" + labelDiff + ")";
-            let titleText = "Hole " + i + ": ";
-            if (typeof diff === "number") {
-              if (diff > 0) titleText += "+" + diff + " vs par";
-              else if (diff < 0) titleText += diff + " vs par";
-              else titleText += "even par";
-            } else {
-              titleText += "no score recorded";
-            }
-
-            bubbleRowHtml +=
-              "<div class='" + cls + "' title='" + titleText + "'>" +
-              label +
-              "</div>";
-          }
-          bubbleRowHtml += "</div>";
         }
 
         let html = "<ul class='caddy-list'>";
@@ -2005,7 +2038,7 @@
 
         html += "</ul>";
 
-        roundSummaryBody.innerHTML = bubbleRowHtml + html;
+        roundSummaryBody.innerHTML = html;
       }
 
       function renderHoleHistory() {
@@ -2364,6 +2397,10 @@
             if (yardageRowEl) {
               yardageRowEl.innerHTML =
                 "<span class='error'>Could not load course data. Check JSON paths.</span>";
+            }
+            if (roundScoreStrip) {
+              roundScoreStrip.innerHTML =
+                "<span class='muted' style='font-size:0.75rem;'>Scores vs par will appear here as you play.</span>";
             }
           });
       }
