@@ -256,6 +256,49 @@
       font-size: 0.7rem;
       color: var(--muted);
     }
+
+    /* PRACTICE FOCUS */
+    .practice-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .practice-card {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 6px 7px;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .practice-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .practice-metric {
+      font-size: 0.9rem;
+      font-variant-numeric: tabular-nums;
+      margin-top: 1px;
+    }
+
+    .practice-reason {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .practice-ideas {
+      font-size: 0.72rem;
+      color: #374151;
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
@@ -272,13 +315,13 @@
   </script>
 
   <main>
-    <!-- LEFT: overall stats -->
+    <!-- LEFT: overall stats + practice focus -->
     <section class="panel">
       <div class="top-row">
         <h1>Stats & Trends</h1>
         <div class="top-row-sub">
           <span class="muted">
-            Aggregated scoring, fairways, GIR, and putting across all saved rounds on this device.
+            Aggregated scoring, fairways, GIR, putting – and suggested practice focus based on your data.
           </span>
         </div>
       </div>
@@ -288,6 +331,8 @@
           No stats yet. Play and save a round in the Hole View page to start building your numbers.
         </div>
       </div>
+
+      <div id="practiceFocusBlock"></div>
     </section>
 
     <!-- RIGHT: course breakdown + streaks -->
@@ -354,6 +399,7 @@
 
     document.addEventListener("DOMContentLoaded", function () {
       const overallStatsEl = document.getElementById("overallStats");
+      const practiceFocusBlockEl = document.getElementById("practiceFocusBlock");
       const courseStatsBlockEl = document.getElementById("courseStatsBlock");
       const streaksBlockEl = document.getElementById("streaksBlock");
 
@@ -371,6 +417,14 @@
           streaksBlockEl.innerHTML = `
             <div class="empty-state">
               Streaks will appear here after you’ve recorded some hole scores.
+            </div>
+          `;
+        }
+        if (practiceFocusBlockEl) {
+          practiceFocusBlockEl.innerHTML = `
+            <div class="detail-section-title">Practice Focus</div>
+            <div class="empty-state">
+              Once you’ve recorded some stats, we’ll suggest 1–3 areas to focus your practice time.
             </div>
           `;
         }
@@ -559,6 +613,128 @@
         };
       }
 
+      // Build practice suggestions from global stats + streaks
+      function buildPracticeSuggestions(global, holesTimeline) {
+        const suggestions = [];
+
+        const totalHoles = global.totalHoles || 0;
+        const fairwayPct = global.fairwayOpp
+          ? (global.fairwayHit / global.fairwayOpp) * 100
+          : null;
+        const girPct = global.girOpp
+          ? (global.girHit / global.girOpp) * 100
+          : null;
+        const puttsPerHole = global.puttEntries
+          ? (global.totalPutts / global.puttEntries)
+          : null;
+        const threePuttsPct = global.puttEntries
+          ? (global.threePlusPutts / global.puttEntries) * 100
+          : null;
+
+        const avgScorePerHole = totalHoles
+          ? (global.scoreTotal / totalHoles)
+          : null;
+        const avgParPerHole = (totalHoles && global.parTotal)
+          ? (global.parTotal / totalHoles)
+          : null;
+
+        let est18Score = null;
+        let est18VsParText = null;
+        if (avgScorePerHole && avgParPerHole) {
+          est18Score = avgScorePerHole * 18;
+          const est18Par = avgParPerHole * 18;
+          const diff = est18Score - est18Par;
+          if (diff > 0) est18VsParText = "+" + diff.toFixed(1);
+          else if (diff < 0) est18VsParText = diff.toFixed(1);
+          else est18VsParText = "E";
+        }
+
+        const streaks = computeStreaks(holesTimeline);
+        const noThreePuttLen = streaks.noThreePutt.length || 0;
+
+        // Driving / Tee shots
+        if (fairwayPct != null && global.fairwayOpp >= 10 && fairwayPct < 60) {
+          const severity = 60 - fairwayPct; // bigger gap = higher priority
+          let label;
+          if (fairwayPct < 40) {
+            label = "Fairway percentage is on the low side.";
+          } else {
+            label = "You could pick up shots by hitting a few more fairways.";
+          }
+          suggestions.push({
+            key: "driving",
+            severity,
+            title: "Driving / Tee shots",
+            metric: `${fairwayPct.toFixed(0)}% fairways hit (${global.fairwayHit}/${global.fairwayOpp})`,
+            reason: `${label} A good target for most rounds is around 55–60% fairways hit.`,
+            ideas: "On the range, simulate tee shots: pick a fairway corridor and hit 5–10 ball sets, tracking how many would be in the short grass."
+          });
+        }
+
+        // Approach play (GIR)
+        if (girPct != null && global.girOpp >= 10 && girPct < 45) {
+          const severity = 45 - girPct;
+          let label;
+          if (girPct < 30) {
+            label = "Greens-in-regulation are a clear growth area.";
+          } else {
+            label = "You’re close, but a bit more precision into greens will pay off.";
+          }
+          suggestions.push({
+            key: "approach",
+            severity,
+            title: "Approach play / GIR",
+            metric: `${girPct.toFixed(0)}% GIR (${global.girHit}/${global.girOpp})`,
+            reason: `${label} Getting more looks at birdie tends to drop scores quickly.`,
+            ideas: "Work on stock wedge and mid-iron distances. Hit to a specific yardage on the range and track how often you’d hit a green-sized target."
+          });
+        }
+
+        // Putting
+        const puttingHasData = puttsPerHole != null && global.puttEntries >= 18;
+        if (puttingHasData && (puttsPerHole > 2.1 || (threePuttsPct != null && threePuttsPct > 15))) {
+          let severity = 0;
+          if (puttsPerHole > 2.1) severity += (puttsPerHole - 2.1) * 40;
+          if (threePuttsPct != null && threePuttsPct > 15) severity += (threePuttsPct - 15);
+          // use streak info to boost severity if no-3-putt streak is short
+          if (noThreePuttLen < 5) severity += 10;
+
+          const metricParts = [];
+          metricParts.push(`${puttsPerHole.toFixed(2)} putts / hole`);
+          if (threePuttsPct != null) {
+            metricParts.push(`${global.threePlusPutts} three-putt holes (${threePuttsPct.toFixed(0)}%)`);
+          }
+          const metric = metricParts.join(" · ");
+
+          suggestions.push({
+            key: "putting",
+            severity,
+            title: "Putting & Speed Control",
+            metric,
+            reason: "Putting is a big lever on scoring. Target ~2.0 putts per hole and keep three-putts under ~15% of tracked holes.",
+            ideas: "Build a ladder drill (10–40 feet) for speed, and a 3–6 foot circle drill for short-putt confidence. Track how many in-a-row you can make."
+          });
+        }
+
+        // Overall scoring / course management (only if we still need more suggestions)
+        if (suggestions.length < 3 && est18Score != null && est18VsParText != null) {
+          const severity = Math.abs(avgScorePerHole - avgParPerHole) * 10;
+          suggestions.push({
+            key: "scoring",
+            severity,
+            title: "Scoring & Course Management",
+            metric: `Estimated 18-hole score: ${est18Score.toFixed(1)} (${est18VsParText} vs par)`,
+            reason: "Small decisions off the tee and into greens often save the easiest strokes without changing your swing.",
+            ideas: "Next round, pick one simple rule (e.g., 'no hero shots out of trouble' or 'always play to the fat side of the green') and stick to it for 18 holes."
+          });
+        }
+
+        // Sort by severity and keep top 3
+        return suggestions
+          .sort((a, b) => b.severity - a.severity)
+          .slice(0, 3);
+      }
+
       function renderEverything() {
         const global = {
           roundsWithData: 0,
@@ -575,7 +751,7 @@
         };
 
         const courseStats = {}; // courseId -> aggregate stats
-        const holesTimeline = []; // for streaks
+        const holesTimeline = []; // for streaks & practice
 
         state.rounds.forEach(round => {
           const courseId = courseIdFromRound(round) || "unknown";
@@ -788,6 +964,45 @@
                 </div>
               </div>
             `;
+          }
+        }
+
+        // PRACTICE FOCUS
+        if (practiceFocusBlockEl) {
+          if (!global.roundsWithData) {
+            practiceFocusBlockEl.innerHTML = `
+              <div class="detail-section-title">Practice Focus</div>
+              <div class="empty-state">
+                Once you’ve recorded some stats, we’ll suggest 1–3 areas to focus your practice time.
+              </div>
+            `;
+          } else {
+            const suggestions = buildPracticeSuggestions(global, holesTimeline);
+            if (!suggestions.length) {
+              practiceFocusBlockEl.innerHTML = `
+                <div class="detail-section-title">Practice Focus</div>
+                <div class="empty-state">
+                  Your stats are fairly balanced so far. Keep collecting rounds and this panel will
+                  highlight the biggest scoring opportunities for you.
+                </div>
+              `;
+            } else {
+              const cardsHtml = suggestions.map((s, idx) => `
+                <div class="practice-card">
+                  <div class="practice-title">#${idx + 1} ${s.title}</div>
+                  <div class="practice-metric">${s.metric}</div>
+                  <div class="practice-reason">${s.reason}</div>
+                  <div class="practice-ideas">${s.ideas}</div>
+                </div>
+              `).join("");
+
+              practiceFocusBlockEl.innerHTML = `
+                <div class="detail-section-title">Practice Focus</div>
+                <div class="practice-grid">
+                  ${cardsHtml}
+                </div>
+              `;
+            }
           }
         }
 
