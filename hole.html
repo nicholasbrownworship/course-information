@@ -399,6 +399,51 @@
       white-space: nowrap;
     }
 
+    /* SCORE BUBBLES */
+    .round-bubbles-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 4px;
+      margin-top: 2px;
+    }
+
+    .round-bubble {
+      min-width: 42px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      text-align: center;
+      background: #e5e7eb;
+      color: #111827;
+      border: 1px solid rgba(0,0,0,0.08);
+      white-space: nowrap;
+    }
+
+    .round-bubble-even {
+      background: #d1fae5;
+      color: #065f46;
+      border-color: #6ee7b7;
+    }
+
+    .round-bubble-under {
+      background: #bfdbfe;
+      color: #1d4ed8;
+      border-color: #93c5fd;
+    }
+
+    .round-bubble-over {
+      background: #fee2e2;
+      color: #b91c1c;
+      border-color: #fecaca;
+    }
+
+    .round-bubble-empty {
+      background: #f3f4f6;
+      color: #6b7280;
+      border-style: dashed;
+    }
+
     /* FLYOVER / CADDY / SUMMARY / HISTORY / CLUBS */
     .media-card {
       border-radius: 10px;
@@ -784,7 +829,7 @@
         </div>
       </div>
 
-      <!-- NEW: Club recommendation + bag distances -->
+      <!-- Club recommendation + bag distances -->
       <div class="media-card" id="clubRecommenderCard">
         <h3>Club Recommendation</h3>
         <div class="club-rec-section">
@@ -893,7 +938,7 @@
     }
 
     function distanceInYards(lat1, lng1, lat2, lng2) {
-      const R = 6371000; // meters
+      const R = 6371000;
       const toRad = x => x * Math.PI / 180;
       const dLat = toRad(lat2 - lat1);
       const dLng = toRad(lng2 - lng1);
@@ -903,10 +948,10 @@
         Math.sin(dLng / 2) * Math.sin(dLng / 2);
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
       const meters = R * c;
-      return Math.round(meters * 1.09361); // yards
+      return Math.round(meters * 1.09361);
     }
 
-    // ===== BAG DISTANCES / CLUB RECOMMENDER =====
+    /* ===== BAG DISTANCES / CLUB RECOMMENDER ===== */
     const BAG_STORAGE_KEY = "localGolfScorebook_bag_v1";
     const CLUB_LABELS = {
       "Driver": "Driver",
@@ -995,10 +1040,8 @@
 
       if (!entries.length) return null;
 
-      // Default to longest club
       let best = entries[entries.length - 1];
 
-      // First club that carries at least target
       for (let i = 0; i < entries.length; i++) {
         const [id, dist] = entries[i];
         if (dist >= targetYards) {
@@ -1007,7 +1050,6 @@
         }
       }
 
-      // Nearest shorter and longer options for context
       let shorter = null;
       let longer = null;
 
@@ -1028,7 +1070,7 @@
       return { best, shorter, longer };
     }
 
-    // ===== Leaflet map state =====
+    /* ===== Leaflet map state ===== */
     let leafMap = null;
     let playerMarker = null;
     let targetMarker = null;
@@ -1040,15 +1082,13 @@
     let clickToGreenLine = null;
     let clickDistLabelMarker = null;
 
-    // tee → selected point
     let teeToClickLine = null;
     let teeToClickLabelMarker = null;
 
-    let currentGpsTarget = null; // green center
-    let currentTeePoint = null;  // tee coordinate (if present)
+    let currentGpsTarget = null;
+    let currentTeePoint = null;
     let gpsWatchId = null;
 
-    // distance cache for combined readout
     const lastDistances = {
       teeToGreen: null,
       playerToGreen: null,
@@ -1092,7 +1132,6 @@
 
       const latlng = e.latlng;
 
-      // Clear previous selected marker / line / label
       if (clickMarker) {
         leafMap.removeLayer(clickMarker);
         clickMarker = null;
@@ -1114,12 +1153,10 @@
         teeToClickLabelMarker = null;
       }
 
-      // Marker at clicked point
       clickMarker = L.marker(latlng)
         .addTo(leafMap)
         .bindPopup("Selected point");
 
-      // Line from clicked point to green
       clickToGreenLine = L.polyline(
         [
           [latlng.lat, latlng.lng],
@@ -1132,7 +1169,6 @@
         }
       ).addTo(leafMap);
 
-      // Distance + midpoint label (selected → green)
       const yards = distanceInYards(
         latlng.lat,
         latlng.lng,
@@ -1154,7 +1190,6 @@
 
       lastDistances.clickToGreen = yards;
 
-      // tee → selected point
       if (currentTeePoint) {
         teeToClickLine = L.polyline(
           [
@@ -1198,12 +1233,10 @@
       const mapEl = document.getElementById("holeMap");
       if (!mapEl) return;
 
-      // reset distance cache specific to this hole
       lastDistances.teeToGreen = null;
       lastDistances.clickToGreen = null;
       lastDistances.teeToClick = null;
 
-      // Clear previous tee / lines / selected point / labels
       if (leafMap) {
         if (teeMarker) {
           leafMap.removeLayer(teeMarker);
@@ -1271,7 +1304,6 @@
         leafMap.on("click", onMapClick);
       }
 
-      // Fit map to show tee + green if both exist, otherwise center on green
       if (tee) {
         const bounds = L.latLngBounds(
           [tee.lat, tee.lng],
@@ -1279,12 +1311,10 @@
         );
         leafMap.fitBounds(bounds, { padding: [20, 20] });
 
-        // tee marker
         teeMarker = L.marker([tee.lat, tee.lng])
           .addTo(leafMap)
           .bindPopup("Tee");
 
-        // dashed line tee -> green
         teeToGreenLine = L.polyline(
           [
             [tee.lat, tee.lng],
@@ -1297,7 +1327,6 @@
           }
         ).addTo(leafMap);
 
-        // Distance + midpoint label
         const yards = distanceInYards(tee.lat, tee.lng, green.lat, green.lng);
         lastDistances.teeToGreen = yards;
 
@@ -1316,7 +1345,6 @@
         leafMap.setView([green.lat, green.lng], 17);
       }
 
-      // green marker
       if (targetMarker) {
         leafMap.removeLayer(targetMarker);
       }
@@ -1329,7 +1357,7 @@
 
     function startGpsWatch() {
       if (!navigator.geolocation) return;
-      if (gpsWatchId !== null) return; // already running
+      if (gpsWatchId !== null) return;
 
       gpsWatchId = navigator.geolocation.watchPosition(
         function(pos) {
@@ -1367,7 +1395,6 @@
       );
     }
 
-    // One-shot update (used by Refresh button)
     function updateGpsDistance() {
       if (!currentGpsTarget) {
         updateDistanceReadout();
@@ -1433,7 +1460,6 @@
       const holeImageOverlay = document.getElementById("holeImageOverlay");
       const holeImageCaption = document.getElementById("holeImageCaption");
 
-      // Round + stats field refs
       const roundSelect = document.getElementById("roundSelect");
       const newRoundBtn = document.getElementById("btnNewRound");
       const deleteRoundBtn = document.getElementById("btnDeleteRound");
@@ -1449,12 +1475,10 @@
       const holeScoreEl = document.getElementById("holeScore");
       const holeNotesEl = document.getElementById("holeNotes");
 
-      // Summary / history elements
       const roundSummaryHeadline = document.getElementById("roundSummaryHeadline");
       const roundSummaryBody = document.getElementById("roundSummaryBody");
       const holeHistoryBody = document.getElementById("holeHistoryBody");
 
-      // Club recommender elements
       const targetDistanceEl = document.getElementById("targetDistance");
       const btnUseGpsDistance = document.getElementById("btnUseGpsDistance");
       const btnRecommendClub = document.getElementById("btnRecommendClub");
@@ -1466,7 +1490,7 @@
       let currentHoleNum = Number.isFinite(urlHole) && urlHole > 0 ? urlHole : 1;
       let maxHole = 0;
 
-      // ===== ROUND STORAGE (localStorage) =====
+      /* ===== ROUND STORAGE ===== */
       const STORAGE_KEY = "localGolfScorebook_rounds_v1";
 
       let roundsState = {
@@ -1549,7 +1573,7 @@
           name: name,
           createdAt: new Date().toISOString(),
           courseId: courseId || null,
-          holes: {} // key: courseId + ":H" + holeNum
+          holes: {}
         };
 
         roundsState.rounds.push(round);
@@ -1641,7 +1665,6 @@
           notes: holeNotesEl ? (holeNotesEl.value || "") : ""
         };
 
-        // also record courseId on the round if empty
         if (!round.courseId && courseId && courseId !== "unknown") {
           round.courseId = courseId;
         }
@@ -1664,7 +1687,7 @@
         return idx >= 0 ? (idx + 1) : null;
       }
 
-      // ==== SUMMARY + HISTORY ====
+      /* ===== ROUND SUMMARY + HISTORY ===== */
       function renderRoundSummary() {
         if (!roundSummaryBody) return;
 
@@ -1716,17 +1739,17 @@
         let puttEntries = 0;
         let threePlusPutts = 0;
 
-        // Scoring distribution
         let birdies = 0;
         let pars = 0;
         let bogeys = 0;
         let worse = 0;
 
-        // Simple "highlight" tracking (best/worst vs par)
-        let bestDiff = null;   // most negative (best)
+        let bestDiff = null;
         let bestHole = null;
-        let worstDiff = null;  // most positive (worst)
+        let worstDiff = null;
         let worstHole = null;
+
+        const holeDiffMap = {};
 
         const keys = Object.keys(round.holes);
         keys.forEach(function(key) {
@@ -1746,7 +1769,6 @@
           });
           const par = holeDef && typeof holeDef.par === "number" ? holeDef.par : null;
 
-          // Score & vs-par
           if (data.score) {
             const s = parseInt(data.score, 10);
             if (!Number.isNaN(s)) {
@@ -1754,7 +1776,6 @@
               holesWithScore++;
               if (par != null) parTotal += par;
 
-              // Front/back splits
               if (par != null) {
                 if (holeNum >= 1 && holeNum <= 9) {
                   frontScore += s;
@@ -1767,9 +1788,10 @@
                 }
               }
 
-              // Scoring distribution vs par
               if (par != null) {
                 const diff = s - par;
+                holeDiffMap[holeNum] = diff;
+
                 if (diff <= -1) {
                   birdies++;
                 } else if (diff === 0) {
@@ -1780,7 +1802,6 @@
                   worse++;
                 }
 
-                // Highlight tracking
                 if (bestDiff === null || diff < bestDiff) {
                   bestDiff = diff;
                   bestHole = holeNum;
@@ -1793,19 +1814,16 @@
             }
           }
 
-          // Fairway
           if (data.fairwayResult && data.fairwayResult !== "" && data.fairwayResult !== "na") {
             fairwayOpp++;
             if (data.fairwayResult === "hit") fairwayHit++;
           }
 
-          // GIR
           if (data.girResult && data.girResult !== "" && data.girResult !== "na") {
             girOpp++;
             if (data.girResult === "yes") girHit++;
           }
 
-          // Putts
           if (data.numPutts) {
             const p = parseInt(data.numPutts, 10);
             if (!Number.isNaN(p)) {
@@ -1823,7 +1841,6 @@
           return;
         }
 
-        // Headline strip: Thru N: +/- vs par  |  Total vs par: +/- 
         if (!holesWithScore) {
           setHeadline("No scoring data yet for this course.", "");
         } else {
@@ -1843,9 +1860,50 @@
           }
         }
 
+        let bubbleRowHtml = "";
+        if (maxHole > 0) {
+          bubbleRowHtml += "<div class='round-bubbles-row'>";
+          for (let i = 1; i <= maxHole; i++) {
+            const diff = Object.prototype.hasOwnProperty.call(holeDiffMap, i)
+              ? holeDiffMap[i]
+              : null;
+
+            let cls = "round-bubble round-bubble-empty";
+            let labelDiff = "–";
+
+            if (typeof diff === "number") {
+              if (diff > 0) {
+                labelDiff = "+" + diff;
+                cls = "round-bubble round-bubble-over";
+              } else if (diff < 0) {
+                labelDiff = "" + diff;
+                cls = "round-bubble round-bubble-under";
+              } else {
+                labelDiff = "E";
+                cls = "round-bubble round-bubble-even";
+              }
+            }
+
+            const label = "H" + i + " (" + labelDiff + ")";
+            let titleText = "Hole " + i + ": ";
+            if (typeof diff === "number") {
+              if (diff > 0) titleText += "+" + diff + " vs par";
+              else if (diff < 0) titleText += diff + " vs par";
+              else titleText += "even par";
+            } else {
+              titleText += "no score recorded";
+            }
+
+            bubbleRowHtml +=
+              "<div class='" + cls + "' title='" + titleText + "'>" +
+              label +
+              "</div>";
+          }
+          bubbleRowHtml += "</div>";
+        }
+
         let html = "<ul class='caddy-list'>";
 
-        // Overall scoring
         if (holesWithScore) {
           const avgScore = (scoreTotal / holesWithScore).toFixed(1);
           let vsParText = "";
@@ -1867,7 +1925,6 @@
             "<li><strong>Avg score per hole:</strong> " + avgScore + "</li>";
         }
 
-        // Front / back splits
         if (frontHoles || backHoles) {
           html += "<li><strong>Front / Back:</strong> ";
           const parts = [];
@@ -1886,7 +1943,6 @@
           html += parts.join(" · ") + "</li>";
         }
 
-        // Fairways
         if (fairwayOpp) {
           const pct = Math.round((fairwayHit / fairwayOpp) * 100);
           html +=
@@ -1899,7 +1955,6 @@
             "%)</li>";
         }
 
-        // GIR
         if (girOpp) {
           const pct = Math.round((girHit / girOpp) * 100);
           html +=
@@ -1912,7 +1967,6 @@
             "%)</li>";
         }
 
-        // Putts
         if (puttEntries) {
           const avgPutts = (totalPutts / puttEntries).toFixed(2);
           html +=
@@ -1923,7 +1977,6 @@
             " holes)</li>";
         }
 
-        // Scoring distribution
         if (holesWithScore) {
           html +=
             "<li><strong>Scoring breakdown:</strong> " +
@@ -1934,7 +1987,6 @@
             "</li>";
         }
 
-        // Simple numeric “Highlights”
         if (bestHole !== null || worstHole !== null) {
           html += "<li><strong>Highlights:</strong> ";
           const parts = [];
@@ -1953,7 +2005,7 @@
 
         html += "</ul>";
 
-        roundSummaryBody.innerHTML = html;
+        roundSummaryBody.innerHTML = bubbleRowHtml + html;
       }
 
       function renderHoleHistory() {
@@ -1989,7 +2041,6 @@
 
           entries++;
 
-          // Score
           if (data.score) {
             const s = parseInt(data.score, 10);
             if (!Number.isNaN(s)) {
@@ -1997,19 +2048,16 @@
             }
           }
 
-          // Fairway
           if (data.fairwayResult && data.fairwayResult !== "" && data.fairwayResult !== "na") {
             fairwayOpp++;
             if (data.fairwayResult === "hit") fairwayHit++;
           }
 
-          // GIR
           if (data.girResult && data.girResult !== "" && data.girResult !== "na") {
             girOpp++;
             if (data.girResult === "yes") girHit++;
           }
 
-          // Putts
           if (data.numPutts) {
             const p = parseInt(data.numPutts, 10);
             if (!Number.isNaN(p)) {
@@ -2069,22 +2117,18 @@
         holeHistoryBody.innerHTML = html;
       }
 
-      // Load rounds from storage and set up UI BEFORE loading courses
       loadRoundsState();
       ensureAtLeastOneRound();
 
-      // Load bag distances + apply to UI
       loadBagDistances();
       applyBagDistancesToInputs();
 
-      // Wire bag inputs
       bagInputs.forEach(function(input) {
         input.addEventListener("change", function() {
           syncSingleBagInput(input);
         });
       });
 
-      // Wire club recommender buttons
       if (btnUseGpsDistance) {
         btnUseGpsDistance.addEventListener("click", function() {
           let d = null;
@@ -2155,10 +2199,8 @@
         });
       }
 
-      // Wire round UI
       if (roundSelect) {
         roundSelect.addEventListener("change", function() {
-          // Save current hole on current round before switching
           saveCurrentHoleState();
           const newId = roundSelect.value || "";
           roundsState.activeRoundId = newId || null;
@@ -2171,7 +2213,6 @@
 
       if (newRoundBtn) {
         newRoundBtn.addEventListener("click", function() {
-          // Save current hole into current round first
           saveCurrentHoleState();
           const round = createNewRound(loadedCourse);
           if (roundSelect) {
@@ -2202,7 +2243,6 @@
         });
       }
 
-      // Auto-save when stats / notes change
       const statFields = [
         fairwayResultEl,
         girResultEl,
@@ -2230,7 +2270,6 @@
         });
       }
 
-      // ===== COURSE / HOLE LOADING =====
       function loadCoursesIndex() {
         if (!courseSelect) return;
 
@@ -2289,7 +2328,6 @@
         fetchJSON(coursePath)
           .then(function(course) {
             loadedCourse = course;
-            // update name of active round if it's still the default
             const active = findActiveRound();
             if (active && (!active.name || active.name.indexOf("Practice") === 0)) {
               active.name = createNewRoundName(course);
@@ -2370,7 +2408,6 @@
 
         const media = hole.media || {};
 
-        // Course header
         const loc = loadedCourse.location || {};
         let locLine = "";
         if (loc.city) locLine += loc.city;
@@ -2389,7 +2426,6 @@
           holeLabelEl.textContent = "Hole " + resolvedHoleNum + " · Par " + par + " · Hdcp " + hdcpVal;
         }
 
-        // Prev / Next buttons
         if (prevBtn) {
           prevBtn.disabled = (resolvedHoleNum <= 1);
         }
@@ -2397,7 +2433,6 @@
           nextBtn.disabled = (resolvedHoleNum >= maxHole);
         }
 
-        // Yardages
         const tees = Array.isArray(loadedCourse.tees) ? loadedCourse.tees : [];
         if (yardageRowEl) {
           if (!tees.length || !hole.yardages) {
@@ -2420,7 +2455,6 @@
           }
         }
 
-        // Hole image (layout) + caption
         if (holeImageEl && holeImageCaption && holeImageOverlay) {
           const holeImgSrc = media.image || hole.image || null;
           if (holeImgSrc) {
@@ -2436,7 +2470,6 @@
           }
         }
 
-        // Flyover
         if (flyoverBody) {
           if (media.flyover) {
             const lower = media.flyover.toLowerCase();
@@ -2457,7 +2490,6 @@
           }
         }
 
-        // Caddy notes
         if (caddyBody) {
           const tips = hole.notes || hole.tips || null;
           let html =
@@ -2479,28 +2511,23 @@
           caddyBody.innerHTML = html;
         }
 
-        // Apply saved stats/notes for this round + hole
         const courseId =
           (courseSelect && courseSelect.value) ||
           (loadedCourse && loadedCourse.id) ||
           "unknown";
         applyHoleStateFromRound(courseId, currentHoleNum);
 
-        // GPS map for this hole (tee + green)
         initHoleMap(hole.gps || null);
-        startGpsWatch(); // continuous GPS updates
+        startGpsWatch();
 
-        // Update summary + history for this hole
         renderRoundSummary();
         renderHoleHistory();
       }
 
-      // EVENT WIRING
       if (courseSelect) {
         courseSelect.addEventListener("change", function() {
           const newId = courseSelect.value;
           if (!newId) return;
-          // save current hole for previous course if we had one
           if (loadedCourse && loadedCourse.id) {
             saveCurrentHoleState(loadedCourse.id);
           } else {
@@ -2513,12 +2540,12 @@
 
       if (holeSelect) {
         holeSelect.addEventListener("change", function() {
-          // save current before switching hole
           saveCurrentHoleState();
           const val = parseInt(holeSelect.value || "1", 10);
-          if (!Number.isFinite(val)) return;
-          currentHoleNum = val;
-          renderHoleView();
+          if (!Number.isNaN(val)) {
+            currentHoleNum = val;
+            renderHoleView();
+          }
         });
       }
 
@@ -2544,12 +2571,11 @@
 
       if (refreshGpsBtn) {
         refreshGpsBtn.addEventListener("click", function() {
-          startGpsWatch();   // ensure watch is running
-          updateGpsDistance(); // plus an immediate one-shot
+          startGpsWatch();
+          updateGpsDistance();
         });
       }
 
-      // INITIAL LOAD
       loadCoursesIndex();
     })();
   </script>
