@@ -382,7 +382,7 @@
       transform: translate(-50%, -50%);
     }
 
-    /* FLYOVER / CADDY / SUMMARY / HISTORY / CLUBS */
+    /* FLYOVER / CADDY / SUMMARY / HISTORY / CLUBS / GOALS */
     .media-card {
       border-radius: 10px;
       border: 1px solid rgba(0,0,0,0.08);
@@ -516,6 +516,91 @@
       background: var(--green-dark);
       color: #f9fafb;
       border-color: rgba(0,0,0,0.4);
+    }
+
+    /* GOALS PROGRESS */
+    .goal-row {
+      margin-top: 4px;
+    }
+
+    .goal-row-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+    }
+
+    .goal-label {
+      font-weight: 600;
+    }
+
+    .goal-value {
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+    }
+
+    .goal-bar-outer {
+      margin-top: 3px;
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .goal-bar-inner {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: var(--green);
+      transition: width 0.25s ease, background-color 0.2s ease;
+    }
+
+    .goal-bar-inner.goal-met {
+      background: var(--gold);
+    }
+
+    .goal-bar-inner.goal-behind {
+      background: #b91c1c;
+    }
+
+    .goal-edit {
+      margin-top: 6px;
+      padding-top: 4px;
+      border-top: 1px dashed rgba(0,0,0,0.08);
+      font-size: 0.75rem;
+    }
+
+    .goal-edit summary {
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--green-dark);
+    }
+
+    .goal-edit-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .goal-edit label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .goal-edit input[type="number"] {
+      margin-top: 2px;
+      padding: 3px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: #fffbf4;
+      font-size: 0.78rem;
+      width: 90px;
+    }
+
+    .goal-edit .btn {
+      margin-top: 6px;
     }
   </style>
 
@@ -770,7 +855,7 @@
       ></textarea>
     </section>
 
-    <!-- RIGHT: GPS map + flyover + caddy notes + summaries + club recommender -->
+    <!-- RIGHT: GPS map + flyover + caddy notes + summaries + goals + club recommender -->
     <section class="panel">
       <h2>On-Course View</h2>
       <small id="onCourseSubtitle">Per-hole GPS, flyover, and notes.</small>
@@ -805,6 +890,66 @@
         <div id="roundSummaryBody" class="media-note">
           Start saving stats to see a summary for this round.
         </div>
+      </div>
+
+      <!-- GOALS CARD -->
+      <div class="media-card" id="goalsCard">
+        <h3>Today's Goals</h3>
+        <div id="goalsIntro" class="media-note">
+          Track your fairways, GIR, and putting against your goals for the day.
+        </div>
+
+        <div class="goal-row">
+          <div class="goal-row-top">
+            <span class="goal-label">Fairways hit</span>
+            <span class="goal-value" id="goalFairwayText">-- / --</span>
+          </div>
+          <div class="goal-bar-outer">
+            <div class="goal-bar-inner" id="goalFairwayBar"></div>
+          </div>
+        </div>
+
+        <div class="goal-row">
+          <div class="goal-row-top">
+            <span class="goal-label">GIR</span>
+            <span class="goal-value" id="goalGirText">-- / --</span>
+          </div>
+          <div class="goal-bar-outer">
+            <div class="goal-bar-inner" id="goalGirBar"></div>
+          </div>
+        </div>
+
+        <div class="goal-row">
+          <div class="goal-row-top">
+            <span class="goal-label">Putts per hole</span>
+            <span class="goal-value" id="goalPuttsText">-- / --</span>
+          </div>
+          <div class="goal-bar-outer">
+            <div class="goal-bar-inner" id="goalPuttsBar"></div>
+          </div>
+        </div>
+
+        <details class="goal-edit">
+          <summary>Edit goals</summary>
+          <div class="goal-edit-row">
+            <label>
+              Fairways goal (%)
+              <input type="number" id="goalFairwayInput" min="0" max="100" step="1" />
+            </label>
+            <label>
+              GIR goal (%)
+              <input type="number" id="goalGirInput" min="0" max="100" step="1" />
+            </label>
+            <label>
+              Putts / hole
+              <input type="number" id="goalPuttsInput" min="1" max="5" step="0.1" />
+            </label>
+          </div>
+          <button type="button" class="btn" id="btnSaveGoals">Save goals</button>
+          <div class="media-note">
+            Goals are saved on this device and applied to all rounds.
+          </div>
+        </details>
       </div>
 
       <div class="media-card" id="holeHistoryCard">
@@ -1056,6 +1201,143 @@
       }
 
       return { best, shorter, longer };
+    }
+
+    // ===== GOALS STORAGE =====
+    const GOALS_STORAGE_KEY = "localGolfScorebook_goals_v1";
+    let goals = {
+      fairwayPct: 60,
+      girPct: 40,
+      puttsPerHole: 2.0
+    };
+    let lastSummaryMetrics = null;
+
+    function loadGoals() {
+      try {
+        const raw = localStorage.getItem(GOALS_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return;
+        if (typeof parsed.fairwayPct === "number") goals.fairwayPct = parsed.fairwayPct;
+        if (typeof parsed.girPct === "number") goals.girPct = parsed.girPct;
+        if (typeof parsed.puttsPerHole === "number") goals.puttsPerHole = parsed.puttsPerHole;
+      } catch (e) {
+        console.warn("[goals] Failed to load goals", e);
+      }
+    }
+
+    function saveGoals() {
+      try {
+        localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
+      } catch (e) {
+        console.warn("[goals] Failed to save goals", e);
+      }
+    }
+
+    function applyGoalsToInputs() {
+      const fairwayInput = document.getElementById("goalFairwayInput");
+      const girInput = document.getElementById("goalGirInput");
+      const puttsInput = document.getElementById("goalPuttsInput");
+
+      if (fairwayInput) fairwayInput.value = goals.fairwayPct;
+      if (girInput) girInput.value = goals.girPct;
+      if (puttsInput) puttsInput.value = goals.puttsPerHole.toFixed(1);
+    }
+
+    function setPercentGoal(actualPct, goalPct, barEl, textEl) {
+      if (!barEl || !textEl) return;
+
+      if (!goalPct || goalPct <= 0) {
+        barEl.style.width = "0%";
+        barEl.classList.remove("goal-met", "goal-behind");
+        textEl.textContent = "-- / --";
+        return;
+      }
+
+      if (actualPct == null) {
+        barEl.style.width = "0%";
+        barEl.classList.remove("goal-met", "goal-behind");
+        textEl.textContent = "-- / " + goalPct + "%";
+        return;
+      }
+
+      const displayActual = Math.round(actualPct);
+      textEl.textContent = displayActual + "% / " + goalPct + "%";
+
+      let progress = (actualPct / goalPct) * 100;
+      progress = Math.max(0, Math.min(130, progress));
+      barEl.style.width = progress + "%";
+
+      barEl.classList.remove("goal-met", "goal-behind");
+      if (actualPct >= goalPct) {
+        barEl.classList.add("goal-met");
+      } else {
+        barEl.classList.add("goal-behind");
+      }
+    }
+
+    function setPuttsGoal(actualPutts, goalPutts, barEl, textEl) {
+      if (!barEl || !textEl) return;
+
+      if (!goalPutts || goalPutts <= 0) {
+        barEl.style.width = "0%";
+        barEl.classList.remove("goal-met", "goal-behind");
+        textEl.textContent = "-- / --";
+        return;
+      }
+
+      if (actualPutts == null) {
+        barEl.style.width = "0%";
+        barEl.classList.remove("goal-met", "goal-behind");
+        textEl.textContent = "-- / " + goalPutts.toFixed(1);
+        return;
+      }
+
+      textEl.textContent = actualPutts.toFixed(2) + " / " + goalPutts.toFixed(1);
+
+      // lower is better -> if actual <= goal, we consider goal met
+      let progress = (goalPutts / actualPutts) * 100;
+      progress = Math.max(0, Math.min(130, progress));
+      barEl.style.width = progress + "%";
+
+      barEl.classList.remove("goal-met", "goal-behind");
+      if (actualPutts <= goalPutts) {
+        barEl.classList.add("goal-met");
+      } else {
+        barEl.classList.add("goal-behind");
+      }
+    }
+
+    function updateGoalsProgress(metrics) {
+      const fairwayBar = document.getElementById("goalFairwayBar");
+      const fairwayText = document.getElementById("goalFairwayText");
+      const girBar = document.getElementById("goalGirBar");
+      const girText = document.getElementById("goalGirText");
+      const puttsBar = document.getElementById("goalPuttsBar");
+      const puttsText = document.getElementById("goalPuttsText");
+
+      if (!metrics) {
+        setPercentGoal(null, goals.fairwayPct, fairwayBar, fairwayText);
+        setPercentGoal(null, goals.girPct, girBar, girText);
+        setPuttsGoal(null, goals.puttsPerHole, puttsBar, puttsText);
+        return;
+      }
+
+      const fairwayPctActual = metrics.fairwayOpp
+        ? (metrics.fairwayHit / metrics.fairwayOpp) * 100
+        : null;
+
+      const girPctActual = metrics.girOpp
+        ? (metrics.girHit / metrics.girOpp) * 100
+        : null;
+
+      const puttsPerHoleActual = metrics.puttEntries
+        ? metrics.totalPutts / metrics.puttEntries
+        : null;
+
+      setPercentGoal(fairwayPctActual, goals.fairwayPct, fairwayBar, fairwayText);
+      setPercentGoal(girPctActual, goals.girPct, girBar, girText);
+      setPuttsGoal(puttsPerHoleActual, goals.puttsPerHole, puttsBar, puttsText);
     }
 
     // ===== Leaflet map state =====
@@ -1484,6 +1766,9 @@
       const roundSummaryBody = document.getElementById("roundSummaryBody");
       const holeHistoryBody = document.getElementById("holeHistoryBody");
 
+      // Goals elements
+      const btnSaveGoals = document.getElementById("btnSaveGoals");
+
       // Club recommender elements
       const targetDistanceEl = document.getElementById("targetDistance");
       const btnUseGpsDistance = document.getElementById("btnUseGpsDistance");
@@ -1702,6 +1987,8 @@
         if (!round || !round.holes) {
           roundSummaryBody.textContent =
             "Start saving stats to see a summary for this round.";
+          lastSummaryMetrics = null;
+          updateGoalsProgress(null);
           return;
         }
 
@@ -1779,6 +2066,8 @@
         if (!holesWithScore && !fairwayOpp && !girOpp && !puttEntries) {
           roundSummaryBody.textContent =
             "No stats saved yet for this round on this course.";
+          lastSummaryMetrics = null;
+          updateGoalsProgress(null);
           return;
         }
 
@@ -1842,6 +2131,17 @@
         html += "</ul>";
 
         roundSummaryBody.innerHTML = html;
+
+        // Store metrics for goals and update progress bars
+        lastSummaryMetrics = {
+          fairwayHit,
+          fairwayOpp,
+          girHit,
+          girOpp,
+          totalPutts,
+          puttEntries
+        };
+        updateGoalsProgress(lastSummaryMetrics);
       }
 
       function renderHoleHistory() {
@@ -2058,6 +2358,11 @@
       loadRoundsState();
       ensureAtLeastOneRound();
 
+      // Load goals and apply to inputs
+      loadGoals();
+      applyGoalsToInputs();
+      updateGoalsProgress(null);
+
       // Load bag distances + apply to UI
       loadBagDistances();
       applyBagDistancesToInputs();
@@ -2137,6 +2442,31 @@
           }
 
           clubRecResultEl.textContent = text;
+        });
+      }
+
+      // Wire goals save button
+      if (btnSaveGoals) {
+        btnSaveGoals.addEventListener("click", function() {
+          const fairwayInput = document.getElementById("goalFairwayInput");
+          const girInput = document.getElementById("goalGirInput");
+          const puttsInput = document.getElementById("goalPuttsInput");
+
+          if (fairwayInput) {
+            const v = parseFloat(fairwayInput.value || "");
+            if (!Number.isNaN(v) && v > 0) goals.fairwayPct = v;
+          }
+          if (girInput) {
+            const v = parseFloat(girInput.value || "");
+            if (!Number.isNaN(v) && v > 0) goals.girPct = v;
+          }
+          if (puttsInput) {
+            const v = parseFloat(puttsInput.value || "");
+            if (!Number.isNaN(v) && v > 0) goals.puttsPerHole = v;
+          }
+
+          saveGoals();
+          updateGoalsProgress(lastSummaryMetrics);
         });
       }
 
