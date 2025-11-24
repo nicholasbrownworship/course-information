@@ -1,16 +1,24 @@
 <!-- header.html -->
 <header class="topnav">
   <div class="topnav-inner">
-    <a href="index.html" class="nav-title">Course Book</a>
+    <div class="topnav-main">
+      <a href="index.html" class="nav-title">Course Book</a>
 
-    <nav class="nav-links">
-      <a href="index.html" class="nav-link">Courses</a>
-      <a href="hole.html" class="nav-link">Per-Hole Tracker</a>
-      <!-- Future:
-      <a href="settings.html" class="nav-link">Settings</a>
-      <a href="stats.html" class="nav-link">Stats</a>
-      -->
-    </nav>
+      <nav class="nav-links">
+        <a href="index.html" class="nav-link">Courses</a>
+        <a href="hole.html" class="nav-link">Per-Hole Tracker</a>
+        <!-- Future:
+        <a href="settings.html" class="nav-link">Settings</a>
+        <a href="stats.html" class="nav-link">Stats</a>
+        -->
+      </nav>
+    </div>
+
+    <!-- Weather pill (always visible) -->
+    <div class="nav-weather" id="headerWeather" aria-live="polite">
+      <span class="weather-temp" id="weatherTemp">--°</span>
+      <span class="weather-desc" id="weatherDesc">Weather loading…</span>
+    </div>
   </div>
 </header>
 
@@ -31,6 +39,13 @@
     justify-content: space-between;
     align-items: center;
     gap: 12px;
+  }
+
+  .topnav-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
   }
 
   .nav-title {
@@ -63,10 +78,38 @@
     background: #fff1c2;
   }
 
+  /* Weather pill */
+  .nav-weather {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(15, 23, 20, 0.6);
+    color: #fefce8;
+    font-size: 0.8rem;
+    border: 1px solid rgba(255,255,255,0.16);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    white-space: nowrap;
+  }
+
+  .weather-temp {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .weather-desc {
+    opacity: 0.9;
+  }
+
   @media (max-width: 700px) {
     .topnav-inner {
       flex-direction: column;
       align-items: flex-start;
+    }
+
+    .nav-weather {
+      margin-top: 6px;
     }
   }
 </style>
