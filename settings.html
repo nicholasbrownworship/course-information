@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Settings – Local Golf Scorebook</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --green: #244f3c;
+      --green-dark: #163023;
+      --gold: #d1a14b;
+      --cream: #f5f0e6;
+      --bg: #fcfaf6;
+      --text: #222;
+      --radius: 14px;
+      --shadow: 0 8px 20px rgba(0,0,0,0.08);
+      --muted: #6b7280;
+      --panel: #fdf7eb;
+      --line: #e7dfcd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #fdf7eb 0, #f3efe7 40%, #e7e1d3 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 10px auto 16px;
+      padding: 0 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.3fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(252,249,242,0.97);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,0.04);
+      padding: 10px 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      margin: 0 0 4px;
+      color: var(--green-dark);
+    }
+
+    h2 {
+      font-size: 0.98rem;
+      margin: 0 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--green-dark);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .detail-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin: 8px 0 4px;
+    }
+
+    .top-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding-bottom: 6px;
+    }
+
+    .top-row-sub {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .setting-group {
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 8px 9px;
+      font-size: 0.8rem;
+    }
+
+    .setting-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .setting-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .setting-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    label {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      margin-top: 2px;
+      padding: 3px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: #fffbf4;
+      font-size: 0.8rem;
+      width: 100%;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: flex-end;
+      margin-top: 4px;
+    }
+
+    .row > label {
+      flex: 1 1 120px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.18);
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      background: #fdf7ea;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-primary {
+      background: var(--green);
+      color: #fefcf5;
+      border-color: #1a3a2b;
+    }
+
+    .btn-danger {
+      background: #7f1d1d;
+      color: #fef2f2;
+      border-color: #450a0a;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .btn:hover:not(:disabled) {
+      filter: brightness(0.97);
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 1px 6px;
+      border: 1px solid rgba(0,0,0,0.12);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      background: #fefdf9;
+    }
+
+    .tag-green {
+      color: #065f46;
+      border-color: #065f46;
+      background: #ecfdf5;
+    }
+
+    .tag-gold {
+      color: #92400e;
+      border-color: #92400e;
+      background: #fffbeb;
+    }
+
+    /* Bag grid */
+    .bag-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 4px 10px;
+      margin-top: 4px;
+      font-size: 0.78rem;
+    }
+
+    @media (max-width: 700px) {
+      .bag-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .bag-grid-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bag-grid-row span {
+      white-space: nowrap;
+    }
+
+    .bag-grid-row input {
+      width: 70px;
+      text-align: right;
+      padding: 3px 4px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: #fffbf4;
+      font-size: 0.78rem;
+    }
+
+    .data-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .data-card {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 6px 7px;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .data-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .data-value {
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .data-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .danger-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .danger-row .btn {
+      flex: 1 1 140px;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .small-note {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER INJECTION -->
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const slot = document.getElementById("header-placeholder");
+        if (slot) slot.innerHTML = html;
+      })
+      .catch(err => console.error("Failed to load header.html:", err));
+  </script>
+
+  <main>
+    <!-- LEFT: player & on-course defaults -->
+    <section class="panel">
+      <div class="top-row">
+        <h1>Settings</h1>
+        <div class="top-row-sub">
+          <span class="muted">
+            Adjust goals, bag distances, and storage for your local scorebook. Changes live in this browser.
+          </span>
+          <span class="tag tag-green">Local only</span>
+        </div>
+      </div>
+
+      <!-- Profile / prefs (lightweight – mostly for future use / exports) -->
+      <div class="setting-group">
+        <div class="setting-header">
+          <div class="setting-title">Player profile</div>
+          <span class="tag">Optional</span>
+        </div>
+        <div class="setting-desc">
+          Used for exports and future displays. Doesn’t affect calculations.
+        </div>
+        <div class="row">
+          <label>
+            Player name
+            <input type="text" id="playerNameInput" placeholder="e.g., Nick" />
+          </label>
+        </div>
+        <div class="small-note">
+          Saved in browser storage only (no syncing or login).
+        </div>
+      </div>
+
+      <!-- Goals (shared with Hole View goals card) -->
+      <div class="setting-group">
+        <div class="setting-header">
+          <div class="setting-title">Daily goals</div>
+          <span class="tag tag-gold">Used in Hole View</span>
+        </div>
+        <div class="setting-desc">
+          These are the same goals shown on the Hole View “Today’s Goals” card and are applied to all rounds.
+        </div>
+        <div class="row">
+          <label>
+            Fairways goal (%)
+            <input type="number" id="goalFairwayInput" min="0" max="100" step="1" />
+          </label>
+          <label>
+            GIR goal (%)
+            <input type="number" id="goalGirInput" min="0" max="100" step="1" />
+          </label>
+          <label>
+            Putts / hole
+            <input type="number" id="goalPuttsInput" min="1" max="5" step="0.1" />
+          </label>
+        </div>
+        <div class="row" style="margin-top:6px;">
+          <button type="button" class="btn btn-primary" id="btnSaveGoals">Save goals</button>
+          <button type="button" class="btn" id="btnResetGoals">Reset to defaults</button>
+        </div>
+        <div class="small-note">
+          Defaults (if you reset): 60% fairways, 40% GIR, 2.0 putts per hole.
+        </div>
+      </div>
+
+      <!-- Bag distances (shared with Hole View club recommender) -->
+      <div class="setting-group">
+        <div class="setting-header">
+          <div class="setting-title">Bag distances</div>
+          <span class="tag tag-gold">Used in Hole View</span>
+        </div>
+        <div class="setting-desc">
+          Approximate carry distances (yards). These are used by the club recommender on the Hole View page.
+        </div>
+        <div class="bag-grid" id="bagGrid">
+          <div class="bag-grid-row">
+            <span>Driver</span>
+            <input type="number" class="club-distance-input" data-club-id="Driver" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>3-wood</span>
+            <input type="number" class="club-distance-input" data-club-id="3W" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>5-wood</span>
+            <input type="number" class="club-distance-input" data-club-id="5W" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>7-wood</span>
+            <input type="number" class="club-distance-input" data-club-id="7W" min="1" step="1" placeholder="yds" />
+          </div>
+
+          <div class="bag-grid-row">
+            <span>3-hybrid</span>
+            <input type="number" class="club-distance-input" data-club-id="3H" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>4-hybrid</span>
+            <input type="number" class="club-distance-input" data-club-id="4H" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>5-hybrid</span>
+            <input type="number" class="club-distance-input" data-club-id="5H" min="1" step="1" placeholder="yds" />
+          </div>
+
+          <div class="bag-grid-row">
+            <span>4-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="4i" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>5-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="5i" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>6-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="6i" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>7-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="7i" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>8-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="8i" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>9-iron</span>
+            <input type="number" class="club-distance-input" data-club-id="9i" min="1" step="1" placeholder="yds" />
+          </div>
+
+          <div class="bag-grid-row">
+            <span>PW</span>
+            <input type="number" class="club-distance-input" data-club-id="PW" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>GW</span>
+            <input type="number" class="club-distance-input" data-club-id="GW" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>SW</span>
+            <input type="number" class="club-distance-input" data-club-id="SW" min="1" step="1" placeholder="yds" />
+          </div>
+          <div class="bag-grid-row">
+            <span>LW</span>
+            <input type="number" class="club-distance-input" data-club-id="LW" min="1" step="1" placeholder="yds" />
+          </div>
+        </div>
+        <div class="row" style="margin-top:6px;">
+          <button type="button" class="btn" id="btnClearBag">Clear bag distances</button>
+        </div>
+        <div class="small-note">
+          All distances are stored locally and shared with the Hole View page.
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: data & storage controls -->
+    <section class="panel">
+      <h2>Data & Storage</h2>
+      <div class="muted">
+        Manage saved rounds and exports. This affects the Hole View, Rounds, and Stats pages.
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-header">
+          <div class="setting-title">Saved data overview</div>
+          <span class="tag">Read-only</span>
+        </div>
+        <div id="dataSummary" class="data-summary-grid">
+          <!-- Filled by JS -->
+        </div>
+        <div class="small-note">
+          Counts are approximate: they’re based on what’s currently in local storage.
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-header">
+          <div class="setting-title">Export & backup</div>
+          <span class="tag tag-gold">Rounds</span>
+        </div>
+        <div class="setting-desc">
+          Export your saved rounds as a JSON file you can back up or inspect elsewhere.
+        </div>
+        <div class="row">
+          <button type="button" class="btn btn-primary" id="btnExportRounds">
+            Export all rounds (JSON)
+          </button>
+        </div>
+        <div class="small-note">
+          File name will include today’s date. This export includes everything under your
+          rounds storage key.
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <div class="setting-header">
+          <div class="setting-title">Danger zone</div>
+          <span class="tag tag-green">Local only</span>
+        </div>
+        <div class="setting-desc">
+          These actions remove data from this browser. They cannot be undone.
+        </div>
+        <div class="danger-row">
+          <button type="button" class="btn btn-danger" id="btnClearRounds">
+            Clear saved rounds
+          </button>
+          <button type="button" class="btn" id="btnClearGoals">
+            Clear goals
+          </button>
+        </div>
+        <div class="danger-row">
+          <button type="button" class="btn btn-danger" id="btnClearAll">
+            Clear ALL scorebook data
+          </button>
+        </div>
+        <div class="small-note">
+          “Clear ALL” removes rounds, goals, bag distances, and profile prefs for this app.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const ROUNDS_KEY = "localGolfScorebook_rounds_v1";
+    const GOALS_KEY  = "localGolfScorebook_goals_v1";
+    const BAG_KEY    = "localGolfScorebook_bag_v1";
+    const PREFS_KEY  = "localGolfScorebook_prefs_v1";
+
+    const DEFAULT_GOALS = {
+      fairwayPct: 60,
+      girPct: 40,
+      puttsPerHole: 2.0
+    };
+
+    function loadJSON(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        const parsed = JSON.parse(raw);
+        return (parsed && typeof parsed === "object") ? parsed : fallback;
+      } catch (e) {
+        console.warn("[settings] Failed to load key", key, e);
+        return fallback;
+      }
+    }
+
+    function saveJSON(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+        console.warn("[settings] Failed to save key", key, e);
+      }
+    }
+
+    function loadRoundsState() {
+      const fallback = { rounds: [], activeRoundId: null };
+      const s = loadJSON(ROUNDS_KEY, null);
+      if (!s || !Array.isArray(s.rounds)) return fallback;
+      return {
+        rounds: s.rounds,
+        activeRoundId: s.activeRoundId || null
+      };
+    }
+
+    function summarizeRounds(state) {
+      let roundsWithData = 0;
+      let approxHoles = 0;
+
+      state.rounds.forEach(r => {
+        const keys = Object.keys(r.holes || {});
+        if (!keys.length) return;
+        roundsWithData++;
+        approxHoles += keys.length;
+      });
+
+      return {
+        totalRounds: state.rounds.length,
+        roundsWithData,
+        approxHoles
+      };
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const playerNameInput  = document.getElementById("playerNameInput");
+
+      const goalFairwayInput = document.getElementById("goalFairwayInput");
+      const goalGirInput     = document.getElementById("goalGirInput");
+      const goalPuttsInput   = document.getElementById("goalPuttsInput");
+      const btnSaveGoals     = document.getElementById("btnSaveGoals");
+      const btnResetGoals    = document.getElementById("btnResetGoals");
+
+      const bagInputs        = document.querySelectorAll(".club-distance-input");
+      const btnClearBag      = document.getElementById("btnClearBag");
+
+      const dataSummaryEl    = document.getElementById("dataSummary");
+      const btnExportRounds  = document.getElementById("btnExportRounds");
+      const btnClearRounds   = document.getElementById("btnClearRounds");
+      const btnClearGoals    = document.getElementById("btnClearGoals");
+      const btnClearAll      = document.getElementById("btnClearAll");
+
+      // ==== Load prefs ====
+      const prefs = loadJSON(PREFS_KEY, { playerName: "" });
+      if (playerNameInput) {
+        playerNameInput.value = prefs.playerName || "";
+        playerNameInput.addEventListener("change", function () {
+          prefs.playerName = playerNameInput.value.trim();
+          saveJSON(PREFS_KEY, prefs);
+        });
+      }
+
+      // ==== Goals ====
+      let goals = (function () {
+        const g = loadJSON(GOALS_KEY, null);
+        if (!g) return { ...DEFAULT_GOALS };
+        const out = { ...DEFAULT_GOALS };
+        if (typeof g.fairwayPct === "number") out.fairwayPct = g.fairwayPct;
+        if (typeof g.girPct === "number") out.girPct = g.girPct;
+        if (typeof g.puttsPerHole === "number") out.puttsPerHole = g.puttsPerHole;
+        return out;
+      })();
+
+      function applyGoalsToInputs() {
+        if (goalFairwayInput) goalFairwayInput.value = goals.fairwayPct;
+        if (goalGirInput) goalGirInput.value = goals.girPct;
+        if (goalPuttsInput) goalPuttsInput.value = goals.puttsPerHole.toFixed(1);
+      }
+
+      applyGoalsToInputs();
+
+      if (btnSaveGoals) {
+        btnSaveGoals.addEventListener("click", function () {
+          if (goalFairwayInput) {
+            const v = parseFloat(goalFairwayInput.value || "");
+            if (!Number.isNaN(v) && v > 0) goals.fairwayPct = v;
+          }
+          if (goalGirInput) {
+            const v = parseFloat(goalGirInput.value || "");
+            if (!Number.isNaN(v) && v > 0) goals.girPct = v;
+          }
+          if (goalPuttsInput) {
+            const v = parseFloat(goalPuttsInput.value || "");
+            if (!Number.isNaN(v) && v > 0) goals.puttsPerHole = v;
+          }
+          saveJSON(GOALS_KEY, goals);
+        });
+      }
+
+      if (btnResetGoals) {
+        btnResetGoals.addEventListener("click", function () {
+          goals = { ...DEFAULT_GOALS };
+          applyGoalsToInputs();
+          saveJSON(GOALS_KEY, goals);
+        });
+      }
+
+      // ==== Bag distances (shared with Hole View) ====
+      let bagDistances = (function () {
+        const b = loadJSON(BAG_KEY, null);
+        return b && typeof b === "object" ? b : {};
+      })();
+
+      function applyBagToInputs() {
+        bagInputs.forEach(input => {
+          const id = input.getAttribute("data-club-id");
+          if (!id) return;
+          const v = bagDistances[id];
+          if (typeof v === "number" && !Number.isNaN(v)) {
+            input.value = String(v);
+          } else {
+            input.value = "";
+          }
+        });
+      }
+
+      function syncSingleBagInput(input) {
+        const id = input.getAttribute("data-club-id");
+        if (!id) return;
+        const v = parseInt(input.value || "", 10);
+        if (!Number.isNaN(v) && v > 0) {
+          bagDistances[id] = v;
+        } else {
+          delete bagDistances[id];
+        }
+        saveJSON(BAG_KEY, bagDistances);
+      }
+
+      applyBagToInputs();
+
+      bagInputs.forEach(input => {
+        input.addEventListener("change", function () {
+          syncSingleBagInput(input);
+        });
+      });
+
+      if (btnClearBag) {
+        btnClearBag.addEventListener("click", function () {
+          if (!confirm("Clear all saved bag distances from this browser?")) return;
+          bagDistances = {};
+          localStorage.removeItem(BAG_KEY);
+          applyBagToInputs();
+        });
+      }
+
+      // ==== Data summary / rounds ====
+      const roundsState = loadRoundsState();
+      const summary = summarizeRounds(roundsState);
+
+      if (dataSummaryEl) {
+        dataSummaryEl.innerHTML = `
+          <div class="data-card">
+            <div class="data-label">Total rounds saved</div>
+            <div class="data-value">${summary.totalRounds}</div>
+            <div class="data-sub">
+              Rounds currently stored in local storage.
+            </div>
+          </div>
+          <div class="data-card">
+            <div class="data-label">Rounds with stats</div>
+            <div class="data-value">${summary.roundsWithData}</div>
+            <div class="data-sub">
+              Rounds that have at least one hole with data.
+            </div>
+          </div>
+          <div class="data-card">
+            <div class="data-label">Approx holes recorded</div>
+            <div class="data-value">${summary.approxHoles}</div>
+            <div class="data-sub">
+              Hole entries found across all rounds.
+            </div>
+          </div>
+          <div class="data-card">
+            <div class="data-label">Storage scope</div>
+            <div class="data-value">This browser only</div>
+            <div class="data-sub">
+              Data does not sync between devices.
+            </div>
+          </div>
+        `;
+      }
+
+      if (btnExportRounds) {
+        btnExportRounds.addEventListener("click", function () {
+          const raw = localStorage.getItem(ROUNDS_KEY) || "{}";
+          const blob = new Blob([raw], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          const today = new Date().toISOString().slice(0,10);
+          a.href = url;
+          a.download = "golf-rounds-export-" + today + ".json";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      // ==== Clear buttons ====
+      if (btnClearRounds) {
+        btnClearRounds.addEventListener("click", function () {
+          if (!confirm("Delete all saved rounds (scores and stats) from this browser? This cannot be undone.")) return;
+          localStorage.removeItem(ROUNDS_KEY);
+          alert("Saved rounds cleared. Hole View, Rounds, and Stats will now show no past data until new rounds are created.");
+        });
+      }
+
+      if (btnClearGoals) {
+        btnClearGoals.addEventListener("click", function () {
+          if (!confirm("Clear saved goals and reset to defaults?")) return;
+          localStorage.removeItem(GOALS_KEY);
+          goals = { ...DEFAULT_GOALS };
+          applyGoalsToInputs();
+          saveJSON(GOALS_KEY, goals);
+        });
+      }
+
+      if (btnClearAll) {
+        btnClearAll.addEventListener("click", function () {
+          if (!confirm("Clear ALL scorebook data (rounds, goals, bag distances, profile) from this browser?")) return;
+          localStorage.removeItem(ROUNDS_KEY);
+          localStorage.removeItem(GOALS_KEY);
+          localStorage.removeItem(BAG_KEY);
+          localStorage.removeItem(PREFS_KEY);
+          alert("All Local Golf Scorebook data cleared from this browser.");
+        });
+      }
+    });
+  </script>
+</body>
+</html>
