@@ -855,7 +855,7 @@
       ></textarea>
     </section>
 
-    <!-- RIGHT: GPS map + flyover + caddy notes + summaries + goals + club recommender -->
+    <!-- RIGHT: GPS map + weather + flyover + caddy notes + summaries + goals + club recommender -->
     <section class="panel">
       <h2>On-Course View</h2>
       <small id="onCourseSubtitle">Per-hole GPS, flyover, and notes.</small>
@@ -868,6 +868,14 @@
         <div id="holeMap"></div>
         <div id="gpsReadout">
           Select a course and hole to see GPS info.
+        </div>
+      </div>
+
+      <!-- WEATHER CARD -->
+      <div class="media-card" id="weatherCard">
+        <h3>Today's Conditions</h3>
+        <div id="weatherContent" class="media-note">
+          Loading weather for this hole…
         </div>
       </div>
 
@@ -1769,6 +1777,9 @@
       // Goals elements
       const btnSaveGoals = document.getElementById("btnSaveGoals");
 
+      // Weather element
+      const weatherContentEl = document.getElementById("weatherContent");
+
       // Club recommender elements
       const targetDistanceEl = document.getElementById("targetDistance");
       const btnUseGpsDistance = document.getElementById("btnUseGpsDistance");
@@ -1977,6 +1988,119 @@
         if (typeof holeObj.hole === "number") return holeObj.hole;
         const idx = loadedHoles.indexOf(holeObj);
         return idx >= 0 ? (idx + 1) : null;
+      }
+
+      // ===== WEATHER (per hole, using gps) =====
+      function cToF(c) {
+        return Math.round((c * 9) / 5 + 32);
+      }
+
+      function windDirectionFromDeg(deg) {
+        if (typeof deg !== "number" || Number.isNaN(deg)) return "";
+        const dirs = ["N","NE","E","SE","S","SW","W","NW"];
+        const idx = Math.round(deg / 45) % 8;
+        return dirs[idx];
+      }
+
+      function describeWeatherCode(code) {
+        if (code == null) return "";
+        if (code === 0) return "Clear";
+        if (code === 1 || code === 2) return "Partly cloudy";
+        if (code === 3) return "Overcast";
+        if (code === 45 || code === 48) return "Foggy";
+        if (code === 51 || code === 53 || code === 55) return "Drizzle";
+        if (code === 56 || code === 57) return "Freezing drizzle";
+        if (code === 61 || code === 63 || code === 65) return "Rain";
+        if (code === 66 || code === 67) return "Freezing rain";
+        if (code === 71 || code === 73 || code === 75) return "Snow";
+        if (code === 77) return "Snow grains";
+        if (code === 80 || code === 81 || code === 82) return "Rain showers";
+        if (code === 85 || code === 86) return "Snow showers";
+        if (code === 95) return "Thunderstorm";
+        if (code === 96 || code === 99) return "Thunderstorm with hail";
+        return "Conditions unknown";
+      }
+
+      function setWeatherMessage(msg) {
+        if (!weatherContentEl) return;
+        weatherContentEl.textContent = msg;
+      }
+
+      function updateWeatherForHole(hole) {
+        if (!weatherContentEl) return;
+
+        if (!hole || !hole.gps) {
+          setWeatherMessage("No GPS data for this hole – weather unavailable.");
+          return;
+        }
+
+        const gps = hole.gps;
+        const target =
+          (gps.greenCenter && typeof gps.greenCenter.lat === "number" && typeof gps.greenCenter.lng === "number")
+            ? gps.greenCenter
+            : (gps.tee && typeof gps.tee.lat === "number" && typeof gps.tee.lng === "number"
+                ? gps.tee
+                : null);
+
+        if (!target) {
+          setWeatherMessage("No usable GPS point for this hole – weather unavailable.");
+          return;
+        }
+
+        setWeatherMessage("Loading weather for this hole…");
+
+        const lat = target.lat;
+        const lng = target.lng;
+
+        const url =
+          "https://api.open-meteo.com/v1/forecast" +
+          "?latitude=" + encodeURIComponent(lat) +
+          "&longitude=" + encodeURIComponent(lng) +
+          "&current=temperature_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,wind_direction_10m";
+
+        fetch(url)
+          .then(function(res) {
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            return res.json();
+          })
+          .then(function(data) {
+            if (!data || !data.current) {
+              setWeatherMessage("Weather data unavailable for this location.");
+              return;
+            }
+
+            const cur = data.current;
+            const tempF = cToF(cur.temperature_2m);
+            const feelsF = cToF(cur.apparent_temperature);
+            const desc = describeWeatherCode(cur.weather_code);
+            const windSpeed = Math.round(cur.wind_speed_10m || 0);
+            const windDir = windDirectionFromDeg(cur.wind_direction_10m);
+
+            let html = "";
+
+            html += "<div><strong>" + tempF + "°F</strong>";
+            if (Math.abs(tempF - feelsF) >= 2) {
+              html += " (feels " + feelsF + "°F)";
+            }
+            html += " · " + desc + "</div>";
+
+            html += "<div>Wind: " + windSpeed + " mph";
+            if (windDir) {
+              html += " " + windDir;
+            }
+            html += "</div>";
+
+            const precip = typeof cur.precipitation === "number" ? cur.precipitation : null;
+            if (precip != null && precip > 0) {
+              html += "<div>Precip: " + precip.toFixed(2) + " mm/hr currently</div>";
+            }
+
+            weatherContentEl.innerHTML = html;
+          })
+          .catch(function(err) {
+            console.warn("[weather] error", err);
+            setWeatherMessage("Could not load weather for this hole.");
+          });
       }
 
       // ==== SUMMARY + HISTORY ====
@@ -2836,6 +2960,9 @@
         // GPS map for this hole (tee + green)
         initHoleMap(hole.gps || null);
         startGpsWatch(); // continuous GPS updates
+
+        // Weather for this hole
+        updateWeatherForHole(hole);
 
         // Update summary + history + score strip for this hole
         renderRoundSummary();
