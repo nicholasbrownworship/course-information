@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Course Book – Local Golf Scorebook</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --green: #244f3c;
+      --green-dark: #163023;
+      --gold: #d1a14b;
+      --cream: #f5f0e6;
+      --bg: #fcfaf6;
+      --text: #222;
+      --radius: 14px;
+      --shadow: 0 8px 20px rgba(0,0,0,0.08);
+      --muted: #6b7280;
+      --panel: #fdf7eb;
+      --line: #e7dfcd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #fdf7eb 0, #f3efe7 40%, #e7e1d3 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 10px auto 16px;
+      padding: 0 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(252,249,242,0.97);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,0.04);
+      padding: 10px 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 1.1rem;
+      color: var(--green-dark);
+    }
+
+    h2 {
+      margin: 0 0 4px;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--green-dark);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .detail-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin: 8px 0 4px;
+    }
+
+    /* Top controls */
+    .top-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding-bottom: 6px;
+    }
+
+    .top-row-main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 6px;
+      align-items: flex-start;
+    }
+
+    .course-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .course-name {
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .course-location {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .course-select-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .course-select-wrap label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .course-select-wrap select {
+      padding: 3px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.18);
+      background: #fffbf4;
+      font-size: 0.85rem;
+    }
+
+    .course-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+      font-size: 0.75rem;
+    }
+
+    .badge {
+      border-radius: 999px;
+      padding: 2px 7px;
+      border: 1px solid rgba(0,0,0,0.12);
+      background: rgba(255,255,255,0.9);
+      white-space: nowrap;
+    }
+
+    .badge-gold {
+      border-color: #d97706;
+      background: #fffbeb;
+      color: #92400e;
+    }
+
+    /* Table */
+    .table-wrap {
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.97);
+      overflow: auto;
+      max-height: calc(100vh - 180px);
+    }
+
+    table.coursebook-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      min-width: 720px;
+    }
+
+    .coursebook-table thead {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background: #f3ede0;
+    }
+
+    .coursebook-table th,
+    .coursebook-table td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .coursebook-table th {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      font-size: 0.68rem;
+      color: #4b5563;
+      white-space: nowrap;
+    }
+
+    .coursebook-table tbody tr:nth-child(even) td {
+      background: #fdfaf4;
+    }
+
+    .hole-col {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .notes-cell {
+      font-size: 0.72rem;
+      color: var(--muted);
+      max-width: 260px;
+    }
+
+    .notes-cell span {
+      display: block;
+    }
+
+    .tee-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: #f9fafb;
+      border: 1px solid rgba(0,0,0,0.06);
+      margin-bottom: 2px;
+      white-space: nowrap;
+    }
+
+    .tee-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.15);
+      background: #e5e7eb;
+      flex-shrink: 0;
+    }
+
+    .my-stats-line {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .my-stats-line strong {
+      color: #111827;
+    }
+
+    .empty-state {
+      padding: 10px 10px;
+      border-radius: 10px;
+      border: 1px dashed rgba(0,0,0,0.16);
+      background: rgba(255,255,255,0.96);
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* RIGHT PANEL */
+    .overview-block {
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.97);
+      padding: 8px 10px;
+      font-size: 0.8rem;
+    }
+
+    .overview-list {
+      list-style: none;
+      padding: 0;
+      margin: 4px 0 0;
+    }
+
+    .overview-list li {
+      margin-bottom: 3px;
+    }
+
+    .tee-totals {
+      margin-top: 6px;
+      border-top: 1px dashed rgba(0,0,0,0.08);
+      padding-top: 4px;
+    }
+
+    .tee-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+      margin-bottom: 2px;
+    }
+
+    .tee-total-row span {
+      white-space: nowrap;
+    }
+
+    .print-note {
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+      main {
+        max-width: 100%;
+        margin: 0;
+        padding: 0 8px;
+        grid-template-columns: 1.7fr 1fr;
+      }
+      #header-placeholder {
+        display: none;
+      }
+      .panel {
+        box-shadow: none;
+        border-radius: 0;
+        border: none;
+        background: #ffffff;
+      }
+      .table-wrap {
+        max-height: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER INJECTION -->
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const slot = document.getElementById("header-placeholder");
+        if (slot) slot.innerHTML = html;
+      })
+      .catch(err => console.error("Failed to load header.html:", err));
+  </script>
+
+  <main>
+    <!-- LEFT: Course book table -->
+    <section class="panel">
+      <div class="top-row">
+        <div class="top-row-main">
+          <div class="course-meta">
+            <h1>Course Book</h1>
+            <div id="cbCourseName" class="course-name">Select a course</div>
+            <div id="cbCourseLocation" class="course-location"></div>
+          </div>
+          <div class="course-select-wrap">
+            <label>
+              Course:
+              <select id="cbCourseSelect">
+                <option value="">Loading…</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="course-badges" id="cbCourseBadges">
+          <!-- par / yardage badges injected here -->
+        </div>
+        <div class="muted">
+          A printable yardage book: hole-by-hole par, handicap, tees, and your typical scoring pattern.
+        </div>
+      </div>
+
+      <div id="cbTableContainer">
+        <div class="empty-state">
+          Choose a course above to view its yardage book.
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: Overview / how to use / per-tee totals -->
+    <section class="panel">
+      <h2>Course Overview</h2>
+      <div id="cbOverview" class="overview-block">
+        <div class="muted">
+          Select a course to see total yardages by tee, total par, and a quick summary of your scoring.
+        </div>
+      </div>
+
+      <div class="detail-section-title">How to use this</div>
+      <div class="overview-block">
+        <ul class="overview-list">
+          <li>Use the yardage table as a digital yardage book on your phone.</li>
+          <li>Glance at the “My avg score” column to see which holes play toughest for you.</li>
+          <li>Use the notes column to write your default strategy per hole in <code>holes.json</code> (e.g., safe line, layup targets).</li>
+        </ul>
+        <div class="print-note">
+          For a printable version, use your browser’s <strong>Print</strong> dialog — this page is laid out with a print stylesheet.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const COURSES_INDEX_PATH = "data/courses.json";
+    const ROUNDS_STORAGE_KEY = "localGolfScorebook_rounds_v1";
+
+    function fetchJSON(path) {
+      return fetch(path).then(res => {
+        if (!res.ok) throw new Error("HTTP " + res.status + " for " + path);
+        return res.json();
+      });
+    }
+
+    // ===== ROUNDS / STATS LOADING =====
+    let roundsState = { rounds: [], activeRoundId: null };
+
+    function loadRoundsState() {
+      try {
+        const raw = localStorage.getItem(ROUNDS_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return;
+        if (!Array.isArray(parsed.rounds)) return;
+        roundsState.rounds = parsed.rounds;
+        roundsState.activeRoundId = parsed.activeRoundId || null;
+      } catch (e) {
+        console.warn("[coursebook] Failed to load rounds", e);
+      }
+    }
+
+    function makeHoleKey(courseId, holeNum) {
+      const cid = courseId || "unknown";
+      return cid + ":H" + holeNum;
+    }
+
+    /**
+     * Compute per-hole aggregates for a given course.
+     * Returns: { [holeNum]: {count, scoreSum, fairwayHit, fairwayOpp, girHit, girOpp, puttSum, puttEntries} }
+     */
+    function computeHoleStatsForCourse(courseId, maxHole) {
+      const stats = {};
+      if (!courseId || !roundsState.rounds.length) return stats;
+
+      for (let n = 1; n <= maxHole; n++) {
+        stats[n] = {
+          count: 0,
+          scoreSum: 0,
+          fairwayHit: 0,
+          fairwayOpp: 0,
+          girHit: 0,
+          girOpp: 0,
+          puttSum: 0,
+          puttEntries: 0
+        };
+      }
+
+      roundsState.rounds.forEach(round => {
+        if (!round.holes) return;
+
+        // Prefer explicit courseId match if present
+        if (round.courseId && round.courseId !== courseId) return;
+
+        for (let n = 1; n <= maxHole; n++) {
+          const key = makeHoleKey(courseId, n);
+          const data = round.holes[key];
+          if (!data) continue;
+
+          const s = stats[n];
+          s.count++;
+
+          if (data.score) {
+            const val = parseInt(data.score, 10);
+            if (!Number.isNaN(val)) {
+              s.scoreSum += val;
+            }
+          }
+
+          if (data.fairwayResult && data.fairwayResult !== "" && data.fairwayResult !== "na") {
+            s.fairwayOpp++;
+            if (data.fairwayResult === "hit") s.fairwayHit++;
+          }
+
+          if (data.girResult && data.girResult !== "" && data.girResult !== "na") {
+            s.girOpp++;
+            if (data.girResult === "yes") s.girHit++;
+          }
+
+          if (data.numPutts) {
+            const p = parseInt(data.numPutts, 10);
+            if (!Number.isNaN(p)) {
+              s.puttSum += p;
+              s.puttEntries++;
+            }
+          }
+        }
+      });
+
+      return stats;
+    }
+
+    // ===== PAGE STATE =====
+    let cbCourseSelect, cbCourseNameEl, cbCourseLocationEl, cbCourseBadgesEl, cbTableContainerEl, cbOverviewEl;
+    let loadedCourse = null;
+    let loadedHoles = [];
+
+    document.addEventListener("DOMContentLoaded", function () {
+      cbCourseSelect = document.getElementById("cbCourseSelect");
+      cbCourseNameEl = document.getElementById("cbCourseName");
+      cbCourseLocationEl = document.getElementById("cbCourseLocation");
+      cbCourseBadgesEl = document.getElementById("cbCourseBadges");
+      cbTableContainerEl = document.getElementById("cbTableContainer");
+      cbOverviewEl = document.getElementById("cbOverview");
+
+      loadRoundsState();
+      loadCoursesIndex();
+    });
+
+    function loadCoursesIndex() {
+      if (!cbCourseSelect) return;
+      cbCourseSelect.innerHTML = "<option value=''>Loading…</option>";
+
+      fetchJSON(COURSES_INDEX_PATH)
+        .then(courses => {
+          if (!Array.isArray(courses) || !courses.length) {
+            cbCourseSelect.innerHTML = "<option value=''>No courses found</option>";
+            if (cbCourseNameEl) cbCourseNameEl.textContent = "No courses available";
+            return;
+          }
+
+          let html = "<option value=''>Select course…</option>";
+          courses.forEach(c => {
+            html += "<option value='" + c.id + "'>" + (c.name || c.id) + "</option>";
+          });
+          cbCourseSelect.innerHTML = html;
+
+          // If you ever link in via ?course=ID…
+          const params = new URLSearchParams(window.location.search);
+          const urlCourse = params.get("course") || "";
+          if (urlCourse && courses.some(c => c.id === urlCourse)) {
+            cbCourseSelect.value = urlCourse;
+          }
+
+          if (!cbCourseSelect.value) {
+            cbCourseSelect.value = courses[0].id;
+          }
+
+          cbCourseSelect.addEventListener("change", () => {
+            if (!cbCourseSelect.value) return;
+            loadSingleCourse(cbCourseSelect.value);
+          });
+
+          if (cbCourseSelect.value) {
+            loadSingleCourse(cbCourseSelect.value);
+          }
+        })
+        .catch(err => {
+          console.error("[coursebook] Failed to load courses index", err);
+          cbCourseSelect.innerHTML = "<option value=''>Error loading courses</option>";
+        });
+    }
+
+    function loadSingleCourse(courseId) {
+      const basePath = "data/courses/" + courseId;
+      const coursePath = basePath + "/course.json";
+      const holesPath = basePath + "/holes.json";
+
+      if (cbTableContainerEl) {
+        cbTableContainerEl.innerHTML = "<div class='empty-state'>Loading course data…</div>";
+      }
+      if (cbCourseNameEl) cbCourseNameEl.textContent = "Loading…";
+      if (cbCourseLocationEl) cbCourseLocationEl.textContent = "";
+
+      Promise.all([
+        fetchJSON(coursePath).catch(() => null),
+        fetchJSON(holesPath).catch(() => [])
+      ])
+        .then(([course, holes]) => {
+          loadedCourse = course || { id: courseId, name: courseId };
+          loadedHoles = Array.isArray(holes) ? holes : [];
+          renderCourseHeader();
+          renderCourseBookTable();
+          renderOverview();
+        })
+        .catch(err => {
+          console.error("[coursebook] Failed to load course bundle", err);
+          loadedCourse = null;
+          loadedHoles = [];
+          if (cbCourseNameEl) cbCourseNameEl.textContent = "Error loading course";
+          if (cbCourseLocationEl) cbCourseLocationEl.textContent = "";
+          if (cbTableContainerEl) {
+            cbTableContainerEl.innerHTML = "<div class='empty-state'>Could not load course data. Check JSON paths.</div>";
+          }
+          if (cbOverviewEl) {
+            cbOverviewEl.innerHTML =
+              "<div class='muted'>No overview available – course data failed to load.</div>";
+          }
+        });
+    }
+
+    function renderCourseHeader() {
+      if (!loadedCourse) return;
+      const loc = loadedCourse.location || {};
+      let locLine = "";
+      if (loc.city) locLine += loc.city;
+      if (loc.city && loc.state) locLine += ", ";
+      if (loc.state) locLine += loc.state;
+
+      if (cbCourseNameEl) cbCourseNameEl.textContent = loadedCourse.name || loadedCourse.id || "Unnamed course";
+      if (cbCourseLocationEl) cbCourseLocationEl.textContent = locLine || "";
+
+      if (cbCourseBadgesEl) {
+        cbCourseBadgesEl.innerHTML = "";
+        const tees = Array.isArray(loadedCourse.tees) ? loadedCourse.tees : [];
+
+        let parTotal = 0;
+        let parKnown = 0;
+        loadedHoles.forEach((h, idx) => {
+          if (typeof h.par === "number") {
+            parTotal += h.par;
+            parKnown++;
+          }
+        });
+
+        const badges = [];
+
+        if (parKnown) {
+          badges.push("Par " + parTotal + " (over " + parKnown + " holes)");
+        } else if (loadedHoles.length) {
+          badges.push("Par not set");
+        }
+
+        if (tees.length) {
+          badges.push(tees.length + " tee(s)");
+        }
+
+        badges.forEach((txt, i) => {
+          const span = document.createElement("span");
+          span.className = "badge" + (i === 0 ? " badge-gold" : "");
+          span.textContent = txt;
+          cbCourseBadgesEl.appendChild(span);
+        });
+      }
+    }
+
+    function renderCourseBookTable() {
+      if (!cbTableContainerEl) return;
+
+      if (!loadedCourse || !loadedHoles.length) {
+        cbTableContainerEl.innerHTML =
+          "<div class='empty-state'>This course has no hole data yet. Add holes in <code>holes.json</code>.</div>";
+        return;
+      }
+
+      const tees = Array.isArray(loadedCourse.tees) ? loadedCourse.tees : [];
+
+      // Determine max hole number
+      let maxHole = 0;
+      loadedHoles.forEach((h, idx) => {
+        const n = (typeof h.hole === "number") ? h.hole : (idx + 1);
+        if (n > maxHole) maxHole = n;
+      });
+      if (!maxHole) maxHole = loadedHoles.length;
+
+      const holeStats = computeHoleStatsForCourse(loadedCourse.id || cbCourseSelect.value, maxHole);
+
+      // Build header row
+      let theadHtml = "<tr>";
+      theadHtml += "<th>Hole</th>";
+      theadHtml += "<th>Par</th>";
+      theadHtml += "<th>Hdcp</th>";
+      if (tees.length) {
+        tees.forEach(t => {
+          theadHtml += "<th>" + (t.name || t.id || "Tee") + "</th>";
+        });
+      } else {
+        theadHtml += "<th>Yardages</th>";
+      }
+      theadHtml += "<th>My avg score</th>";
+      theadHtml += "<th>Notes / default plan</th>";
+      theadHtml += "</tr>";
+
+      // Build body rows
+      let tbodyHtml = "";
+
+      for (let n = 1; n <= maxHole; n++) {
+        let hole = loadedHoles.find((h, idx) => {
+          const num = (typeof h.hole === "number") ? h.hole : (idx + 1);
+          return num === n;
+        });
+
+        if (!hole && loadedHoles[n - 1]) {
+          hole = loadedHoles[n - 1];
+        }
+        if (!hole) continue;
+
+        const par = (typeof hole.par === "number") ? hole.par : "–";
+        const hdcpVal = (hole.handicap === 0 || typeof hole.handicap === "number")
+          ? hole.handicap
+          : "–";
+
+        let yardageCellsHtml = "";
+        const yardages = hole.yardages || {};
+
+        if (tees.length) {
+          tees.forEach(t => {
+            const teeId = t.id;
+            const color = t.color || "#e5e7eb";
+            const y = (typeof yardages[teeId] === "number") ? yardages[teeId] : null;
+            let inner = "";
+            if (y != null) {
+              inner =
+                "<span class='tee-chip'>" +
+                  "<span class='tee-dot' style='background:" + color + ";'></span>" +
+                  "<span>" + y + " yds</span>" +
+                "</span>";
+            } else {
+              inner =
+                "<span class='tee-chip'>" +
+                  "<span class='tee-dot' style='background:" + color + ";'></span>" +
+                  "<span>—</span>" +
+                "</span>";
+            }
+            yardageCellsHtml += "<td>" + inner + "</td>";
+          });
+        } else {
+          yardageCellsHtml += "<td class='muted'>No tees defined</td>";
+        }
+
+        // My stats for this hole
+        const s = holeStats[n];
+        let myStatsHtml = "<div class='my-stats-line'>No stats yet</div>";
+        if (s && s.count > 0) {
+          const avgScore = s.scoreSum ? (s.scoreSum / s.count) : null;
+          let vsParText = "";
+          if (par && typeof par === "number" && avgScore != null) {
+            const diff = avgScore - par;
+            if (diff > 0) vsParText = " (+" + diff.toFixed(1) + ")";
+            else if (diff < 0) vsParText = " (" + diff.toFixed(1) + ")";
+            else vsParText = " (E)";
+          }
+
+          const fairwayPct = s.fairwayOpp ? Math.round((s.fairwayHit / s.fairwayOpp) * 100) : null;
+          const girPct = s.girOpp ? Math.round((s.girHit / s.girOpp) * 100) : null;
+          const puttsPerHole = s.puttEntries ? (s.puttSum / s.puttEntries) : null;
+
+          myStatsHtml = "<div class='my-stats-line'>";
+          if (avgScore != null) {
+            myStatsHtml += "<strong>" + avgScore.toFixed(2) + "</strong>" + vsParText;
+          } else {
+            myStatsHtml += "Score data missing";
+          }
+          if (fairwayPct != null) {
+            myStatsHtml += " · FW " + fairwayPct + "%";
+          }
+          if (girPct != null) {
+            myStatsHtml += " · GIR " + girPct + "%";
+          }
+          if (puttsPerHole != null) {
+            myStatsHtml += " · " + puttsPerHole.toFixed(2) + " putts";
+          }
+          myStatsHtml += "</div>";
+        }
+
+        // Notes / tips
+        let notesHtml = "";
+        const tips = hole.notes || hole.tips || null;
+        if (Array.isArray(tips)) {
+          const first = tips[0] || "";
+          notesHtml = "<span>" + first + "</span>";
+          if (tips.length > 1) {
+            notesHtml += "<span class='muted'>+" + (tips.length - 1) + " more note(s) in holes.json</span>";
+          }
+        } else if (typeof tips === "string") {
+          notesHtml = "<span>" + tips + "</span>";
+        } else {
+          notesHtml =
+            "<span class='muted'>Add a <code>\"notes\"</code> or <code>\"tips\"</code> field for this hole in <code>holes.json</code>.</span>";
+        }
+
+        tbodyHtml += "<tr>";
+        tbodyHtml += "<td class='hole-col'>Hole " + n + "</td>";
+        tbodyHtml += "<td>" + par + "</td>";
+        tbodyHtml += "<td>" + hdcpVal + "</td>";
+        tbodyHtml += yardageCellsHtml;
+        tbodyHtml += "<td>" + myStatsHtml + "</td>";
+        tbodyHtml += "<td class='notes-cell'>" + notesHtml + "</td>";
+        tbodyHtml += "</tr>";
+      }
+
+      const tableHtml =
+        "<div class='table-wrap'>" +
+          "<table class='coursebook-table'>" +
+            "<thead>" + theadHtml + "</thead>" +
+            "<tbody>" + tbodyHtml + "</tbody>" +
+          "</table>" +
+        "</div>";
+
+      cbTableContainerEl.innerHTML = tableHtml;
+    }
+
+    function renderOverview() {
+      if (!cbOverviewEl) return;
+
+      if (!loadedCourse || !loadedHoles.length) {
+        cbOverviewEl.innerHTML =
+          "<div class='muted'>Select a course to see its overview.</div>";
+        return;
+      }
+
+      const tees = Array.isArray(loadedCourse.tees) ? loadedCourse.tees : [];
+
+      // Totals per tee + par
+      const teeTotals = {};
+      let parTotal = 0;
+      let parKnown = 0;
+
+      loadedHoles.forEach((h, idx) => {
+        if (typeof h.par === "number") {
+          parTotal += h.par;
+          parKnown++;
+        }
+        const yardages = h.yardages || {};
+        tees.forEach(t => {
+          const teeId = t.id;
+          if (!teeTotals[teeId]) teeTotals[teeId] = 0;
+          if (typeof yardages[teeId] === "number") {
+            teeTotals[teeId] += yardages[teeId];
+          }
+        });
+      });
+
+      // Basic scoring summary on this course
+      let roundsOnCourse = 0;
+      let bestScore = null;
+      let worstScore = null;
+      let totalScoreAllRounds = 0;
+      let holesCountedAllRounds = 0;
+
+      const courseId = loadedCourse.id || cbCourseSelect.value;
+
+      roundsState.rounds.forEach(round => {
+        if (!round.holes) return;
+        if (round.courseId && round.courseId !== courseId) return;
+
+        let scoreThisRound = 0;
+        let holesThisRound = 0;
+
+        for (const key in round.holes) {
+          if (!Object.prototype.hasOwnProperty.call(round.holes, key)) continue;
+          const prefix = courseId + ":H";
+          if (!key.startsWith(prefix)) continue;
+          const data = round.holes[key];
+          if (!data || !data.score) continue;
+
+          const s = parseInt(data.score, 10);
+          if (Number.isNaN(s)) continue;
+          scoreThisRound += s;
+          holesThisRound++;
+        }
+
+        if (!holesThisRound) return;
+        roundsOnCourse++;
+        totalScoreAllRounds += scoreThisRound;
+        holesCountedAllRounds += holesThisRound;
+
+        if (bestScore == null || scoreThisRound < bestScore) bestScore = scoreThisRound;
+        if (worstScore == null || scoreThisRound > worstScore) worstScore = scoreThisRound;
+      });
+
+      let avgScorePerRoundText = "No full-round scoring data yet.";
+      if (roundsOnCourse && holesCountedAllRounds) {
+        const avgScore = totalScoreAllRounds / roundsOnCourse;
+        let vsParText = "";
+        if (parKnown && parTotal > 0) {
+          const diff = avgScore - parTotal;
+          if (diff > 0) vsParText = " (+" + diff.toFixed(1) + " vs par)";
+          else if (diff < 0) vsParText = " (" + diff.toFixed(1) + " vs par)";
+          else vsParText = " (even par)";
+        }
+        avgScorePerRoundText =
+          "Average score (based on " + roundsOnCourse + " round" + (roundsOnCourse === 1 ? "" : "s") +
+          " with hole scores): " + avgScore.toFixed(1) + vsParText;
+      }
+
+      let html = "<div class='overview-block'>";
+      html += "<ul class='overview-list'>";
+
+      if (parKnown) {
+        html += "<li><strong>Par:</strong> " + parTotal + " (over " + parKnown + " holes)</li>";
+      } else {
+        html += "<li><strong>Par:</strong> not fully set in holes.json</li>";
+      }
+
+      if (tees.length) {
+        html += "<li><strong>Tees:</strong> " + tees.map(t => t.name || t.id).join(", ") + "</li>";
+      } else {
+        html += "<li><strong>Tees:</strong> none defined</li>";
+      }
+
+      if (roundsOnCourse) {
+        html += "<li><strong>Rounds with scoring data:</strong> " + roundsOnCourse + "</li>";
+        if (bestScore != null) {
+          html += "<li><strong>Best / worst recorded:</strong> " + bestScore + " / " + worstScore + "</li>";
+        }
+      } else {
+        html += "<li><strong>Rounds with scoring data:</strong> none yet</li>";
+      }
+
+      html += "<li>" + avgScorePerRoundText + "</li>";
+      html += "</ul>";
+
+      if (tees.length) {
+        html += "<div class='tee-totals'>";
+        html += "<div class='detail-section-title' style='margin:4px 0 3px;'>Total yardage by tee</div>";
+        tees.forEach(t => {
+          const teeId = t.id;
+          const total = teeTotals[teeId] || 0;
+          const label = t.name || teeId || "Tee";
+          html +=
+            "<div class='tee-total-row'>" +
+              "<span>" + label + "</span>" +
+              "<span>" + (total ? (total + " yds") : "—") + "</span>" +
+            "</div>";
+        });
+        html += "</div>";
+      }
+
+      html += "</div>";
+      cbOverviewEl.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
