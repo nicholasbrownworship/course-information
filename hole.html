@@ -444,6 +444,16 @@
       width: 90px;
     }
 
+    .field-row select {
+      margin-top: 2px;
+      padding: 3px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: #fffbf4;
+      font-size: 0.8rem;
+      min-width: 120px;
+    }
+
     .bag-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
@@ -984,6 +994,39 @@
           </div>
         </div>
 
+        <div class="detail-section-title" style="margin-top:8px;">Calibration averages</div>
+        <div class="media-note">
+          These club carries come directly from your Calibration page shots.
+        </div>
+        <div class="field-row">
+          <label for="calibrationClub">
+            Calibrated club
+            <select id="calibrationClub">
+              <option value="">—</option>
+              <option value="driver">Driver</option>
+              <option value="3w">3 wood</option>
+              <option value="5w">5 wood</option>
+              <option value="7w">7 wood</option>
+              <option value="4h">4 hybrid</option>
+              <option value="5h">5 hybrid</option>
+              <option value="4i">4 iron</option>
+              <option value="5i">5 iron</option>
+              <option value="6i">6 iron</option>
+              <option value="7i">7 iron</option>
+              <option value="8i">8 iron</option>
+              <option value="9i">9 iron</option>
+              <option value="pw">Pitching wedge</option>
+              <option value="gw">Gap wedge</option>
+              <option value="sw">Sand wedge</option>
+              <option value="lw">Lob wedge</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <div id="calibrationHint" class="media-note">
+          Choose a club to see typical carry from your calibration.
+        </div>
+
         <div class="detail-section-title" style="margin-top:8px;">My Bag Distances</div>
         <div class="media-note">
           Approximate carry distances (yards). Saved locally on this device.
@@ -1210,6 +1253,90 @@
 
       return { best, shorter, longer };
     }
+
+    // ===== CLUB CALIBRATION SHARED DATA =====
+    const CLUB_SHOTS_STORAGE_KEY = "localGolfScorebook_clubShots_v1";
+
+    function loadClubShotsState() {
+      try {
+        const raw = localStorage.getItem(CLUB_SHOTS_STORAGE_KEY);
+        if (!raw) return { shots: [], pending: null };
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return { shots: [], pending: null };
+        return {
+          shots: Array.isArray(parsed.shots) ? parsed.shots : [],
+          pending: parsed.pending || null
+        };
+      } catch {
+        return { shots: [], pending: null };
+      }
+    }
+
+    function clubLabelFromId(id) {
+      switch (id) {
+        case "driver": return "Driver";
+        case "3w": return "3 wood";
+        case "5w": return "5 wood";
+        case "7w": return "7 wood";
+        case "4h": return "4 hybrid";
+        case "5h": return "5 hybrid";
+        case "4i": return "4 iron";
+        case "5i": return "5 iron";
+        case "6i": return "6 iron";
+        case "7i": return "7 iron";
+        case "8i": return "8 iron";
+        case "9i": return "9 iron";
+        case "pw": return "Pitching wedge";
+        case "gw": return "Gap wedge";
+        case "sw": return "Sand wedge";
+        case "lw": return "Lob wedge";
+        case "other": return "Other";
+        default: return id || "Unknown";
+      }
+    }
+
+    /**
+     * Returns a map:
+     * {
+     *   driver: { label, count, avg, min, max },
+     *   7i: { ... },
+     *   ...
+     * }
+     */
+    function computeClubAverages() {
+      const state = loadClubShotsState();
+      const byClub = {};
+
+      state.shots.forEach(s => {
+        if (!s || typeof s.distanceYards !== "number") return;
+        const id = s.clubId || "other";
+        if (!byClub[id]) {
+          byClub[id] = {
+            clubId: id,
+            label: clubLabelFromId(id),
+            count: 0,
+            sum: 0,
+            min: null,
+            max: null
+          };
+        }
+        const c = byClub[id];
+        c.count++;
+        c.sum += s.distanceYards;
+        if (c.min == null || s.distanceYards < c.min) c.min = s.distanceYards;
+        if (c.max == null || s.distanceYards > c.max) c.max = s.distanceYards;
+      });
+
+      Object.keys(byClub).forEach(id => {
+        const c = byClub[id];
+        c.avg = c.count ? (c.sum / c.count) : null;
+      });
+
+      return byClub;
+    }
+
+    // Precomputed once on page load; fed by Calibration page
+    let CLUB_AVERAGES = computeClubAverages();
 
     // ===== GOALS STORAGE =====
     const GOALS_STORAGE_KEY = "localGolfScorebook_goals_v1";
@@ -1786,6 +1913,10 @@
       const btnRecommendClub = document.getElementById("btnRecommendClub");
       const clubRecResultEl = document.getElementById("clubRecResult");
       const bagInputs = document.querySelectorAll(".club-distance-input");
+
+      // Calibration hint elements
+      const calibrationClubEl = document.getElementById("calibrationClub");
+      const calibrationHintEl = document.getElementById("calibrationHint");
 
       let loadedCourse = null;
       let loadedHoles = [];
@@ -2569,6 +2700,45 @@
         });
       }
 
+      // Calibration hint wiring (reads from CLUB_AVERAGES)
+      function updateCalibrationHint() {
+        if (!calibrationClubEl || !calibrationHintEl) return;
+
+        const clubId = calibrationClubEl.value;
+        if (!clubId) {
+          calibrationHintEl.textContent =
+            "Choose a club to see typical carry from your calibration.";
+          return;
+        }
+
+        const info = CLUB_AVERAGES[clubId];
+        if (!info || !info.avg) {
+          calibrationHintEl.textContent =
+            clubLabelFromId(clubId) +
+            ": no calibration data yet. Record a few shots on the Calibration page.";
+          return;
+        }
+
+        calibrationHintEl.textContent =
+          info.label +
+          ": typical carry ~" +
+          info.avg.toFixed(1) +
+          " yd (" +
+          info.count +
+          " shot" +
+          (info.count === 1 ? "" : "s") +
+          ", range " +
+          info.min +
+          "–" +
+          info.max +
+          " yd)";
+      }
+
+      if (calibrationClubEl) {
+        calibrationClubEl.addEventListener("change", updateCalibrationHint);
+        updateCalibrationHint();
+      }
+
       // Wire goals save button
       if (btnSaveGoals) {
         btnSaveGoals.addEventListener("click", function() {
@@ -3023,41 +3193,6 @@
           updateGpsDistance(); // plus an immediate one-shot
         });
       }
-
-            // === Club hint – uses calibration data ===
-      const clubSelectEl = document.getElementById("shotClub");
-      const clubHintEl = document.getElementById("clubHint");
-
-      function updateClubHint() {
-        if (!clubSelectEl || !clubHintEl) return;
-
-        const clubId = clubSelectEl.value;
-        if (!clubId) {
-          clubHintEl.textContent =
-            "Choose a club to see typical carry from your calibration.";
-          return;
-        }
-
-        const info = CLUB_AVERAGES[clubId];
-        if (!info || !info.avg) {
-          clubHintEl.textContent =
-            clubLabelFromId(clubId) +
-            ": no calibration data yet. Record a few shots on the Calibration page.";
-          return;
-        }
-
-        clubHintEl.textContent =
-          `${info.label}: typical carry ~${info.avg.toFixed(1)} yd ` +
-          `(${info.count} shot${info.count === 1 ? "" : "s"}, ` +
-          `range ${info.min}–${info.max} yd)`;
-      }
-
-      if (clubSelectEl) {
-        clubSelectEl.addEventListener("change", updateClubHint);
-        // Kick once at load so if a value is preselected we show it:
-        updateClubHint();
-      }
-
 
       // INITIAL LOAD
       loadCoursesIndex();
