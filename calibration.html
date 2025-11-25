@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Club Calibration – Local Golf Scorebook</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --green: #244f3c;
+      --green-dark: #163023;
+      --gold: #d1a14b;
+      --cream: #f5f0e6;
+      --bg: #fcfaf6;
+      --text: #222;
+      --radius: 14px;
+      --shadow: 0 8px 20px rgba(0,0,0,0.08);
+      --muted: #6b7280;
+      --panel: #fdf7eb;
+      --line: #e7dfcd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #fdf7eb 0, #f3efe7 40%, #e7e1d3 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 10px auto 16px;
+      padding: 0 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.35fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(252,249,242,0.97);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,0.04);
+      padding: 10px 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      margin: 0 0 4px;
+      color: var(--green-dark);
+    }
+
+    h2 {
+      font-size: 0.98rem;
+      margin: 0 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--green-dark);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .detail-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin: 8px 0 4px;
+    }
+
+    .top-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding-bottom: 6px;
+    }
+
+    .top-row-sub {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 1px 6px;
+      border: 1px solid rgba(0,0,0,0.12);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      background: #fefdf9;
+    }
+
+    .tag-green {
+      color: #065f46;
+      border-color: #065f46;
+      background: #ecfdf5;
+    }
+
+    .tag-gold {
+      color: #92400e;
+      border-color: #92400e;
+      background: #fffbeb;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.18);
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      background: #fdf7ea;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: #244f3c;
+      color: #fefcf5;
+      border-color: #1a3a2b;
+    }
+
+    .btn-ghost {
+      background: #fdf7ea;
+      color: var(--text);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+
+    .btn:hover:not(:disabled) {
+      filter: brightness(0.98);
+    }
+
+    .empty-state {
+      padding: 12px 10px;
+      border-radius: 12px;
+      border: 1px dashed rgba(0,0,0,0.16);
+      background: rgba(255,255,255,0.92);
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* LEFT: calibration controls */
+    .club-tracking-card {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 8px 9px;
+      margin-top: 6px;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .club-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      display: block;
+    }
+
+    .club-select {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.16);
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      background: #fffbf4;
+    }
+
+    .club-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .club-status {
+      font-size: 0.78rem;
+    }
+
+    .manual-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+      font-size: 0.78rem;
+    }
+
+    .manual-input {
+      width: 90px;
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.16);
+      padding: 4px 8px;
+      font-size: 0.78rem;
+      background: #fffbf4;
+    }
+
+    /* RIGHT: club stats + recent shots */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 800px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .summary-card {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 6px 7px;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .summary-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .summary-value {
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-sub {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .club-table-wrapper {
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      overflow: hidden;
+    }
+
+    .club-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+
+    .club-table thead {
+      background: #f3ede0;
+    }
+
+    .club-table th,
+    .club-table td {
+      padding: 4px 6px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .club-table th {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.68rem;
+      color: #4b5563;
+    }
+
+    .club-table tbody tr:nth-child(even) td {
+      background: #fdfaf4;
+    }
+
+    .recent-list {
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 6px 7px;
+      font-size: 0.78rem;
+    }
+
+    .recent-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 2px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .recent-item:last-child {
+      border-bottom: none;
+    }
+
+    .recent-club {
+      font-weight: 500;
+    }
+
+    .recent-yards {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .recent-meta {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER INJECTION -->
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const slot = document.getElementById("header-placeholder");
+        if (slot) slot.innerHTML = html;
+      })
+      .catch(err => console.error("Failed to load header.html:", err));
+  </script>
+
+  <main>
+    <!-- LEFT: calibration controls -->
+    <section class="panel">
+      <div class="top-row">
+        <h1>Club Calibration</h1>
+        <div class="top-row-sub">
+          <span class="muted">
+            Use GPS or manual entries to build a real-world distance profile for each club.
+          </span>
+          <span class="tag tag-gold">Saved on this device</span>
+        </div>
+      </div>
+
+      <div class="club-tracking-card">
+        <label for="clubSelect" class="club-label">Club</label>
+        <select id="clubSelect" class="club-select">
+          <option value="driver">Driver</option>
+          <option value="3w">3 Wood</option>
+          <option value="5w">5 Wood</option>
+          <option value="4h">4 Hybrid</option>
+          <option value="5i">5 Iron</option>
+          <option value="6i">6 Iron</option>
+          <option value="7i">7 Iron</option>
+          <option value="8i">8 Iron</option>
+          <option value="9i">9 Iron</option>
+          <option value="pw">Pitching Wedge</option>
+          <option value="gw">Gap Wedge</option>
+          <option value="sw">Sand Wedge</option>
+          <option value="lw">Lob Wedge</option>
+          <option value="other">Other</option>
+        </select>
+
+        <div class="club-buttons">
+          <button type="button" id="btnMarkShotStart" class="btn btn-ghost">
+            Mark start (GPS)
+          </button>
+          <button type="button" id="btnAddShotDistance" class="btn btn-primary">
+            Add distance from start
+          </button>
+        </div>
+
+        <div class="manual-row">
+          <span>Or add a distance manually:</span>
+          <input
+            type="number"
+            id="manualDistanceInput"
+            class="manual-input"
+            min="1"
+            max="500"
+            placeholder="yards"
+          />
+          <button type="button" id="btnAddManualShot" class="btn btn-ghost">
+            Add manual
+          </button>
+        </div>
+
+        <div id="clubShotStatus" class="muted club-status">
+          Pick a club, tap <strong>Mark start</strong> where you hit from, then walk to your ball and tap
+          <strong>Add distance</strong>. Or type a yardage and use <strong>Add manual</strong>.
+        </div>
+      </div>
+
+      <div class="detail-section-title">How this works</div>
+      <div class="empty-state">
+        This page doesn’t care about score or hole. It just listens for your GPS position and records
+        “<em>Club X went ~Y yards</em>”. The data is saved in local storage as
+        <code>localGolfScorebook_clubShots_v1</code>, which your Hole View and Stats pages can read later.
+      </div>
+    </section>
+
+    <!-- RIGHT: club stats + recent shots -->
+    <section class="panel">
+      <h2>Club Distances</h2>
+      <div class="muted">
+        Averages and ranges by club, based on every shot you’ve recorded on this calibration page.
+      </div>
+
+      <div id="clubStatsBlock"></div>
+
+      <div class="detail-section-title">Recent Shots</div>
+      <div id="recentShotsBlock"></div>
+    </section>
+  </main>
+
+  <script>
+    const CLUB_SHOTS_STORAGE_KEY = "localGolfScorebook_clubShots_v1";
+
+    function loadClubShotsState() {
+      try {
+        const raw = localStorage.getItem(CLUB_SHOTS_STORAGE_KEY);
+        if (!raw) return { shots: [], pending: null };
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return { shots: [], pending: null };
+        return {
+          shots: Array.isArray(parsed.shots) ? parsed.shots : [],
+          pending: parsed.pending || null
+        };
+      } catch {
+        return { shots: [], pending: null };
+      }
+    }
+
+    function saveClubShotsState(state) {
+      try {
+        localStorage.setItem(CLUB_SHOTS_STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn("[clubs] Failed to save club shots state", e);
+      }
+    }
+
+    function clubLabelFromId(id) {
+      switch (id) {
+        case "driver": return "Driver";
+        case "3w": return "3 Wood";
+        case "5w": return "5 Wood";
+        case "4h": return "4 Hybrid";
+        case "5i": return "5 Iron";
+        case "6i": return "6 Iron";
+        case "7i": return "7 Iron";
+        case "8i": return "8 Iron";
+        case "9i": return "9 Iron";
+        case "pw": return "Pitching Wedge";
+        case "gw": return "Gap Wedge";
+        case "sw": return "Sand Wedge";
+        case "lw": return "Lob Wedge";
+        case "other": return "Other";
+        default: return id || "Unknown";
+      }
+    }
+
+    function distanceYardsBetween(lat1, lon1, lat2, lon2) {
+      const toRad = d => (d * Math.PI) / 180;
+      const R = 6371000; // meters
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) *
+          Math.cos(toRad(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const meters = R * c;
+      const yards = meters * 1.09361;
+      return Math.round(yards);
+    }
+
+    function getCurrentPositionAsync(options) {
+      return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error("Geolocation not supported on this device."));
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          resolve,
+          reject,
+          options || {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0
+          }
+        );
+      });
+    }
+
+    function formatTimeShort(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleTimeString(undefined, {
+        hour: "numeric",
+        minute: "2-digit"
+      });
+    }
+
+    function formatDateShort(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return "";
+      return d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric"
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const clubSelect = document.getElementById("clubSelect");
+      const btnMarkShotStart = document.getElementById("btnMarkShotStart");
+      const btnAddShotDistance = document.getElementById("btnAddShotDistance");
+      const manualDistanceInput = document.getElementById("manualDistanceInput");
+      const btnAddManualShot = document.getElementById("btnAddManualShot");
+      const clubShotStatus = document.getElementById("clubShotStatus");
+      const clubStatsBlock = document.getElementById("clubStatsBlock");
+      const recentShotsBlock = document.getElementById("recentShotsBlock");
+
+      let state = loadClubShotsState();
+
+      function updateStatusText() {
+        if (!clubShotStatus) return;
+        if (state.pending) {
+          const p = state.pending;
+          const label = clubLabelFromId(p.clubId);
+          clubShotStatus.innerHTML =
+            `Tracking <strong>${label}</strong> shot started at ` +
+            `${formatTimeShort(p.createdAt)}. Walk to your ball and tap ` +
+            `<strong>Add distance</strong>.`;
+        } else {
+          clubShotStatus.innerHTML =
+            `Pick a club, tap <strong>Mark start</strong> where you hit from, then walk to your ball ` +
+            `and tap <strong>Add distance</strong>. Or type a yardage and use <strong>Add manual</strong>.`;
+        }
+      }
+
+      function renderClubStats() {
+        if (!clubStatsBlock) return;
+
+        if (!state.shots.length) {
+          clubStatsBlock.innerHTML = `
+            <div class="empty-state">
+              No calibration data yet. Record a few shots per club and your averages will appear here.
+            </div>
+          `;
+          return;
+        }
+
+        const byClub = {};
+        state.shots.forEach(s => {
+          if (!s || typeof s.distanceYards !== "number") return;
+          const id = s.clubId || "other";
+          if (!byClub[id]) {
+            byClub[id] = {
+              clubId: id,
+              label: clubLabelFromId(id),
+              count: 0,
+              sum: 0,
+              min: null,
+              max: null
+            };
+          }
+          const c = byClub[id];
+          c.count++;
+          c.sum += s.distanceYards;
+          if (c.min == null || s.distanceYards < c.min) c.min = s.distanceYards;
+          if (c.max == null || s.distanceYards > c.max) c.max = s.distanceYards;
+        });
+
+        const clubIds = Object.keys(byClub);
+        if (!clubIds.length) {
+          clubStatsBlock.innerHTML = `
+            <div class="empty-state">
+              Shots exist in storage, but none have a valid distance. Try recording new ones.
+            </div>
+          `;
+          return;
+        }
+
+        const rowsHtml = clubIds
+          .sort((a, b) => {
+            const ca = byClub[a];
+            const cb = byClub[b];
+            // Sort by club type a bit more humanly: woods, hybrids, irons, wedges
+            const order = clubOrderValue;
+            return order(a) - order(b);
+          })
+          .map(id => {
+            const c = byClub[id];
+            const avg = c.count ? (c.sum / c.count) : null;
+            return `
+              <tr>
+                <td>${c.label}</td>
+                <td>${c.count}</td>
+                <td>${avg != null ? avg.toFixed(1) + " yd" : "—"}</td>
+                <td>${c.min != null ? c.min + " yd" : "—"}</td>
+                <td>${c.max != null ? c.max + " yd" : "—"}</td>
+              </tr>
+            `;
+          })
+          .join("");
+
+        clubStatsBlock.innerHTML = `
+          <div class="detail-section-title">Per-club averages</div>
+          <div class="club-table-wrapper">
+            <table class="club-table">
+              <thead>
+                <tr>
+                  <th>Club</th>
+                  <th>Shots</th>
+                  <th>Avg distance</th>
+                  <th>Min</th>
+                  <th>Max</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      function clubOrderValue(id) {
+        // Just to avoid totally random sorting
+        const orderMap = {
+          driver: 1,
+          "3w": 2,
+          "5w": 3,
+          "4h": 4,
+          "5i": 5,
+          "6i": 6,
+          "7i": 7,
+          "8i": 8,
+          "9i": 9,
+          pw: 10,
+          gw: 11,
+          sw: 12,
+          lw: 13,
+          other: 99
+        };
+        return orderMap[id] != null ? orderMap[id] : 50;
+      }
+
+      function renderRecentShots() {
+        if (!recentShotsBlock) return;
+
+        if (!state.shots.length) {
+          recentShotsBlock.innerHTML = `
+            <div class="empty-state">
+              Once you’ve recorded some shots, your last few entries will show up here.
+            </div>
+          `;
+          return;
+        }
+
+        const sorted = state.shots
+          .slice()
+          .sort((a, b) => {
+            const da = new Date(a.createdAt || 0).getTime();
+            const db = new Date(b.createdAt || 0).getTime();
+            return db - da;
+          })
+          .slice(0, 10);
+
+        const itemsHtml = sorted
+          .map(s => {
+            const whenDate = formatDateShort(s.createdAt);
+            const whenTime = formatTimeShort(s.createdAt);
+            const method = s.method === "manual" ? "manual" : "GPS";
+            return `
+              <div class="recent-item">
+                <div>
+                  <div class="recent-club">${clubLabelFromId(s.clubId)}</div>
+                  <div class="recent-meta">
+                    ${whenDate} · ${whenTime || ""} · ${method}
+                  </div>
+                </div>
+                <div class="recent-yards">${s.distanceYards} yd</div>
+              </div>
+            `;
+          })
+          .join("");
+
+        recentShotsBlock.innerHTML = `
+          <div class="recent-list">
+            ${itemsHtml}
+          </div>
+        `;
+      }
+
+      async function handleMarkShotStart() {
+        if (!clubSelect) return;
+        const clubId = clubSelect.value || "other";
+
+        if (!navigator.geolocation) {
+          alert("Geolocation is not supported on this device/browser.");
+          return;
+        }
+
+        clubShotStatus.textContent =
+          "Getting GPS position for shot start… (allow location access if prompted)";
+
+        try {
+          const pos = await getCurrentPositionAsync();
+          const { latitude, longitude } = pos.coords;
+
+          state.pending = {
+            clubId,
+            startLat: latitude,
+            startLng: longitude,
+            createdAt: new Date().toISOString()
+          };
+          saveClubShotsState(state);
+          updateStatusText();
+        } catch (err) {
+          console.warn("[clubs] Failed to get start position", err);
+          alert("Could not get your location for the shot start. Check GPS/permissions and try again.");
+          updateStatusText();
+        }
+      }
+
+      async function handleAddShotDistance() {
+        if (!state.pending) {
+          alert("No shot start marked. Stand where you hit from, pick a club, and tap 'Mark start' first.");
+          return;
+        }
+
+        if (!navigator.geolocation) {
+          alert("Geolocation is not supported on this device/browser.");
+          return;
+        }
+
+        clubShotStatus.textContent = "Getting GPS position at your ball…";
+
+        try {
+          const pos = await getCurrentPositionAsync();
+          const { latitude, longitude } = pos.coords;
+
+          const p = state.pending;
+          const yards = distanceYardsBetween(
+            p.startLat,
+            p.startLng,
+            latitude,
+            longitude
+          );
+
+          const shotRecord = {
+            id: "shot_" + Date.now(),
+            clubId: p.clubId,
+            clubLabel: clubLabelFromId(p.clubId),
+            distanceYards: yards,
+            createdAt: new Date().toISOString(),
+            method: "gps"
+          };
+
+          state.shots.push(shotRecord);
+          state.pending = null;
+          saveClubShotsState(state);
+
+          clubShotStatus.textContent = `${shotRecord.clubLabel}: ~${yards} yards saved (GPS).`;
+
+          try {
+            if (window.navigator && window.navigator.vibrate) {
+              window.navigator.vibrate(50);
+            }
+          } catch (e) {}
+
+          renderClubStats();
+          renderRecentShots();
+        } catch (err) {
+          console.warn("[clubs] Failed to get end position", err);
+          alert("Could not get your location at the ball. Check GPS/permissions and try again.");
+        } finally {
+          updateStatusText();
+        }
+      }
+
+      function handleAddManualShot() {
+        if (!clubSelect || !manualDistanceInput) return;
+        const clubId = clubSelect.value || "other";
+        const val = manualDistanceInput.value.trim();
+        if (!val) {
+          alert("Enter a distance in yards to add a manual shot.");
+          return;
+        }
+        const yards = parseFloat(val);
+        if (!Number.isFinite(yards) || yards <= 0) {
+          alert("Please enter a valid positive number of yards.");
+          return;
+        }
+
+        const shotRecord = {
+          id: "shot_" + Date.now(),
+          clubId,
+          clubLabel: clubLabelFromId(clubId),
+          distanceYards: Math.round(yards),
+          createdAt: new Date().toISOString(),
+          method: "manual"
+        };
+
+        state.shots.push(shotRecord);
+        saveClubShotsState(state);
+
+        manualDistanceInput.value = "";
+        clubShotStatus.textContent =
+          `${shotRecord.clubLabel}: ${shotRecord.distanceYards} yards saved (manual).`;
+
+        renderClubStats();
+        renderRecentShots();
+        updateStatusText();
+      }
+
+      if (btnMarkShotStart) {
+        btnMarkShotStart.addEventListener("click", handleMarkShotStart);
+      }
+      if (btnAddShotDistance) {
+        btnAddShotDistance.addEventListener("click", handleAddShotDistance);
+      }
+      if (btnAddManualShot) {
+        btnAddManualShot.addEventListener("click", handleAddManualShot);
+      }
+
+      // Initial render
+      updateStatusText();
+      renderClubStats();
+      renderRecentShots();
+    });
+  </script>
+</body>
+</html>
