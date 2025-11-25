@@ -6,6 +6,7 @@
     "yardages": { "back": 394, "middle": 382, "forward": 361 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -27,6 +28,7 @@
     "yardages": { "back": 169, "middle": 150, "forward": 142 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -48,6 +50,7 @@
     "yardages": { "back": 342, "middle": 321, "forward": 275 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -69,6 +72,7 @@
     "yardages": { "back": 400, "middle": 382, "forward": 315 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -90,6 +94,7 @@
     "yardages": { "back": 439, "middle": 412, "forward": 371 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -111,6 +116,7 @@
     "yardages": { "back": 307, "middle": 295, "forward": 289 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -132,6 +138,7 @@
     "yardages": { "back": 430, "middle": 413, "forward": 393 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -153,6 +160,7 @@
     "yardages": { "back": 154, "middle": 139, "forward": 130 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -174,6 +182,7 @@
     "yardages": { "back": 496, "middle": 485, "forward": 376 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -195,6 +204,7 @@
     "yardages": { "back": 434, "middle": 406, "forward": 381 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -216,6 +226,7 @@
     "yardages": { "back": 177, "middle": 160, "forward": 150 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -237,6 +248,7 @@
     "yardages": { "back": 467, "middle": 451, "forward": 437 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -258,6 +270,7 @@
     "yardages": { "back": 395, "middle": 375, "forward": 346 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -279,6 +292,7 @@
     "yardages": { "back": 123, "middle": 108, "forward": 101 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -300,6 +314,7 @@
     "yardages": { "back": 397, "middle": 381, "forward": 373 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -321,6 +336,7 @@
     "yardages": { "back": 508, "middle": 498, "forward": 415 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -342,6 +358,7 @@
     "yardages": { "back": 417, "middle": 403, "forward": 396 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
@@ -363,6 +380,7 @@
     "yardages": { "back": 420, "middle": 412, "forward": 410 },
     "media": {
       "image": "",
+      "greenImage": "",
       "caption": ""
     },
     "gps": {
