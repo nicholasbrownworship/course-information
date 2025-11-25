@@ -49,13 +49,14 @@
       }
     }
 
+    /* PANEL: remove boxed look */
     .panel {
-      background: rgba(252,249,242,0.97);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(0,0,0,0.04);
-      padding: 10px 12px;
-      backdrop-filter: blur(6px);
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
+      border: none;
+      padding: 10px 0;
+      backdrop-filter: none;
     }
 
     h1 {
@@ -263,7 +264,7 @@
       margin-top: 6px;
     }
 
-    /* RIGHT PANEL */
+    /* RIGHT PANEL CONTENT */
     .overview-block {
       margin-top: 6px;
       border-radius: 10px;
@@ -326,6 +327,7 @@
         border-radius: 0;
         border: none;
         background: #ffffff;
+        padding-top: 0;
       }
       .table-wrap {
         max-height: none;
