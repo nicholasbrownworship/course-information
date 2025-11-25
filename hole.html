@@ -3024,6 +3024,41 @@
         });
       }
 
+            // === Club hint – uses calibration data ===
+      const clubSelectEl = document.getElementById("shotClub");
+      const clubHintEl = document.getElementById("clubHint");
+
+      function updateClubHint() {
+        if (!clubSelectEl || !clubHintEl) return;
+
+        const clubId = clubSelectEl.value;
+        if (!clubId) {
+          clubHintEl.textContent =
+            "Choose a club to see typical carry from your calibration.";
+          return;
+        }
+
+        const info = CLUB_AVERAGES[clubId];
+        if (!info || !info.avg) {
+          clubHintEl.textContent =
+            clubLabelFromId(clubId) +
+            ": no calibration data yet. Record a few shots on the Calibration page.";
+          return;
+        }
+
+        clubHintEl.textContent =
+          `${info.label}: typical carry ~${info.avg.toFixed(1)} yd ` +
+          `(${info.count} shot${info.count === 1 ? "" : "s"}, ` +
+          `range ${info.min}–${info.max} yd)`;
+      }
+
+      if (clubSelectEl) {
+        clubSelectEl.addEventListener("change", updateClubHint);
+        // Kick once at load so if a value is preselected we show it:
+        updateClubHint();
+      }
+
+
       // INITIAL LOAD
       loadCoursesIndex();
     })();
