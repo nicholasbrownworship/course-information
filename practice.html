@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Practice Planner – Local Golf Scorebook</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --green: #244f3c;
+      --green-dark: #163023;
+      --gold: #d1a14b;
+      --cream: #f5f0e6;
+      --bg: #fcfaf6;
+      --text: #222;
+      --radius: 14px;
+      --shadow: 0 8px 20px rgba(0,0,0,0.08);
+      --muted: #6b7280;
+      --line: #e7dfcd;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #fdf7eb 0, #f3efe7 40%, #e7e1d3 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1100px;
+      margin: 10px auto 16px;
+      padding: 0 10px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(252,249,242,0.97);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,0.04);
+      padding: 10px 12px;
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      margin: 0 0 4px;
+      color: var(--green-dark);
+    }
+
+    h2 {
+      font-size: 0.98rem;
+      margin: 0 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--green-dark);
+    }
+
+    h3 {
+      font-size: 0.85rem;
+      margin: 0 0 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--green-dark);
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .detail-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin: 8px 0 4px;
+    }
+
+    .top-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(0,0,0,0.12);
+      padding-bottom: 6px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 1px 8px;
+      border: 1px solid rgba(0,0,0,0.12);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      background: #fefdf9;
+      white-space: nowrap;
+    }
+
+    .tag-green {
+      color: #065f46;
+      border-color: #065f46;
+      background: #ecfdf5;
+    }
+
+    .tag-gold {
+      color: #92400e;
+      border-color: #92400e;
+      background: #fffbeb;
+    }
+
+    .tag-red {
+      color: #b91c1c;
+      border-color: #b91c1c;
+      background: #fef2f2;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 700px) {
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .summary-card {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 6px 7px;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .summary-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+
+    .summary-value {
+      font-size: 0.95rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .summary-sub {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .focus-card {
+      margin-top: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #111827;
+      color: #f9fafb;
+      padding: 7px 8px;
+      font-size: 0.8rem;
+    }
+
+    .focus-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.8;
+      margin-bottom: 3px;
+    }
+
+    .focus-main {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .focus-sub {
+      font-size: 0.75rem;
+      opacity: 0.9;
+    }
+
+    .list {
+      margin: 4px 0 0;
+      padding-left: 18px;
+      font-size: 0.8rem;
+    }
+
+    .list li {
+      margin-bottom: 2px;
+    }
+
+    .empty-state {
+      padding: 10px 9px;
+      border-radius: 10px;
+      border: 1px dashed rgba(0,0,0,0.16);
+      background: rgba(255,255,255,0.92);
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* Session builder */
+    .session-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-top: 4px;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+    }
+
+    label span {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    select, input[type="number"], input[type="date"] {
+      padding: 3px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.2);
+      background: #fffbf4;
+      font-size: 0.8rem;
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: 1px solid rgba(0,0,0,0.18);
+      padding: 4px 10px;
+      font-size: 0.78rem;
+      background: #fdf7ea;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-primary {
+      background: #244f3c;
+      color: #fefcf5;
+      border-color: #1a3a2b;
+    }
+
+    .btn:hover {
+      filter: brightness(0.97);
+    }
+
+    .plan-grid {
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 6px 7px;
+      font-size: 0.8rem;
+    }
+
+    .plan-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 3px 0;
+      border-bottom: 1px solid #ede5d6;
+    }
+
+    .plan-row:last-child {
+      border-bottom: none;
+    }
+
+    .plan-minutes {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .plan-area {
+      font-weight: 600;
+    }
+
+    .plan-detail {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .mini-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.11em;
+      color: var(--muted);
+      margin-top: 6px;
+      margin-bottom: 2px;
+    }
+
+    /* Practice log */
+    .log-form {
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.96);
+      padding: 6px 7px;
+      font-size: 0.78rem;
+    }
+
+    .log-form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .log-form label {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 120px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 50px;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 0.78rem;
+      padding: 4px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.16);
+      background: #fffbf4;
+    }
+
+    .log-list {
+      margin-top: 6px;
+      font-size: 0.78rem;
+    }
+
+    .log-entry {
+      padding: 4px 0;
+      border-bottom: 1px solid #ede5d6;
+    }
+
+    .log-entry:last-child {
+      border-bottom: none;
+    }
+
+    .log-entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .log-entry-title {
+      font-weight: 600;
+    }
+
+    .log-entry-meta {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .log-entry-notes {
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER INJECTION -->
+  <div id="header-placeholder"></div>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
+        const slot = document.getElementById("header-placeholder");
+        if (slot) slot.innerHTML = html;
+      })
+      .catch(err => console.error("Failed to load header.html:", err));
+  </script>
+
+  <main>
+    <!-- LEFT: Snapshot & Focus -->
+    <section class="panel">
+      <div class="top-row">
+        <h1>Practice Planner</h1>
+        <span class="muted">
+          Uses your saved rounds on this device to suggest where to spend your next practice sessions.
+        </span>
+      </div>
+
+      <div id="snapshotBlock">
+        <div class="empty-state">
+          No stats yet. Play and save a round in the Hole View page to start building your numbers.
+        </div>
+      </div>
+
+      <div id="focusBlock"></div>
+
+      <div class="detail-section-title">Areas ranked by priority</div>
+      <div id="areaRankingBlock"></div>
+    </section>
+
+    <!-- RIGHT: Session builder & practice log -->
+    <section class="panel">
+      <h2>Session Builder</h2>
+      <div class="muted">
+        Choose a session length and we’ll break it into focused drills based on your current stats.
+      </div>
+
+      <div class="session-row">
+        <label>
+          <span>Session length</span>
+          <select id="sessionLength">
+            <option value="30">30 minutes</option>
+            <option value="45">45 minutes</option>
+            <option value="60" selected>60 minutes</option>
+            <option value="90">90 minutes</option>
+          </select>
+        </label>
+        <button type="button" class="btn btn-primary" id="btnBuildPlan">Build practice plan</button>
+      </div>
+
+      <div id="planBlock" class="plan-grid">
+        <div class="muted">
+          Pick a session length and click “Build practice plan” to generate a breakdown.
+        </div>
+      </div>
+
+      <div class="mini-label">Tip</div>
+      <div class="muted">
+        Save the plan to your phone’s notes and check items off as you go. You can adjust on the fly if something feels off.
+      </div>
+
+      <div class="detail-section-title">Practice log</div>
+      <div class="log-form">
+        <div class="log-form-row">
+          <label>
+            <span>Date</span>
+            <input type="date" id="logDate" />
+          </label>
+          <label>
+            <span>Type</span>
+            <select id="logType">
+              <option value="range">Range</option>
+              <option value="short-game">Short game area</option>
+              <option value="putting">Putting green</option>
+              <option value="on-course">On-course practice</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          <span>Focus & notes</span>
+          <textarea id="logNotes" placeholder="Example: 60% wedges 50–100 yds, 40% lag putting. Key takeaways, feels, drills that worked…"></textarea>
+        </label>
+        <div style="margin-top:6px;display:flex;justify-content:flex-end;">
+          <button type="button" class="btn" id="btnSaveLog">Save practice session</button>
+        </div>
+      </div>
+
+      <div id="logListBlock" class="log-list"></div>
+    </section>
+  </main>
+
+  <script>
+    // Keys used elsewhere in your app
+    const ROUNDS_STORAGE_KEY = "localGolfScorebook_rounds_v1";
+    const GOALS_STORAGE_KEY = "localGolfScorebook_goals_v1";
+    const PRACTICE_LOG_KEY = "localGolfScorebook_practiceLog_v1";
+
+    function loadRoundsState() {
+      try {
+        const raw = localStorage.getItem(ROUNDS_STORAGE_KEY);
+        if (!raw) return { rounds: [], activeRoundId: null };
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || !Array.isArray(parsed.rounds)) {
+          return { rounds: [], activeRoundId: null };
+        }
+        return {
+          rounds: parsed.rounds,
+          activeRoundId: parsed.activeRoundId || null
+        };
+      } catch (e) {
+        console.warn("[practice] Failed to load rounds", e);
+        return { rounds: [], activeRoundId: null };
+      }
+    }
+
+    function loadGoals() {
+      const defaults = {
+        fairwayPct: 60,
+        girPct: 40,
+        puttsPerHole: 2.0
+      };
+      try {
+        const raw = localStorage.getItem(GOALS_STORAGE_KEY);
+        if (!raw) return defaults;
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object") return defaults;
+        if (typeof parsed.fairwayPct === "number") defaults.fairwayPct = parsed.fairwayPct;
+        if (typeof parsed.girPct === "number") defaults.girPct = parsed.girPct;
+        if (typeof parsed.puttsPerHole === "number") defaults.puttsPerHole = parsed.puttsPerHole;
+        return defaults;
+      } catch (e) {
+        console.warn("[practice] Failed to load goals", e);
+        return defaults;
+      }
+    }
+
+    function aggregateMetrics(roundsState) {
+      const result = {
+        roundsWithData: 0,
+        totalRounds: roundsState.rounds.length,
+        totalHoles: 0,
+        fairwayHit: 0,
+        fairwayOpp: 0,
+        girHit: 0,
+        girOpp: 0,
+        totalPutts: 0,
+        puttEntries: 0,
+        threePlusPutts: 0,
+        scoreTotal: 0,
+        holesWithScore: 0,
+        shortGameShots: 0, // chips + bunkers for "short game volume"
+        hasAnyData: false
+      };
+
+      roundsState.rounds.forEach(round => {
+        const holes = round.holes || {};
+        const keys = Object.keys(holes);
+        if (!keys.length) return;
+
+        let roundHasData = false;
+
+        keys.forEach(k => {
+          const data = holes[k];
+          if (!data) return;
+
+          result.totalHoles++;
+
+          // Score / scoring volume
+          if (data.score) {
+            const s = parseInt(data.score, 10);
+            if (!Number.isNaN(s)) {
+              result.scoreTotal += s;
+              result.holesWithScore++;
+              roundHasData = true;
+            }
+          }
+
+          // Fairways
+          if (data.fairwayResult && data.fairwayResult !== "" && data.fairwayResult !== "na") {
+            result.fairwayOpp++;
+            if (data.fairwayResult === "hit") {
+              result.fairwayHit++;
+            }
+            roundHasData = true;
+          }
+
+          // GIR
+          if (data.girResult && data.girResult !== "" && data.girResult !== "na") {
+            result.girOpp++;
+            if (data.girResult === "yes") {
+              result.girHit++;
+            }
+            roundHasData = true;
+          }
+
+          // Putts
+          if (data.numPutts) {
+            const p = parseInt(data.numPutts, 10);
+            if (!Number.isNaN(p)) {
+              result.totalPutts += p;
+              result.puttEntries++;
+              if (p >= 3) result.threePlusPutts++;
+              roundHasData = true;
+            }
+          }
+
+          // Short game volume
+          if (data.numChips) {
+            const c = parseInt(data.numChips, 10);
+            if (!Number.isNaN(c)) {
+              result.shortGameShots += c;
+              roundHasData = true;
+            }
+          }
+          if (data.numBunkers) {
+            const b = parseInt(data.numBunkers, 10);
+            if (!Number.isNaN(b)) {
+              result.shortGameShots += b;
+              roundHasData = true;
+            }
+          }
+        });
+
+        if (roundHasData) {
+          result.roundsWithData++;
+          result.hasAnyData = true;
+        }
+      });
+
+      // Derived metrics
+      result.fairwayPct = result.fairwayOpp
+        ? (result.fairwayHit / result.fairwayOpp) * 100
+        : null;
+
+      result.girPct = result.girOpp
+        ? (result.girHit / result.girOpp) * 100
+        : null;
+
+      result.puttsPerHole = result.puttEntries
+        ? result.totalPutts / result.puttEntries
+        : null;
+
+      result.threePuttsPct = (result.puttEntries && result.threePlusPutts)
+        ? (result.threePlusPutts / result.puttEntries) * 100
+        : null;
+
+      result.avgScorePerHole = result.holesWithScore
+        ? result.scoreTotal / result.holesWithScore
+        : null;
+
+      return result;
+    }
+
+    function describePracticeFocus(metrics, goals) {
+      if (!metrics.hasAnyData) {
+        return {
+          title: "Start logging a round",
+          main: "Play a round and record fairways, GIR, and putts to unlock personalized practice suggestions.",
+          sub: "Once you have at least 9–18 holes recorded, this page will highlight where you’re leaving shots on the table.",
+          tags: []
+        };
+      }
+
+      const tags = [];
+      const reasons = [];
+
+      // Check categories by order of importance
+      let primary = "Balanced practice";
+      let main = "Overall, your numbers suggest a balanced practice mix across tee shots, approaches, short game, and putting.";
+      let sub = "Use the session builder to keep all areas touched, with a slight lean toward your weaker stat lines.";
+
+      const fairwayGap = metrics.fairwayPct != null ? metrics.fairwayPct - goals.fairwayPct : null;
+      const girGap = metrics.girPct != null ? metrics.girPct - goals.girPct : null;
+      const puttGap = metrics.puttsPerHole != null ? metrics.puttsPerHole - goals.puttsPerHole : null;
+
+      const threePuttsHigh = metrics.threePuttsPct != null && metrics.threePuttsPct >= 15;
+
+      if (fairwayGap != null && fairwayGap <= -8) {
+        primary = "Tighten tee shots";
+        main = "Your fairway percentage is trailing your goal – more balls in play will make everything easier.";
+        sub = "Prioritize driver and tee-box control: start lines, curvature, and committing to targets. Use 60–70% of your range time on tee shots until this climbs.";
+        tags.push("Tee shots", "Fairway focus");
+      }
+
+      if (girGap != null && girGap <= -8 && (!fairwayGap || fairwayGap > -8)) {
+        primary = "Dial in approach play";
+        main = "Your GIR rate is below your target – more greens in regulation will lower scores quickly.";
+        sub = "Focus on stock iron swings, distance wedges, and picking smarter targets. Spend at least half your practice time on approach patterns.";
+        tags.push("Approach play", "Distance control");
+      }
+
+      if (puttGap != null && puttGap >= 0.3 || threePuttsHigh) {
+        primary = "Sharpen putting (especially lag)";
+        main = "Your putting stats suggest you’re giving away strokes on the greens.";
+        sub = "Mix lag-putting ladders with 3–8 ft make-rate drills. Aim to reduce 3-putts and tighten your short-putt conversion.";
+        tags.push("Putting", "Lag putting");
+      }
+
+      // If multiple things are off, refine the copy
+      const weakAreas = [];
+      if (fairwayGap != null && fairwayGap <= -8) weakAreas.push("tee shots");
+      if (girGap != null && girGap <= -8) weakAreas.push("approach play");
+      if (puttGap != null && puttGap >= 0.3 || threePuttsHigh) weakAreas.push("putting");
+
+      if (weakAreas.length >= 2) {
+        primary = "Blend your weaknesses into one plan";
+        main = "You have more than one clear improvement area – that’s normal.";
+        sub = "Split your sessions between " + weakAreas.join(", ") +
+          ". Use the Session Builder to turn that into a concrete minute-by-minute plan.";
+      }
+
+      return { title: primary, main, sub, tags };
+    }
+
+    function buildAreaRanking(metrics, goals) {
+      if (!metrics.hasAnyData) {
+        return [];
+      }
+
+      function clamp(x, lo, hi) {
+        return Math.max(lo, Math.min(hi, x));
+      }
+
+      const fairwayGap = metrics.fairwayPct != null ? metrics.fairwayPct - goals.fairwayPct : null;
+      const girGap = metrics.girPct != null ? metrics.girPct - goals.girPct : null;
+      const puttGap = metrics.puttsPerHole != null ? metrics.puttsPerHole - goals.puttsPerHole : null;
+      const threePct = metrics.threePuttsPct != null ? metrics.threePuttsPct : 0;
+
+      const areas = [];
+
+      // Tee
+      let teeScore = 0;
+      if (fairwayGap != null) {
+        teeScore = clamp((-fairwayGap) / 20, 0, 1); // 0 to 1 depending how far below
+      }
+      areas.push({
+        id: "tee",
+        label: "Tee shots",
+        priorityScore: teeScore,
+        blurb:
+          metrics.fairwayPct != null
+            ? `Fairways: ${metrics.fairwayHit}/${metrics.fairwayOpp} (${Math.round(metrics.fairwayPct)}%).`
+            : "Not enough fairway data yet."
+      });
+
+      // Approach
+      let approachScore = 0;
+      if (girGap != null) {
+        approachScore = clamp((-girGap) / 20, 0, 1);
+      }
+      areas.push({
+        id: "approach",
+        label: "Approach play",
+        priorityScore: approachScore,
+        blurb:
+          metrics.girPct != null
+            ? `GIR: ${metrics.girHit}/${metrics.girOpp} (${Math.round(metrics.girPct)}%).`
+            : "Not enough GIR data yet."
+      });
+
+      // Short game
+      let shortScore = 0;
+      if (metrics.shortGameShots && metrics.totalHoles) {
+        const shotsPerHole = metrics.shortGameShots / metrics.totalHoles;
+        // If you’re leaning heavily on short game, that’s a hint to practice it
+        shortScore = clamp(shotsPerHole / 2, 0, 1);
+      }
+      areas.push({
+        id: "short",
+        label: "Short game (chips & bunkers)",
+        priorityScore: shortScore,
+        blurb:
+          metrics.shortGameShots
+            ? `Recorded ${metrics.shortGameShots} chips/bunker shots across your rounds.`
+            : "No short game shots recorded yet."
+      });
+
+      // Putting
+      let puttScore = 0;
+      if (puttGap != null) {
+        puttScore = clamp(puttGap / 0.8, 0, 1); // more above goal → higher priority
+      }
+      if (threePct > 10) {
+        puttScore = Math.max(puttScore, clamp((threePct - 10) / 20, 0, 1));
+      }
+      areas.push({
+        id: "putting",
+        label: "Putting",
+        priorityScore: puttScore,
+        blurb:
+          metrics.puttsPerHole != null
+            ? `Putts/hole: ${metrics.puttsPerHole.toFixed(2)}; 3-putts on ${
+                metrics.threePlusPutts
+              } holes${metrics.threePuttsPct != null ? " (" + Math.round(metrics.threePuttsPct) + "% of tracked holes)" : ""}.`
+            : "No putting data recorded yet."
+      });
+
+      // Basic fall-back if everything is flat
+      const anyScore = areas.some(a => a.priorityScore > 0.05);
+      if (!anyScore) {
+        areas.forEach(a => a.priorityScore = 0.2);
+      }
+
+      return areas.sort((a, b) => b.priorityScore - a.priorityScore);
+    }
+
+    function drillForArea(areaId) {
+      const drills = {
+        tee: [
+          "Pick a fairway and hit 10 balls with one club, tracking how many would have finished in the short grass.",
+          "Hit 5-ball sets where you vary start line but keep the same curvature.",
+          "Play “fairway or re-tee”: only count swings that would stay in an imagined 30-yard corridor."
+        ],
+        approach: [
+          "Hit 3-ball “windows” with each iron: low, stock, and high to the same target.",
+          "Play a 9-shot ladder: 3 shots each at 120, 140, and 160 yards, tracking dispersion.",
+          "Pick one “stock” distance and groove that swing, then write it down for the yardage book."
+        ],
+        short: [
+          "Randomize lies: throw 10 balls around the green and try to get all inside a 6-foot circle.",
+          "Alternate high-spin and bump-and-run with the same landing spot.",
+          "Bunker: 10 balls focusing on consistent entry point and finish height."
+        ],
+        putting: [
+          "Lag ladder: putt from 20, 30, 40 feet trying to finish inside a 3-foot circle.",
+          "Short-putt star drill: 5 stations around the hole at 3–6 feet; don’t leave until you make all in a row.",
+          "End with a “must-make” routine: read, commit, roll — no second balls."
+        ]
+      };
+
+      const list = drills[areaId] || drills.putting;
+      const index = Math.floor(Math.random() * list.length);
+      return list[index];
+    }
+
+    function buildPracticePlan(minutes, areaRanking) {
+      if (!areaRanking.length) {
+        return [];
+      }
+
+      // Keep top 3 areas max to avoid overly chopped sessions
+      const areas = areaRanking.slice(0, 3);
+
+      // Convert priorityScore to positive weights
+      let totalScore = areas.reduce((sum, a) => sum + (a.priorityScore || 0.1), 0);
+      if (totalScore <= 0) {
+        areas.forEach(a => (a.priorityScore = 1));
+        totalScore = areas.length;
+      }
+
+      // Allocate in 5-minute blocks
+      let remaining = minutes;
+      const blocks = [];
+      areas.forEach((a, idx) => {
+        const portion = (a.priorityScore || 0.1) / totalScore;
+        let m = Math.round((minutes * portion) / 5) * 5;
+        if (m < 10) m = 10; // keep at least 10 minutes per area
+        blocks.push({ area: a, minutes: m });
+      });
+
+      // Adjust to match exactly
+      let sum = blocks.reduce((s, b) => s + b.minutes, 0);
+      while (sum > minutes && blocks.length) {
+        // reduce from largest block first
+        const biggest = blocks.reduce((best, b) => (b.minutes > best.minutes ? b : best), blocks[0]);
+        if (biggest.minutes > 10) {
+          biggest.minutes -= 5;
+          sum -= 5;
+        } else {
+          break;
+        }
+      }
+      while (sum < minutes && blocks.length) {
+        const biggest = blocks.reduce((best, b) => (b.minutes > best.minutes ? b : best), blocks[0]);
+        biggest.minutes += 5;
+        sum += 5;
+      }
+
+      return blocks.map(b => ({
+        label: b.area.label,
+        minutes: b.minutes,
+        blurb: b.area.blurb,
+        drill: drillForArea(b.area.id)
+      }));
+    }
+
+    // Practice log helpers
+    function loadPracticeLog() {
+      try {
+        const raw = localStorage.getItem(PRACTICE_LOG_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.warn("[practice] Failed to load log", e);
+        return [];
+      }
+    }
+
+    function savePracticeLog(entries) {
+      try {
+        localStorage.setItem(PRACTICE_LOG_KEY, JSON.stringify(entries));
+      } catch (e) {
+        console.warn("[practice] Failed to save log", e);
+      }
+    }
+
+    function formatDateDisplay(value) {
+      if (!value) return "Unknown date";
+      // value is "YYYY-MM-DD"
+      const [y, m, d] = value.split("-");
+      if (!y || !m || !d) return value;
+      return `${m}/${d}/${y}`;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const snapshotBlock = document.getElementById("snapshotBlock");
+      const focusBlock = document.getElementById("focusBlock");
+      const areaRankingBlock = document.getElementById("areaRankingBlock");
+      const sessionLengthEl = document.getElementById("sessionLength");
+      const btnBuildPlan = document.getElementById("btnBuildPlan");
+      const planBlock = document.getElementById("planBlock");
+
+      const logDateEl = document.getElementById("logDate");
+      const logTypeEl = document.getElementById("logType");
+      const logNotesEl = document.getElementById("logNotes");
+      const btnSaveLog = document.getElementById("btnSaveLog");
+      const logListBlock = document.getElementById("logListBlock");
+
+      const roundsState = loadRoundsState();
+      const goals = loadGoals();
+      const metrics = aggregateMetrics(roundsState);
+      const areaRanking = buildAreaRanking(metrics, goals);
+      let practiceLog = loadPracticeLog();
+
+      // Default log date = today
+      if (logDateEl) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        logDateEl.value = `${yyyy}-${mm}-${dd}`;
+      }
+
+      // Snapshot
+      if (!metrics.hasAnyData) {
+        snapshotBlock.innerHTML = `
+          <div class="empty-state">
+            No stats yet. Play and save a round in the Hole View page to start building your numbers.
+          </div>
+        `;
+      } else {
+        const fairwayText =
+          metrics.fairwayOpp
+            ? `${metrics.fairwayHit}/${metrics.fairwayOpp} (${Math.round(metrics.fairwayPct)}%)`
+            : "—";
+
+        const girText =
+          metrics.girOpp
+            ? `${metrics.girHit}/${metrics.girOpp} (${Math.round(metrics.girPct)}%)`
+            : "—";
+
+        const puttsText =
+          metrics.puttsPerHole != null
+            ? `${metrics.puttsPerHole.toFixed(2)} putts / hole`
+            : "—";
+
+        const threePctText =
+          metrics.threePuttsPct != null
+            ? `${metrics.threePlusPutts} holes (${Math.round(metrics.threePuttsPct)}%)`
+            : "—";
+
+        const avgScoreText =
+          metrics.avgScorePerHole != null
+            ? metrics.avgScorePerHole.toFixed(2) + " / hole"
+            : "—";
+
+        snapshotBlock.innerHTML = `
+          <div class="summary-grid">
+            <div class="summary-card">
+              <div class="summary-label">Rounds with data</div>
+              <div class="summary-value">${metrics.roundsWithData}</div>
+              <div class="summary-sub">Total saved rounds: ${metrics.totalRounds}</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Holes with stats</div>
+              <div class="summary-value">${metrics.totalHoles}</div>
+              <div class="summary-sub">Any score, fairway, GIR, or putting data.</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Fairways</div>
+              <div class="summary-value">${fairwayText}</div>
+              <div class="summary-sub">Goal: ${Math.round(goals.fairwayPct)}%+</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">GIR</div>
+              <div class="summary-value">${girText}</div>
+              <div class="summary-sub">Goal: ${Math.round(goals.girPct)}%+</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Putting</div>
+              <div class="summary-value">${puttsText}</div>
+              <div class="summary-sub">Goal: ${goals.puttsPerHole.toFixed(1)} putts / hole</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">3-putts</div>
+              <div class="summary-value">${threePctText}</div>
+              <div class="summary-sub">Lower is better; aim for &lt; 10%.</div>
+            </div>
+            <div class="summary-card">
+              <div class="summary-label">Scoring volume</div>
+              <div class="summary-value">${avgScoreText}</div>
+              <div class="summary-sub">Rough indicator of scoring pace over tracked holes.</div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Practice focus
+      const focus = describePracticeFocus(metrics, goals);
+      if (focusBlock) {
+        const tagHtml = (focus.tags || [])
+          .map(t => `<span class="tag tag-gold">${t}</span>`)
+          .join("");
+
+        focusBlock.innerHTML = `
+          <div class="focus-card">
+            <div class="focus-title">Practice focus</div>
+            <div class="focus-main">${focus.title}</div>
+            <div class="focus-sub">${focus.main}</div>
+            <div class="focus-sub" style="margin-top:4px;">${focus.sub}</div>
+            ${tagHtml ? `<div class="tag-row" style="margin-top:6px;">${tagHtml}</div>` : ""}
+          </div>
+        `;
+      }
+
+      // Area ranking list
+      if (!metrics.hasAnyData) {
+        areaRankingBlock.innerHTML = `
+          <div class="empty-state">
+            Once you have some rounds recorded, this will rank tee shots, approaches, short game, and putting by priority.
+          </div>
+        `;
+      } else if (!areaRanking.length) {
+        areaRankingBlock.innerHTML = `
+          <div class="empty-state">
+            Not enough data to rank practice areas yet.
+          </div>
+        `;
+      } else {
+        const rows = areaRanking
+          .map((a, idx) => {
+            const rank = idx + 1;
+            let tagClass = "tag";
+            if (idx === 0) tagClass += " tag-red";
+            else if (idx === 1) tagClass += " tag-gold";
+            else tagClass += " tag-green";
+
+            const priorityPct = Math.round((a.priorityScore || 0) * 100);
+
+            return `
+              <div class="summary-card">
+                <div class="summary-label">#${rank} priority</div>
+                <div class="summary-value">${a.label}</div>
+                <div class="summary-sub">
+                  <span class="${tagClass}">Priority ${priorityPct}</span>
+                </div>
+                <div class="summary-sub" style="margin-top:2px;">${a.blurb}</div>
+              </div>
+            `;
+          })
+          .join("");
+
+        areaRankingBlock.innerHTML = `
+          <div class="summary-grid">
+            ${rows}
+          </div>
+        `;
+      }
+
+      // Session builder
+      function renderPlan() {
+        if (!metrics.hasAnyData) {
+          planBlock.innerHTML = `
+            <div class="muted">
+              You’ll get much better plans once you’ve logged at least one round with fairways, GIR, and putting stats.
+            </div>
+          `;
+          return;
+        }
+
+        const mins = parseInt(sessionLengthEl.value || "60", 10);
+        const plan = buildPracticePlan(mins, areaRanking);
+        if (!plan.length) {
+          planBlock.innerHTML = `
+            <div class="muted">
+              Not enough data to build a plan yet.
+            </div>
+          `;
+          return;
+        }
+
+        const rows = plan
+          .map(p => {
+            return `
+              <div class="plan-row">
+                <div class="plan-minutes">${p.minutes} min</div>
+                <div>
+                  <div class="plan-area">${p.label}</div>
+                  <div class="plan-detail">${p.drill}</div>
+                  <div class="plan-detail" style="margin-top:2px;">${p.blurb}</div>
+                </div>
+              </div>
+            `;
+          })
+          .join("");
+
+        planBlock.innerHTML = `
+          <div class="mini-label">Suggested breakdown</div>
+          ${rows}
+        `;
+      }
+
+      if (btnBuildPlan) {
+        btnBuildPlan.addEventListener("click", renderPlan);
+      }
+
+      // Practice log rendering
+      function renderLogList() {
+        if (!practiceLog.length) {
+          logListBlock.innerHTML = `
+            <div class="muted">
+              No practice sessions saved yet. Use the form above after you finish a session.
+            </div>
+          `;
+          return;
+        }
+
+        const recent = practiceLog.slice().reverse().slice(0, 6);
+        const html = recent
+          .map(entry => {
+            const typeLabel = {
+              "range": "Range",
+              "short-game": "Short game",
+              "putting": "Putting",
+              "on-course": "On-course",
+              "other": "Other"
+            }[entry.type] || "Practice";
+
+            return `
+              <div class="log-entry">
+                <div class="log-entry-header">
+                  <div class="log-entry-title">${typeLabel}</div>
+                  <div class="log-entry-meta">${formatDateDisplay(entry.date)}</div>
+                </div>
+                <div class="log-entry-notes">${entry.notes ? entry.notes : "<span class='muted'>No notes recorded.</span>"}</div>
+              </div>
+            `;
+          })
+          .join("");
+
+        logListBlock.innerHTML = html;
+      }
+
+      renderLogList();
+
+      if (btnSaveLog) {
+        btnSaveLog.addEventListener("click", function () {
+          const date = logDateEl ? logDateEl.value : "";
+          const type = logTypeEl ? logTypeEl.value : "other";
+          const notes = logNotesEl ? logNotesEl.value.trim() : "";
+
+          if (!date) {
+            alert("Please select a date for this practice session.");
+            return;
+          }
+
+          const entry = {
+            date,
+            type,
+            notes,
+            createdAt: new Date().toISOString()
+          };
+          practiceLog.push(entry);
+          savePracticeLog(practiceLog);
+          if (logNotesEl) logNotesEl.value = "";
+          renderLogList();
+        });
+      }
+    });
+  </script>
+</body>
+</html>
