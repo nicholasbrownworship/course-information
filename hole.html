@@ -88,6 +88,16 @@
       margin: 8px 0 4px;
     }
 
+    /* NEW: section header row for titles + buttons */
+    .section-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
     /* HEADER AREA INSIDE PANEL */
     .top-row {
       display: flex;
@@ -709,7 +719,11 @@
         </div>
       </div>
 
-      <div class="detail-section-title">Shot Stats</div>
+      <!-- SHOT STATS HEADER + RESET BUTTON -->
+      <div class="section-header-row">
+        <div class="detail-section-title" style="margin:0;">Shot Stats</div>
+        <button type="button" class="btn" id="btnResetHole">Reset hole</button>
+      </div>
 
       <div class="stats-grid">
         <div class="field">
@@ -1897,6 +1911,9 @@
       const holeScoreEl = document.getElementById("holeScore");
       const holeNotesEl = document.getElementById("holeNotes");
 
+      // NEW: reset button
+      const resetHoleBtn = document.getElementById("btnResetHole");
+
       // Summary / history elements
       const roundSummaryBody = document.getElementById("roundSummaryBody");
       const holeHistoryBody = document.getElementById("holeHistoryBody");
@@ -2807,6 +2824,29 @@
             : null;
           saveRoundsState();
           rebuildRoundSelect();
+          clearHoleControls();
+          renderRoundSummary();
+          renderHoleHistory();
+          renderScoreBubbles();
+        });
+      }
+
+      // NEW: Reset hole handler
+      if (resetHoleBtn) {
+        resetHoleBtn.addEventListener("click", function() {
+          const round = findActiveRound();
+          if (round && round.holes) {
+            const courseId =
+              (courseSelect && courseSelect.value) ||
+              (loadedCourse && loadedCourse.id) ||
+              "unknown";
+            const holeNum = currentHoleNum || 1;
+            const key = makeHoleKey(courseId, holeNum);
+            if (round.holes[key]) {
+              delete round.holes[key];
+              saveRoundsState();
+            }
+          }
           clearHoleControls();
           renderRoundSummary();
           renderHoleHistory();
